@@ -21,8 +21,6 @@ class User < ApplicationRecord
   end
 
   def exceeds_reservations_per_day?(date)
-    raise ArgumentError, 'Date is required' unless date.present?
-
     reservations = Reservation.active_on_day_of_user(date, self)
 
     reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_DAY
