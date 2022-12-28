@@ -35,14 +35,10 @@ class AvailabilityCheckRequest
             unless: proc { |r| r.am.nil? }
 
   def initialize(attributes = {})
-    # Defaults
-    self.half_day = false
-    self.am = false
-
-    # Assign input
-    attributes.each do |name, value|
-      send("#{name}=", value)
-    end
+    self.date = attributes[:date] unless attributes[:date].nil?
+    self.vehicle_id = attributes[:vehicle_id] unless attributes[:vehicle_id].nil?
+    self.half_day = ActiveModel::Type::Boolean.new.cast(attributes[:half_day]) unless attributes[:half_day].nil?
+    self.am = ActiveModel::Type::Boolean.new.cast(attributes[:am]) unless attributes[:am].nil?
   end
 
   def am?
@@ -65,17 +61,18 @@ class AvailabilityCheckRequest
 
   def is_date
     Date.parse(date)
+    self.date = Date.parse(date)
   rescue ArgumentError
     raise InvalidDateError('Date is invalid')
   end
 
   def date_on_or_after_today
-    raise InvalidDateError, 'Date must be on or after today' unless Date.parse(date) >= Date.today
+    raise InvalidDateError, 'Date must be on or after today' unless date >= Date.today
   end
 
   def before_max_weeks
     max_date = Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.weeks
-    raise InvalidDateError, 'Date is too far into the future' unless Date.parse(date) < max_date
+    raise InvalidDateError, 'Date is too far into the future' unless date < max_date
   end
 
   def vehicle_exists

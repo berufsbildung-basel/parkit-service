@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json.call(
-  user,
+  reservation,
   :id,
   :created_at,
   :updated_at,

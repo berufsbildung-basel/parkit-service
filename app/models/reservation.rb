@@ -33,16 +33,16 @@ class Reservation < ApplicationRecord
     active.where(date:)
   }
 
-  scope :overlapping_on_date_and_parking_spot, lambda { |reservation|
-    active_on_date(reservation.date)
+  scope :overlapping_on_date_and_parking_spot, lambda { |date, parking_spot, user, start_time, end_time|
+    active_on_date(date)
       .includes(:vehicle)
       .includes(:user)
-      .where(parking_spot: reservation.parking_spot)
-      .where('user_id not in (?)', reservation.user.id)
+      .where(parking_spot:)
+      .where('user_id not in (?)', user.id)
       .where(
         '? <= reservations.end_time and ? >= reservations.start_time',
-        reservation.start_time,
-        reservation.end_time
+        start_time,
+        end_time
       )
   }
 

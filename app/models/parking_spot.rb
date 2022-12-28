@@ -13,25 +13,25 @@ class ParkingSpot < ApplicationRecord
   # Returns available parking spots for a given date, vehicle and full-/half-day filter.
   # The vehicle owner is considered in the check.
   scope :available_on_date_and_time_for_vehicle_type, lambda { |date, vehicle, half_day, am|
-    start_time = Reservation.calculate_start_time(date, half_day, am)
-    end_time = Reservation.calculate_end_time(date, half_day, am)
+    available.select do |parking_spot|
+      start_time = Reservation.calculate_start_time(date, half_day, am)
+      end_time = Reservation.calculate_end_time(date, half_day, am)
 
-    join_sql = 'LEFT OUTER JOIN reservations ON ('
-    join_sql << ' reservations.parking_spot_id = parking_spots.id'
-    join_sql << ' and reservations.cancelled = %s'
-    join_sql << ' and reservations.start_time > \'%s\''
-    join_sql << ' and reservations.end_time < \'%s\''
-    join_sql << ')'
+      reservations = Reservation.overlapping_on_date_and_parking_spot(
+        date,
+        parking_spot,
+        vehicle.user,
+        start_time,
+        end_time
+      )
 
-    # We use custom SQL here, as semantic rails does not yet support left *outer* join conditions
-    sanitized_sql = sanitize_sql_array([
-                                         join_sql,
-                                         false,
-                                         start_time,
-                                         end_time
-                                       ])
-
-    available.joins(sanitized_sql).where('reservations.id IS NULL')
+      reservations.size.zero? ||
+        (
+          reservations.size == 1 &&
+            vehicle.motorcycle? &&
+            reservations.first.vehicle.motorcycle?
+        )
+    end
   }
 
   # List parking spots and any reservations + vehicles on today's date

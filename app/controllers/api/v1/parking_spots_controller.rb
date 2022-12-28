@@ -11,7 +11,10 @@ module Api
         begin
           check.valid?
           @parking_spots = ParkingSpot.available_on_date_and_time_for_vehicle_type(
-            Date.parse(check.date), check.vehicle, check.half_day?, check.am?
+            check.date,
+            check.vehicle,
+            check.half_day?,
+            check.am?
           )
         rescue ActiveModel::StrictValidationFailed => e
           render json: { error: e }, status: 400

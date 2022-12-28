@@ -56,7 +56,13 @@ class ReservationValidator < ActiveModel::Validator
   end
 
   def validate_overlap(reservation)
-    overlapping_reservations = Reservation.overlapping_on_date_and_parking_spot(reservation)
+    overlapping_reservations = Reservation.overlapping_on_date_and_parking_spot(
+      reservation.date,
+      reservation.parking_spot,
+      reservation.user,
+      reservation.start_time,
+      reservation.end_time
+    )
 
     return unless overlapping_reservations.size.positive?
 

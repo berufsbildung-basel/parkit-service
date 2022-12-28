@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe 'Parking Spots', type: :request do
-  let!(:parking_spot) {
+  let!(:parking_spot) do
     ParkingSpot.create(number: 2)
-  }
+  end
 
   describe 'POST /parking_spots' do
     it 'renders a successful response' do
@@ -47,9 +47,22 @@ RSpec.describe 'Parking Spots', type: :request do
   end
 
   describe 'GET /parking_spots/availability' do
-    date_string = Date.today.to_s
+    date = Date.today
+    date_string = date.to_s
+
+    reservation_date = date + 3.days
+    reservation_date_string = reservation_date.to_s
+
+    reservation_date_2 = date + 4.days
+    reservation_date_string_2 = reservation_date_2.to_s
+
     user = nil
-    vehicle = nil
+    vehicle_car = nil
+    vehicle_motorcycle = nil
+
+    user2 = nil
+    vehicle_car_2 = nil
+    vehicle_motorcycle_2 = nil
 
     before(:each) do
       user = User.create!({
@@ -59,12 +72,59 @@ RSpec.describe 'Parking Spots', type: :request do
                             first_name: Faker::Name.first_name,
                             last_name: Faker::Name.last_name
                           })
-      vehicle = Vehicle.create!({
-                                  license_plate_number: Faker::Vehicle.unique.license_plate,
-                                  make: Faker::Vehicle.make,
-                                  model: Faker::Vehicle.model,
-                                  user:
-                                })
+      vehicle_car = Vehicle.create!({
+                                      license_plate_number: Faker::Vehicle.unique.license_plate,
+                                      make: Faker::Vehicle.make,
+                                      model: Faker::Vehicle.model,
+                                      user:
+                                    })
+
+      vehicle_motorcycle = Vehicle.create!({
+                                             license_plate_number: Faker::Vehicle.unique.license_plate,
+                                             make: Faker::Vehicle.make,
+                                             model: Faker::Vehicle.model,
+                                             user:,
+                                             vehicle_type: 'motorcycle'
+                                           })
+
+      Reservation.create!({
+                            date: reservation_date,
+                            vehicle: vehicle_car,
+                            parking_spot:,
+                            user:,
+                            half_day: false,
+                            am: false
+                          })
+
+      Reservation.create!({
+                            date: reservation_date_2,
+                            vehicle: vehicle_motorcycle,
+                            parking_spot:,
+                            user:,
+                            half_day: false,
+                            am: false
+                          })
+
+      user2 = User.create!({
+                             oktaId: Faker::Internet.unique.uuid,
+                             username: Faker::Internet.username,
+                             email: Faker::Internet.email,
+                             first_name: Faker::Name.first_name,
+                             last_name: Faker::Name.last_name
+                           })
+      vehicle_car_2 = Vehicle.create!({
+                                        license_plate_number: Faker::Vehicle.unique.license_plate,
+                                        make: Faker::Vehicle.make,
+                                        model: Faker::Vehicle.model,
+                                        user: user2,
+                                      })
+      vehicle_motorcycle_2 = Vehicle.create!({
+                                               license_plate_number: Faker::Vehicle.unique.license_plate,
+                                               make: Faker::Vehicle.make,
+                                               model: Faker::Vehicle.model,
+                                               user: user2,
+                                               vehicle_type: 'motorcycle'
+                                             })
     end
 
     it 'rejects request without any parameters' do
@@ -85,7 +145,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'rejects request with invalid date' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: 'invalid-date'
       }
 
@@ -95,7 +155,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'rejects request with date in the past' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: (Date.today - 1.week).to_s
       }
 
@@ -105,8 +165,8 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'rejects request with date further in the future than max weeks' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
-        date: (Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.week).to_s
+        vehicle_id: vehicle_car.id,
+        date: (date + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.week).to_s
       }
 
       expect(response).to have_http_status(400)
@@ -127,7 +187,7 @@ RSpec.describe 'Parking Spots', type: :request do
       user.update!({ disabled: true })
 
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
@@ -139,7 +199,7 @@ RSpec.describe 'Parking Spots', type: :request do
       allow_any_instance_of(User).to receive(:exceeds_reservations_per_day?).and_return(true)
 
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
@@ -151,7 +211,7 @@ RSpec.describe 'Parking Spots', type: :request do
       allow_any_instance_of(User).to receive(:exceeds_reservations_per_week?).and_return(true)
 
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
@@ -161,7 +221,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'renders a successful response' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
@@ -170,7 +230,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'renders JSON' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
@@ -179,17 +239,43 @@ RSpec.describe 'Parking Spots', type: :request do
 
     it 'renders the parking spot template' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
+        vehicle_id: vehicle_car.id,
         date: date_string
       }
 
       expect(response).to render_template(:check_availability)
     end
 
-    it 'checks availability properly' do
+    it 'filters unavailable parking spots' do
       get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: vehicle.id,
-        date: date_string
+        vehicle_id: vehicle_car_2.id,
+        date: reservation_date_string,
+        half_day: true,
+        am: true
+      }
+
+      json = JSON.parse(response.body).deep_symbolize_keys
+
+      expect(json[:available_parking_spots].size).to eq(0)
+    end
+
+    it 'can reserve for motorcycle on same spot' do
+      get api_v1_parking_spots_availability_url, params: {
+        vehicle_id: vehicle_motorcycle_2.id,
+        date: reservation_date_string_2,
+        half_day: true,
+        am: true
+      }
+
+      json = JSON.parse(response.body).deep_symbolize_keys
+
+      expect(json[:available_parking_spots].size).to eq(1)
+    end
+
+    it 'lists available parking spots' do
+      get api_v1_parking_spots_availability_url, params: {
+        vehicle_id: vehicle_car.id,
+        date: date_string,
       }
 
       json = JSON.parse(response.body).deep_symbolize_keys
@@ -369,9 +455,9 @@ RSpec.describe 'Parking Spots', type: :request do
 
   describe 'GET /parking_spots/{id}' do
     it 'returns not found for non-existing parking spot' do
-      expect {
+      expect do
         get api_v1_parking_spot_url('non-existing-id')
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      end.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it 'renders a successful response' do
@@ -411,9 +497,9 @@ RSpec.describe 'Parking Spots', type: :request do
 
   describe 'PATCH /parking_spots/{id}' do
     it 'returns not found for non-existing parking spot' do
-      expect {
+      expect do
         patch api_v1_parking_spot_url('non-existing-id')
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      end.to raise_error(ActiveRecord::RecordNotFound)
     end
 
     it 'renders a successful response' do
