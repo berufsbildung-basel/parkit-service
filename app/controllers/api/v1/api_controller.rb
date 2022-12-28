@@ -9,6 +9,10 @@ module Api
         render json: { error: { RecordInvalid: e.record.errors } }, status: 400
       end
 
+      rescue_from ArgumentError do |e|
+        render json: { error: e }, status: 400
+      end
+
       def page_params
         params.permit(:page, :page_size)
       end

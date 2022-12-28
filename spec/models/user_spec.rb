@@ -24,8 +24,10 @@ RSpec.describe User, type: :model do
 
     it 'fails creating a user with invalid email' do
       user = User.new(
-        oktaId: 'ABCD1234@AdobeOrg',
-        username: 'some-user',
+        oktaId: Faker::Internet.unique.uuid,
+        username: Faker::Internet.username,
+        first_name: Faker::Name.first_name,
+        last_name: Faker::Name.last_name,
         email: 'invalid-email'
       )
       errors = user.errors
@@ -46,11 +48,11 @@ RSpec.describe User, type: :model do
   context 'creation' do
     it 'successfully assigns valid roles' do
       user = User.create({
-                           oktaId: 'ABCD1234@AdobeOrg',
-                           username: 'some-user',
-                           email: 'some-user@adobe.com',
-                           first_name: 'Jane',
-                           last_name: 'Doe'
+                           oktaId: Faker::Internet.unique.uuid,
+                           username: Faker::Internet.username,
+                           email: Faker::Internet.email,
+                           first_name: Faker::Name.first_name,
+                           last_name: Faker::Name.last_name
                          })
       # default role
       expect(user.user?).to eql(true)
@@ -109,12 +111,19 @@ RSpec.describe User, type: :model do
         created_at
         updated_at
       ]
+
+      oktaId = Faker::Internet.unique.uuid
+      username = Faker::Internet.username
+      email = Faker::Internet.email
+      first_name = Faker::Name.first_name
+      last_name = Faker::Name.last_name
+
       user = User.create(
-        oktaId: 'ABCD1234@AdobeOrg',
-        username: 'some-user',
-        email: 'some-user@adobe.com',
-        first_name: 'Jane',
-        last_name: 'Doe'
+        oktaId:,
+        username:,
+        email:,
+        first_name:,
+        last_name:
       )
 
       actual_attributes = user.attributes.map { |attribute| attribute[0] }
@@ -122,9 +131,9 @@ RSpec.describe User, type: :model do
       expect(actual_attributes).to eql(expected_attributes)
 
       expect(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.match?(user.id)).to eql(true)
-      expect(user.email).to eql('some-user@adobe.com')
-      expect(user.oktaId).to eql('ABCD1234@AdobeOrg')
-      expect(user.username).to eql('some-user')
+      expect(user.email).to eql(email)
+      expect(user.oktaId).to eql(oktaId)
+      expect(user.username).to eql(username)
       expect(user.role).to eql('user')
       expect(user.user?).to eql(true)
       expect(user.admin?).to eql(false)
@@ -137,8 +146,8 @@ RSpec.describe User, type: :model do
       expect(user.current_sign_in_ip).to be_nil
       expect(user.last_sign_in_ip).to be_nil
       expect(user.disabled).to eql(false)
-      expect(user.first_name).to eql('Jane')
-      expect(user.last_name).to eql('Doe')
+      expect(user.first_name).to eql(first_name)
+      expect(user.last_name).to eql(last_name)
       expect(user.preferred_language).to eql('en')
       expect(user.created_at.respond_to?(:strftime)).to eql(true)
       expect(user.updated_at.respond_to?(:strftime)).to eql(true)

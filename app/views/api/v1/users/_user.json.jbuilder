@@ -11,5 +11,6 @@ json.call(
   :first_name,
   :last_name,
   :disabled,
+  :role,
   :preferred_language
 )

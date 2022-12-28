@@ -7,16 +7,28 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: :json } do
     # devise_for :users
     namespace :v1 do
-      resources :users do
-        put :enable
-        put :disable
-      end
+      # Returns available parking spots for a given date, user and vehicle
+      get 'parking_spots/availability', action: :check_availability, controller: 'parking_spots'
+
+      # List parking spots and any reservations + vehicles on today's date
+      get 'parking_spots/today', action: :today, controller: 'parking_spots'
+
       resources :parking_spots do
         put :set_unavailable
         put :set_available
       end
+
+      resources :reservations do
+        put :cancel
+      end
+
+      resources :users do
+        put :change_role
+        put :disable
+        put :enable
+      end
+
       resources :vehicles
-      resources :reservations
     end
   end
 end

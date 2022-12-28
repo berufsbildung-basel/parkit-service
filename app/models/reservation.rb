@@ -35,10 +35,10 @@ class Reservation < ApplicationRecord
 
   scope :overlapping_on_date_and_parking_spot, lambda { |reservation|
     active_on_date(reservation.date)
-      .joins(:vehicle)
-      .joins(:user)
+      .includes(:vehicle)
+      .includes(:user)
       .where(parking_spot: reservation.parking_spot)
-      .where('users.id not in (?)', reservation.user.id)
+      .where('user_id not in (?)', reservation.user.id)
       .where(
         '? <= reservations.end_time and ? >= reservations.start_time',
         reservation.start_time,
@@ -57,6 +57,23 @@ class Reservation < ApplicationRecord
     )
   }
 
+  def self.calculate_start_time(date, half_day, am)
+    if half_day && !am
+      date.noon
+    else
+      date.beginning_of_day
+    end
+  end
+
+  def self.calculate_end_time(date, half_day, am)
+    if half_day && am
+      date.noon
+    else
+      date.end_of_day
+    end
+
+  end
+
   private
 
   # Set the start and end time of the reservation based on whether
@@ -64,20 +81,12 @@ class Reservation < ApplicationRecord
   def set_start_time
     return unless date.present?
 
-    self.start_time = if half_day && !am
-                        date.noon
-                      else
-                        date.beginning_of_day
-                      end
+    self.start_time = Reservation.calculate_start_time(date, half_day, am)
   end
 
   def set_end_time
     return unless date.present?
 
-    self.end_time = if half_day && am
-                      date.noon
-                    else
-                      date.end_of_day
-                    end
+    self.end_time = Reservation.calculate_end_time(date, half_day, am)
   end
 end

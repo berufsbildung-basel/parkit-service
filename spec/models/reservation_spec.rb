@@ -10,16 +10,16 @@ RSpec.describe Reservation, type: :model do
   before(:each) do
     parking_spot = ParkingSpot.create({ number: 2 })
     user1 = User.create!({
-                           oktaId: 'ABCD1234@AdobeOrg',
-                           username: 'some-user1',
-                           email: 'some-user1@adobe.com',
-                           first_name: 'Jane',
-                           last_name: 'Doe'
+                           oktaId: Faker::Internet.unique.uuid,
+                           username: Faker::Internet.username,
+                           email: Faker::Internet.email,
+                           first_name: Faker::Name.first_name,
+                           last_name: Faker::Name.last_name
                          })
     car1 = Vehicle.create!({
-                             license_plate_number: 'BL 1234',
-                             make: 'Ford',
-                             model: 'Focus',
+                             license_plate_number: Faker::Vehicle.unique.license_plate,
+                             make: Faker::Vehicle.make,
+                             model: Faker::Vehicle.model,
                              user: user1
                            })
   end

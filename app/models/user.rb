@@ -19,4 +19,18 @@ class User < ApplicationRecord
   def set_default_role
     self.role ||= :user
   end
+
+  def exceeds_reservations_per_day?(date)
+    raise ArgumentError, 'Date is required' unless date.present?
+
+    reservations = Reservation.active_on_day_of_user(date, self)
+
+    reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_DAY
+  end
+
+  def exceeds_reservations_per_week?
+    reservations = Reservation.active_within_max_weeks_of_user(self)
+
+    reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
+  end
 end

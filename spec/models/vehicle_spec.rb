@@ -8,11 +8,11 @@ RSpec.describe Vehicle, type: :model do
 
   before do
     user = User.create({
-                         oktaId: 'ABCD1234@AdobeOrg',
-                         username: 'some-user',
-                         email: 'some-user@adobe.com',
-                         first_name: 'Jane',
-                         last_name: 'Doe'
+                         oktaId: Faker::Internet.unique.uuid,
+                         username: Faker::Internet.username,
+                         email: Faker::Internet.email,
+                         first_name: Faker::Name.first_name,
+                         last_name: Faker::Name.last_name
                        })
   end
 
@@ -51,10 +51,15 @@ RSpec.describe Vehicle, type: :model do
         created_at
         updated_at
       ]
+
+      license_plate_number = Faker::Vehicle.unique.license_plate
+      make = Faker::Vehicle.make
+      model = Faker::Vehicle.model
+
       vehicle = Vehicle.create(
-        license_plate_number: 'BL 1234',
-        make: 'Ford',
-        model: 'Focus',
+        license_plate_number:,
+        make:,
+        model:,
         user:
       )
 
@@ -63,9 +68,9 @@ RSpec.describe Vehicle, type: :model do
       expect(actual_attributes).to eql(expected_attributes)
 
       expect(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.match?(vehicle.id)).to eql(true)
-      expect(vehicle.license_plate_number).to eql('BL 1234')
-      expect(vehicle.make).to eql('Ford')
-      expect(vehicle.model).to eql('Focus')
+      expect(vehicle.license_plate_number).to eql(license_plate_number)
+      expect(vehicle.make).to eql(make)
+      expect(vehicle.model).to eql(model)
       expect(vehicle.vehicle_type).to eql('car')
       expect(vehicle.car?).to eql(true)
       expect(vehicle.ev?).to eql(false)

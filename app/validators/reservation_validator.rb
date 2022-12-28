@@ -36,17 +36,15 @@ class ReservationValidator < ActiveModel::Validator
   end
 
   def validate_user_does_not_exceed_reservations_per_day(reservation)
-    reservations = Reservation.active_on_day_of_user(reservation.date, reservation.user)
+    return unless reservation.date.present?
 
-    return unless reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_DAY
+    return unless reservation.user.exceeds_reservations_per_day?(reservation.date)
 
     reservation.errors.add(:user, :already_has_reservation_on_day)
   end
 
   def validate_user_does_not_exceed_reservations_per_week(reservation)
-    reservations = Reservation.active_within_max_weeks_of_user(reservation.user)
-
-    return unless reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
+    return unless reservation.user.exceeds_reservations_per_week?
 
     reservation.errors.add(:user, :exceeds_max_reservations_per_week)
   end
