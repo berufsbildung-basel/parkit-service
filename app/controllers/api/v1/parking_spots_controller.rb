@@ -4,31 +4,23 @@ module Api
   module V1
     # Actions for the ParkingSpot resource
     class ParkingSpotsController < ApiController
+
+      rescue_from ActiveRecord::RecordNotFound do |e|
+        render_json_error :not_found, :parking_spot_not_found
+      end
+
       # Returns available parking spots for a given date, user and vehicle
       def check_availability
         check = AvailabilityCheckRequest.new(check_availability_params)
 
-        begin
-          check.valid?
-          @parking_spots = ParkingSpot.available_on_date_and_time_for_vehicle_type(
-            check.date,
-            check.vehicle,
-            check.half_day?,
-            check.am?
-          )
-        rescue ActiveModel::StrictValidationFailed => e
-          render json: { error: e }, status: 400
-        rescue AvailabilityCheckRequest::InvalidDateError => e
-          render json: { error: e }, status: 400
-        rescue AvailabilityCheckRequest::VehicleNotFoundError => e
-          render json: { error: e.message }, status: 404
-        rescue AvailabilityCheckRequest::UserDisabledError => e
-          render json: { error: e.message }, status: 403
-        rescue AvailabilityCheckRequest::UserExceedsReservationsPerDayError => e
-          render json: { error: e.message }, status: 403
-        rescue AvailabilityCheckRequest::UserExceedsReservationsPerWeekError => e
-          render json: { error: e.message }, status: 403
-        end
+        return render_validation_errors(check) unless check.valid?
+
+        @parking_spots = ParkingSpot.available_on_date_and_time_for_vehicle_type(
+          check.date,
+          check.vehicle,
+          check.half_day?,
+          check.am?
+        )
       end
 
       def create
@@ -77,6 +69,57 @@ module Api
         @parking_spot.update!(parking_spot_params)
 
         render @parking_spot
+      end
+
+      private
+
+      def render_validation_errors(check)
+        if has_error?(check, :parking_spot_id, :blank)
+          render_json_error :bad_request, :parking_spot_id_required
+          return
+        end
+
+        if has_error?(check, :vehicle_id, :blank)
+          render_json_error :bad_request, :vehicle_id_required
+          return
+        end
+
+        if has_error?(check, :date, :invalid_date)
+          render_json_error :bad_request, :invalid_date
+          return
+        end
+
+        if has_error?(check, :date, :must_be_on_or_after_today)
+          render_json_error :bad_request, :date_must_be_on_or_after_today
+          return
+        end
+
+        if has_error?(check, :date, :exceeds_max_weeks_into_the_future)
+          render_json_error :bad_request, :date_exceeds_max_weeks_into_the_future
+          return
+        end
+
+        if has_error?(check, :vehicle, :blank)
+          render_json_error :not_found, :vehicle_not_found
+          return
+        end
+
+        if has_error?(check, :user, :marked_disabled)
+          render_json_error :forbidden, :user_is_disabled
+          return
+        end
+
+        if has_error?(check, :user, :exceeds_max_reservations_per_day)
+          render_json_error :forbidden, :user_exceeds_max_reservations_per_day
+          return
+        end
+
+        if has_error?(check, :user, :exceeds_max_reservations_per_week)
+          render_json_error :forbidden, :user_exceeds_max_reservations_per_week
+          return
+        end
+
+        render_json_error :bad_request, :validation_error
       end
 
       def check_availability_params

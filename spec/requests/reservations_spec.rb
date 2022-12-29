@@ -215,43 +215,14 @@ RSpec.describe 'Reservations Requests', type: :request do
   end
 
   describe 'DELETE /reservations/{id}' do
-    reservation = nil
+    it 'rejects deleting a reservation' do
+      delete api_v1_reservation_url('some-id')
 
-    before(:each) do
-      reservation = Reservation.create!({
-                                          date: reservation_date,
-                                          vehicle:,
-                                          parking_spot:,
-                                          user:,
-                                          half_day: false,
-                                          am: false
-                                        })
-    end
+      expect(response).to have_http_status(405)
 
-    it 'renders a successful response' do
-      delete api_v1_reservation_url(reservation.id)
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
 
-      expect(response).to have_http_status(204)
-    end
-
-    it 'renders without content type' do
-      delete api_v1_reservation_url(reservation.id)
-
-      expect(response.content_type).to eq(nil)
-    end
-
-    it 'has no content' do
-      delete api_v1_reservation_url(reservation.id)
-
-      expect(response.body).to eq('')
-    end
-
-    it 'deletes a reservation' do
-      expect(Reservation.all.size).to eq(1)
-
-      delete api_v1_reservation_url(reservation.id)
-
-      expect(Reservation.all.size).to eq(0)
+      expect(errors[0][:title]).to eq('Could not remove reservation')
     end
   end
 

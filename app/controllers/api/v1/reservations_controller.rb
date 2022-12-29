@@ -14,34 +14,14 @@ module Api
 
         @reservation = Reservation.create(reservation_params)
 
-        unless @reservation.save
-          if has_error?(@reservation, :parking_spot, :blank)
-            render_json_error :not_found, :parking_spot_not_found
-            return
-          end
-          if has_error?(@reservation, :user, :blank)
-            render_json_error :not_found, :user_not_found
-            return
-          end
-          if has_error?(@reservation, :vehicle, :blank)
-            render_json_error :not_found, :vehicle_not_found
-            return
-          end
-          if has_error?(@reservation, :base, :overlaps_with_existing_reservation)
-            render_json_error :conflict, :reservation_is_overlapping
-            return
-          end
-        end
+        return render_validation_errors(@reservation) unless @reservation.save
 
         render @reservation, status: :created
       end
 
       def destroy
-        @reservation = Reservation.find(params[:id])
-
-        @reservation.destroy!
-
-        render json: {}, status: 204
+        # Reservations cannot be deleted
+        render_json_error :method_not_allowed, :reservation_cannot_be_removed
       end
 
       def cancel
@@ -62,7 +42,7 @@ module Api
       def update
         @reservation = Reservation.find(params[:id])
 
-        @reservation.update!(reservation_params)
+        return render_validation_errors(@reservation) unless @reservation.update(reservation_params)
 
         render @reservation
       end
@@ -86,6 +66,27 @@ module Api
         end
 
         true
+      end
+
+      def render_validation_errors(reservation)
+        if has_error?(reservation, :parking_spot, :blank)
+          render_json_error :not_found, :parking_spot_not_found
+          return
+        end
+
+        if has_error?(reservation, :user, :blank)
+          render_json_error :not_found, :user_not_found
+          return
+        end
+
+        if has_error?(reservation, :vehicle, :blank)
+          render_json_error :not_found, :vehicle_not_found
+          return
+        end
+
+        if has_error?(reservation, :base, :overlaps_with_existing_reservation)
+          render_json_error :conflict, :reservation_is_overlapping
+        end
       end
 
       def reservation_params

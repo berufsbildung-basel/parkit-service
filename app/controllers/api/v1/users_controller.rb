@@ -4,6 +4,15 @@ module Api
   module V1
     # Actions for the user resource
     class UsersController < ApiController
+
+      rescue_from ActiveRecord::RecordInvalid do |e|
+        render_json_error :bad_request, :role_invalid
+      end
+
+      rescue_from ActiveRecord::RecordNotFound do |e|
+        render_json_error :not_found, :user_not_found
+      end
+
       def change_role
         @user = User.find(params[:user_id])
 
@@ -14,12 +23,12 @@ module Api
 
       def create
         # Users are created upon login from Single Sign On (Okta) and may not be created manually
-        render json: { message: 'Not allowed' }, status: 405
+        render_json_error :method_not_allowed, :user_cannot_be_created
       end
 
       def destroy
         # Users cannot be deleted
-        render json: { message: 'Not allowed' }, status: 405
+        render_json_error :method_not_allowed, :user_cannot_be_removed
       end
 
       def disable

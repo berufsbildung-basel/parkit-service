@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# TODO: does not yet validate user restrictions: validate and add custom error for 403 in controller
-
 # Non-persisted model used for request validation
 class AvailabilityCheckRequest
   include ActiveModel::Validations
@@ -10,29 +8,25 @@ class AvailabilityCheckRequest
 
   attr_accessor :date, :vehicle_id, :half_day, :am
 
-  # We use STRICT validations to have the model raise an error when calling *.valid?*
+  validates :date, presence: true
+  validates :vehicle_id, presence: true
 
-  validates :date, presence: true, strict: true
-  validate :is_date
+  validates :half_day,
+            inclusion: { in: [true, false] },
+            unless: proc { |r| r.half_day.nil? }
+
+  validates :am,
+            inclusion: { in: [true, false] },
+            unless: proc { |r| r.am.nil? }
+
+  validate :is_valid_date
   validate :date_on_or_after_today
   validate :before_max_weeks
-
-  validates :vehicle_id, presence: true, strict: true
 
   validate :vehicle_exists
   validate :user_not_disabled
   validate :user_does_not_exceed_reservations_per_day
   validate :user_does_not_exceed_reservations_per_week
-
-  validates :half_day,
-            inclusion: { in: [true, false] },
-            strict: true,
-            unless: proc { |r| r.half_day.nil? }
-
-  validates :am,
-            inclusion: { in: [true, false] },
-            strict: true,
-            unless: proc { |r| r.am.nil? }
 
   def initialize(attributes = {})
     self.date = attributes[:date] unless attributes[:date].nil?
@@ -50,86 +44,49 @@ class AvailabilityCheckRequest
   end
 
   def user
-    vehicle.user
+    vehicle&.user
   end
 
   def vehicle
-    Vehicle.find(vehicle_id)
+    Vehicle.find(vehicle_id) if Vehicle.exists?(vehicle_id)
   end
 
   private
 
-  def is_date
-    Date.parse(date)
-    self.date = Date.parse(date)
+  def is_date(date)
+    self.date = Date.parse(date.to_s)
+    true
   rescue ArgumentError
-    raise InvalidDateError('Date is invalid')
+    errors.add(:date, :invalid_date)
+    false
+  end
+
+  def is_valid_date
+    errors.add(:date, :invalid_date) unless is_date(date)
   end
 
   def date_on_or_after_today
-    raise InvalidDateError, 'Date must be on or after today' unless date >= Date.today
+    errors.add(:date, :must_be_on_or_after_today) unless is_date(date) && date >= Date.today
   end
 
   def before_max_weeks
     max_date = Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.weeks
-    raise InvalidDateError, 'Date is too far into the future' unless date < max_date
+    errors.add(:date, :exceeds_max_weeks_into_the_future) unless is_date(date) && date < max_date
   end
 
   def vehicle_exists
-    raise VehicleNotFoundError unless Vehicle.exists?(vehicle_id)
+    errors.add(:vehicle, :blank) unless Vehicle.exists?(vehicle_id)
   end
 
   def user_not_disabled
-    raise UserDisabledError if user.disabled?
+    errors.add(:user, :marked_disabled) if user.present? && user.disabled?
   end
 
   def user_does_not_exceed_reservations_per_day
-    raise UserExceedsReservationsPerDayError if user.exceeds_reservations_per_day?(date)
+    errors.add(:user, :exceeds_max_reservations_per_day) if user.present? && user.exceeds_reservations_per_day?(date)
   end
 
   def user_does_not_exceed_reservations_per_week
-    raise UserExceedsReservationsPerWeekError if user.exceeds_reservations_per_week?
-  end
-
-  # Custom error parent class
-  class AvailabilityCheckError < StandardError
-    def initialize(msg = nil)
-      super
-    end
-  end
-
-  # Custome error
-  class InvalidDateError < AvailabilityCheckError
-    def initialize(msg = nil)
-      super
-    end
-  end
-
-  # Custom error
-  class UserDisabledError < AvailabilityCheckError
-    def message
-      'User is disabled'
-    end
-  end
-
-  # Custom error
-  class UserExceedsReservationsPerDayError < AvailabilityCheckError
-    def message
-      'User exceeds reservations per day'
-    end
-  end
-
-  # Custom error
-  class UserExceedsReservationsPerWeekError < AvailabilityCheckError
-    def message
-      'User exceeds reservations per week'
-    end
-  end
-
-  # Custom error
-  class VehicleNotFoundError < AvailabilityCheckError
-    def message
-      'Vehicle not found'
-    end
+    errors.add(:user, :exceeds_max_reservations_per_week) if user.present? && user.exceeds_reservations_per_week?
   end
 end

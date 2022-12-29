@@ -129,16 +129,36 @@ RSpec.describe 'Parking Spots', type: :request do
       get api_v1_parking_spots_availability_url
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('Date can\'t be blank')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('The parameter \'vehicle_id\' is required')
     end
 
     it 'rejects request without vehicle' do
       get api_v1_parking_spots_availability_url, params: {
-        date: date_string
+        date: reservation_date
       }
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('Vehicle can\'t be blank')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('The parameter \'vehicle_id\' is required')
+    end
+
+    it 'rejects request with non-existing vehicle' do
+      get api_v1_parking_spots_availability_url, params: {
+        date: date_string,
+        parking_spot_id: parking_spot.id,
+        vehicle_id: 'does-not-exist'
+      }
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find vehicle')
     end
 
     it 'rejects request with invalid date' do
@@ -148,7 +168,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('invalid date')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Invalid date')
     end
 
     it 'rejects request with date in the past' do
@@ -158,7 +181,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('Date must be on or after today')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Date must be on or after today')
     end
 
     it 'rejects request with date further in the future than max weeks' do
@@ -168,17 +194,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('Date is too far into the future')
-    end
 
-    it 'rejects request with non-existing vehicle' do
-      get api_v1_parking_spots_availability_url, params: {
-        vehicle_id: 'does-not-exist',
-        date: date_string
-      }
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
 
-      expect(response).to have_http_status(404)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('Vehicle not found')
+      expect(errors[0][:title]).to eq('Date exceeds maximum weeks into the future')
     end
 
     it 'rejects request with disabled user' do
@@ -190,7 +209,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(403)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('User is disabled')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('User is disabled')
     end
 
     it 'rejects request when user exceeds reservations per day' do
@@ -202,7 +224,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(403)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('User exceeds reservations per day')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('User exceeds maximum reservations per day')
     end
 
     it 'rejects request when user exceeds reservations per week' do
@@ -214,7 +239,10 @@ RSpec.describe 'Parking Spots', type: :request do
       }
 
       expect(response).to have_http_status(403)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('User exceeds reservations per week')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('User exceeds maximum reservations per week')
     end
 
     it 'renders a successful response' do
@@ -341,6 +369,16 @@ RSpec.describe 'Parking Spots', type: :request do
   end
 
   describe 'PUT /parking_spots/{id}/set_unavailable' do
+    it 'returns not found for non-existing parking spot' do
+      put api_v1_parking_spot_set_unavailable_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find parking spot')
+    end
+
     it 'renders a successful response' do
       put api_v1_parking_spot_set_unavailable_url(parking_spot.id)
 
@@ -373,6 +411,16 @@ RSpec.describe 'Parking Spots', type: :request do
   end
 
   describe 'PUT /parking_spots/{id}/set_available' do
+    it 'returns not found for non-existing parking spot' do
+      put api_v1_parking_spot_set_available_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find parking spot')
+    end
+
     it 'renders a successful response' do
       put api_v1_parking_spot_set_available_url(parking_spot.id)
 
@@ -453,9 +501,13 @@ RSpec.describe 'Parking Spots', type: :request do
 
   describe 'GET /parking_spots/{id}' do
     it 'returns not found for non-existing parking spot' do
-      expect do
-        get api_v1_parking_spot_url('non-existing-id')
-      end.to raise_error(ActiveRecord::RecordNotFound)
+      get api_v1_parking_spot_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find parking spot')
     end
 
     it 'renders a successful response' do
@@ -495,9 +547,13 @@ RSpec.describe 'Parking Spots', type: :request do
 
   describe 'PATCH /parking_spots/{id}' do
     it 'returns not found for non-existing parking spot' do
-      expect do
-        patch api_v1_parking_spot_url('non-existing-id')
-      end.to raise_error(ActiveRecord::RecordNotFound)
+      patch api_v1_parking_spot_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find parking spot')
     end
 
     it 'renders a successful response' do

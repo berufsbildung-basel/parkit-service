@@ -18,16 +18,22 @@ RSpec.describe 'Users', type: :request do
       post api_v1_users_url
 
       expect(response).to have_http_status(405)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:message]).to eq('Not allowed')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not create user')
     end
   end
 
   describe 'DELETE /users/{id}' do
-    it 'rejects creating a new user' do
+    it 'rejects removing a user' do
       delete api_v1_user_url('some-id')
 
       expect(response).to have_http_status(405)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:message]).to eq('Not allowed')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not remove user')
     end
   end
 
@@ -40,7 +46,11 @@ RSpec.describe 'Users', type: :request do
       user.reload
 
       expect(response).to have_http_status(400)
-      expect(JSON.parse(response.body).deep_symbolize_keys[:error]).to eq('\'invalid-role\' is not a valid role')
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Invalid role')
+
       expect(user.role).to eq('user')
     end
 
@@ -167,9 +177,13 @@ RSpec.describe 'Users', type: :request do
 
   describe 'GET /users/{id}' do
     it 'returns not found for non-existing user' do
-      expect {
-        get api_v1_user_url('non-existing-id')
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      get api_v1_user_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find user')
     end
 
     it 'renders a successful response' do
@@ -205,9 +219,13 @@ RSpec.describe 'Users', type: :request do
 
   describe 'PATCH /users/{id}' do
     it 'returns not found for non-existing user' do
-      expect {
-        patch api_v1_user_url('non-existing-id')
-      }.to raise_error(ActiveRecord::RecordNotFound)
+      patch api_v1_user_url('non-existing-id')
+
+      expect(response).to have_http_status(404)
+
+      errors = JSON.parse(response.body).deep_symbolize_keys[:errors]
+
+      expect(errors[0][:title]).to eq('Could not find user')
     end
 
     it 'renders a successful response' do

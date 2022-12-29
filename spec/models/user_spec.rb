@@ -40,8 +40,17 @@ RSpec.describe User, type: :model do
     end
 
     it 'fails setting invalid role' do
-      user = User.new
-      expect { user.role = 'invalid' }.to raise_error(ArgumentError)
+      user = User.create!(
+        oktaId: Faker::Internet.unique.uuid,
+        username: Faker::Internet.username,
+        first_name: Faker::Name.first_name,
+        last_name: Faker::Name.last_name,
+        email: Faker::Internet.email
+      )
+
+      expect do
+        user.update!({ role: 'invalid' })
+      end.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 

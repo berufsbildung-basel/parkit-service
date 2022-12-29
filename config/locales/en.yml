@@ -31,6 +31,15 @@
 
 en:
   error_messages:
+    invalid_date:
+      code: 43100
+      title: "Invalid date"
+    date_must_be_on_or_after_today:
+      code: 43101
+      title: "Date must be on or after today"
+    date_exceeds_max_weeks_into_the_future:
+      code: 43102
+      title: "Date exceeds maximum weeks into the future"
     parking_spot_id_required:
       code: 44101
       title: "The parameter 'parking_spot_id' is required"
@@ -52,6 +61,10 @@ en:
       code: 40102
       title: "Could not find vehicle"
       detail: "This vehicle does not exist or has been deleted."
+    reservation_cannot_be_removed:
+      code: 40104
+      title: "Could not remove reservation"
+      detail: "Reservations must not be removed, only cancelled."
     reservation_not_found:
       code: 40103
       title: "Could not find reservation"
@@ -60,6 +73,26 @@ en:
       code: 40104
       title: "Reservation is overlapping with another"
       details: "The requested time slot of this reservation is conflicting with an existing reservation. Choose a different time."
+    user_cannot_be_created:
+      code: 40105
+      title: "Could not create user"
+      detail: "Users cannot be created directly."
+    user_cannot_be_removed:
+      code: 40106
+      title: "Could not remove user"
+      detail: "Users must not be removed directly."
+    user_exceeds_max_reservations_per_day:
+      code: 40106
+      title: "User exceeds maximum reservations per day"
+    user_exceeds_max_reservations_per_week:
+      code: 40106
+      title: "User exceeds maximum reservations per week"
+    user_is_disabled:
+      code: 40109
+      title: "User is disabled"
+    role_invalid:
+      code: 40110
+      title: "Invalid role"
   activerecord:
     errors:
       models:
@@ -79,7 +112,7 @@ en:
               invalid_date: "is not a valid date"
               invalid_datetime: "is not a valid date/time"
             user:
-              already_has_reservation_on_day: "already has a reservation on that day"
+              exceeds_max_reservations_per_day: "already has a reservation on that day"
               exceeds_max_reservations_per_week: "exceeds maximum reservations per week"
               marked_disabled: "has been marked disabled"
             vehicle:

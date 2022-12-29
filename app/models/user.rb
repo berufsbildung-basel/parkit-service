@@ -16,6 +16,14 @@ class User < ApplicationRecord
   validates :oktaId, presence: true, uniqueness: true
   validates :username, presence: true, uniqueness: true
 
+  validates_inclusion_of :role, in: roles.keys
+
+  def role=(value)
+    super
+  rescue ArgumentError
+    @attributes.write_cast_value('role', value)
+  end
+
   def set_default_role
     self.role ||= :user
   end
