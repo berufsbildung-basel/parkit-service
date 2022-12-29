@@ -30,6 +30,36 @@
 # available at https://guides.rubyonrails.org/i18n.html.
 
 en:
+  error_messages:
+    parking_spot_id_required:
+      code: 44101
+      title: "The parameter 'parking_spot_id' is required"
+    user_id_required:
+      code: 44102
+      title: "The parameter 'user_id' is required"
+    vehicle_id_required:
+      code: 44103
+      title: "The parameter 'vehicle_id' is required"
+    parking_spot_not_found:
+      code: 40101
+      title: "Could not find parking spot"
+      detail: "This parking spot does not exist or has been deleted."
+    user_not_found:
+      code: 40102
+      title: "Could not find user"
+      detail: "This user does not exist or has been deleted."
+    vehicle_not_found:
+      code: 40102
+      title: "Could not find vehicle"
+      detail: "This vehicle does not exist or has been deleted."
+    reservation_not_found:
+      code: 40103
+      title: "Could not find reservation"
+      detail: "This reservation does not exist or has been deleted."
+    reservation_is_overlapping:
+      code: 40104
+      title: "Reservation is overlapping with another"
+      details: "The requested time slot of this reservation is conflicting with an existing reservation. Choose a different time."
   activerecord:
     errors:
       models:
@@ -41,10 +71,12 @@ en:
               invalid_date: "is not a valid date"
               on_or_after: "must be on or after today's date"
             end_time:
+              invalid_date: "is not a valid date"
               invalid_datetime: "is not a valid date/time"
             parking_spot:
               marked_unavailable: "has been marked unavailable"
             start_time:
+              invalid_date: "is not a valid date"
               invalid_datetime: "is not a valid date/time"
             user:
               already_has_reservation_on_day: "already has a reservation on that day"

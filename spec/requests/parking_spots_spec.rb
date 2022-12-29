@@ -58,9 +58,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
     user = nil
     vehicle_car = nil
-    vehicle_motorcycle = nil
 
-    user2 = nil
     vehicle_car_2 = nil
     vehicle_motorcycle_2 = nil
 

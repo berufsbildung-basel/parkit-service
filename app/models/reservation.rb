@@ -8,20 +8,18 @@ class Reservation < ApplicationRecord
 
   before_validation :set_start_time, :set_end_time
 
-  validates_date :date
-
-  validates_date :date, on_or_after: :today
-
   validates_date :date,
+                 on_or_after: :today,
                  before: Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.weeks
 
-  validates_datetime :start_time, :end_time
+  validates_datetime :start_time,
+                     before: :end_time
 
-  validates_datetime :start_time, before: :end_time
+  validates_datetime :end_time,
+                     after: :start_time
 
-  validates_date :start_time, on: :date
-
-  validates_date :end_time, on: :date
+  validates_date :start_time, is_at: :date
+  validates_date :end_time, is_at: :date
 
   validates_with ReservationValidator
 
@@ -38,17 +36,18 @@ class Reservation < ApplicationRecord
       .includes(:vehicle)
       .includes(:user)
       .where(parking_spot:)
-      .where('user_id not in (?)', user.id)
+      .where('reservations.user_id NOT IN (?)', user.id)
       .where(
-        '? <= reservations.end_time and ? >= reservations.start_time',
+        '? <= reservations.end_time AND ? >= reservations.start_time',
         start_time,
         end_time
       )
   }
 
-  scope :active_on_day_of_user, lambda { |date, user|
-    active_on_date(date).where(date:, user:)
+  scope :active_on_day_of_user, lambda { |date, user, reservation_id = nil|
+    active_on_date(date).where(user:).where.not(id: reservation_id)
   }
+
   scope :active_within_max_weeks_of_user, lambda { |user|
     active.where(user:).where(
       'reservations.date >= ? and reservations.date <= ?',
@@ -71,7 +70,6 @@ class Reservation < ApplicationRecord
     else
       date.end_of_day
     end
-
   end
 
   private

@@ -20,8 +20,8 @@ class User < ApplicationRecord
     self.role ||= :user
   end
 
-  def exceeds_reservations_per_day?(date)
-    reservations = Reservation.active_on_day_of_user(date, self)
+  def exceeds_reservations_per_day?(date, reservation_id = nil)
+    reservations = Reservation.active_on_day_of_user(date, self, reservation_id)
 
     reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_DAY
   end

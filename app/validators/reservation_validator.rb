@@ -38,7 +38,7 @@ class ReservationValidator < ActiveModel::Validator
   def validate_user_does_not_exceed_reservations_per_day(reservation)
     return unless reservation.date.present?
 
-    return unless reservation.user.exceeds_reservations_per_day?(reservation.date)
+    return unless reservation.user.exceeds_reservations_per_day?(reservation.date, reservation.id)
 
     reservation.errors.add(:user, :already_has_reservation_on_day)
   end

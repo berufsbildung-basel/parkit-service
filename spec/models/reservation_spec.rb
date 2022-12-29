@@ -39,27 +39,24 @@ RSpec.describe Reservation, type: :model do
       expect(reservation.valid?).to eql(false)
       expect(reservation.save).to eql(false)
 
-      expect(errors.size).to eql(9)
+      expect(errors.size).to eql(8)
 
       expect(errors.objects[0].attribute).to eql(:parking_spot)
       expect(errors.objects[1].attribute).to eql(:vehicle)
       expect(errors.objects[2].attribute).to eql(:user)
       expect(errors.objects[3].attribute).to eql(:date)
-      expect(errors.objects[4].attribute).to eql(:date)
-      expect(errors.objects[5].attribute).to eql(:date)
+      expect(errors.objects[6].attribute).to eql(:start_time)
       expect(errors.objects[6].attribute).to eql(:start_time)
       expect(errors.objects[7].attribute).to eql(:end_time)
-      expect(errors.objects[8].attribute).to eql(:start_time)
 
       expect(errors.objects[0].full_message).to eql('Parking spot must exist')
       expect(errors.objects[1].full_message).to eql('Vehicle must exist')
       expect(errors.objects[2].full_message).to eql('User must exist')
       expect(errors.objects[3].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[4].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[5].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[6].full_message).to eql('Start time is not a valid date/time')
-      expect(errors.objects[7].full_message).to eql('End time is not a valid date/time')
-      expect(errors.objects[8].full_message).to eql('Start time is not a valid date/time')
+      expect(errors.objects[4].full_message).to eql('Start time is not a valid date/time')
+      expect(errors.objects[5].full_message).to eql('End time is not a valid date/time')
+      expect(errors.objects[6].full_message).to eql('Start time is not a valid date')
+      expect(errors.objects[7].full_message).to eql('End time is not a valid date')
     end
 
     it 'rejects creating reservation with invalid date' do
@@ -72,13 +69,12 @@ RSpec.describe Reservation, type: :model do
                                        })
       errors = reservation.errors
 
-      expect(errors.size).to eql(6)
+      expect(errors.size).to eql(5)
       expect(errors.objects[0].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[1].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[2].full_message).to eql('Date is not a valid date')
-      expect(errors.objects[3].full_message).to eql('Start time is not a valid date/time')
-      expect(errors.objects[4].full_message).to eql('End time is not a valid date/time')
-      expect(errors.objects[5].full_message).to eql('Start time is not a valid date/time')
+      expect(errors.objects[1].full_message).to eql('Start time is not a valid date/time')
+      expect(errors.objects[2].full_message).to eql('End time is not a valid date/time')
+      expect(errors.objects[3].full_message).to eql('Start time is not a valid date')
+      expect(errors.objects[4].full_message).to eql('End time is not a valid date')
     end
 
     it 'rejects creating a reservation with a date in the past' do
