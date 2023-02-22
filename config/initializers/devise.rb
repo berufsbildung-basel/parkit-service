@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'omniauth-okta'
+
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
 # are not: uncommented lines are intended to protect your configuration from
@@ -24,7 +26,7 @@ Devise.setup do |config|
   # Configure the e-mail address which will be shown in Devise::Mailer,
   # note that it will be overwritten if you use your own mailer class
   # with default "from" parameter.
-  config.mailer_sender = 'please-change-me-at-config-initializers-devise@example.com'
+  config.mailer_sender = 'no-reply-parkit-service@adobe.com'
 
   # Configure the class responsible to send e-mails.
   # config.mailer = 'Devise::Mailer'
@@ -308,4 +310,20 @@ Devise.setup do |config|
   # When set to false, does not sign a user in automatically after their password is
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
+
+  config.omniauth(:okta,
+                  ENV['OKTA_CLIENT_ID'],
+                  ENV['OKTA_CLIENT_SECRET'],
+                  scope: 'openid profile email groups',
+                  fields: %w[profile email groups],
+                  client_options: {
+                    site: ENV['OKTA_URL_ISSUER'],
+                    authorize_url: ENV['OKTA_URL_AUTH'],
+                    token_url: ENV['OKTA_URL_TOKEN'],
+                    user_info_url: ENV['OKTA_URL_USER_INFO']
+                  },
+                  redirect_uri: ENV['OKTA_URI_REDIRECT'],
+                  # auth_server_id: ENV['OKTA_AUTH_SERVER_ID'],
+                  # issuer: ENV['OKTA_ISSUER'],
+                  strategy_class: OmniAuth::Strategies::Okta)
 end
