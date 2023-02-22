@@ -1,0 +1,119 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t "hello"
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t("hello") %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# The following keys must be escaped otherwise they will not be retrieved by
+# the default I18n backend:
+#
+# true, false, on, off, yes, no
+#
+# Instead, surround them with single quotes.
+#
+# en:
+#   "true": "foo"
+#
+# To learn more, please read the Rails Internationalization guide
+# available at https://guides.rubyonrails.org/i18n.html.
+
+en:
+  error_messages:
+    invalid_date:
+      code: 43100
+      title: "Invalid date"
+    date_must_be_on_or_after_today:
+      code: 43101
+      title: "Date must be on or after today"
+    date_exceeds_max_weeks_into_the_future:
+      code: 43102
+      title: "Date exceeds maximum weeks into the future"
+    parking_spot_id_required:
+      code: 44101
+      title: "The parameter 'parking_spot_id' is required"
+    user_id_required:
+      code: 44102
+      title: "The parameter 'user_id' is required"
+    vehicle_id_required:
+      code: 44103
+      title: "The parameter 'vehicle_id' is required"
+    parking_spot_not_found:
+      code: 40101
+      title: "Could not find parking spot"
+      detail: "This parking spot does not exist or has been deleted."
+    user_not_found:
+      code: 40102
+      title: "Could not find user"
+      detail: "This user does not exist or has been deleted."
+    vehicle_not_found:
+      code: 40102
+      title: "Could not find vehicle"
+      detail: "This vehicle does not exist or has been deleted."
+    reservation_cannot_be_removed:
+      code: 40104
+      title: "Could not remove reservation"
+      detail: "Reservations must not be removed, only cancelled."
+    reservation_not_found:
+      code: 40103
+      title: "Could not find reservation"
+      detail: "This reservation does not exist or has been deleted."
+    reservation_is_overlapping:
+      code: 40104
+      title: "Reservation is overlapping with another"
+      details: "The requested time slot of this reservation is conflicting with an existing reservation. Choose a different time."
+    user_cannot_be_created:
+      code: 40105
+      title: "Could not create user"
+      detail: "Users cannot be created directly."
+    user_cannot_be_removed:
+      code: 40106
+      title: "Could not remove user"
+      detail: "Users must not be removed directly."
+    user_exceeds_max_reservations_per_day:
+      code: 40106
+      title: "User exceeds maximum reservations per day"
+    user_exceeds_max_reservations_per_week:
+      code: 40106
+      title: "User exceeds maximum reservations per week"
+    user_is_disabled:
+      code: 40109
+      title: "User is disabled"
+    role_invalid:
+      code: 40110
+      title: "Invalid role"
+  activerecord:
+    errors:
+      models:
+        reservation:
+          attributes:
+            base:
+              overlaps_with_existing_reservation: "Reservation overlaps with existing reservation on that day and parking spot"
+            date:
+              invalid_date: "is not a valid date"
+              on_or_after: "must be on or after today's date"
+            end_time:
+              invalid_date: "is not a valid date"
+              invalid_datetime: "is not a valid date/time"
+            parking_spot:
+              marked_unavailable: "has been marked unavailable"
+            start_time:
+              invalid_date: "is not a valid date"
+              invalid_datetime: "is not a valid date/time"
+            user:
+              exceeds_max_reservations_per_day: "already has a reservation on that day"
+              exceeds_max_reservations_per_week: "exceeds maximum reservations per week"
+              marked_disabled: "has been marked disabled"
+            vehicle:
+              does_not_belong_to_reservation_user: "does not belong to the reservation user"

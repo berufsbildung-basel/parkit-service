@@ -1,0 +1,12 @@
+json.call(
+  vehicle,
+  :id,
+  :user_id,
+  :ev,
+  :license_plate_number,
+  :make,
+  :model,
+  :vehicle_type,
+  :created_at,
+  :updated_at
+)
