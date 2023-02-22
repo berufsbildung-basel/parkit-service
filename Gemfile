@@ -21,6 +21,12 @@ gem 'puma', '~> 5.0'
 # Use the Devise gem for authentication
 gem 'devise', '4.8.1'
 
+# Use the gem as the OpenID connect client
+gem 'omniauth-okta', '2.0.0'
+
+# Use for configuration via yaml and env vars
+gem 'figaro', '1.2.0'
+
 # Use the Pundit gem for authorization
 gem 'pundit', '2.2.0'
 

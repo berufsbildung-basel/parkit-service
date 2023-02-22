@@ -2,9 +2,7 @@
 
 # The user represents an actor in the system and must be authenticated
 class User < ApplicationRecord
-  # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :database_authenticatable, :rememberable
+  devise :omniauthable, omniauth_providers: [:okta]
 
   has_many :reservations
   has_many :vehicles
