@@ -6,8 +6,8 @@ class User < ApplicationRecord
          :rememberable,
          :omniauthable, omniauth_providers: %i[okta]
 
-  has_many :reservations
-  has_many :vehicles
+  has_many :reservations, dependent: :destroy
+  has_many :vehicles, dependent: :destroy
 
   enum role: %i[user led_matrix admin]
   after_initialize :set_default_role, if: :new_record?
@@ -47,6 +47,13 @@ class User < ApplicationRecord
       user.first_name = auth.info.first_name
       user.last_name = auth.info.last_name
     end
+  end
+
+  def full_name
+    names = []
+    names.push(last_name) unless last_name.blank?
+    names.push(first_name) unless first_name.blank?
+    names.join(', ')
   end
 
   def self.new_with_session(params, session)

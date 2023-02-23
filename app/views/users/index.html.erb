@@ -1,0 +1,20 @@
+<table class="spectrum-Table spectrum-Table--sizeM">
+  <thead class="spectrum-Table-head">
+  <tr>
+    <th class="spectrum-Table-headCell">ID</th>
+    <th class="spectrum-Table-headCell">Name</th>
+    <th class="spectrum-Table-headCell">Email</th>
+    <th class="spectrum-Table-headCell">Role</th>
+  </tr>
+  </thead>
+  <tbody class="spectrum-Table-body">
+  <% @users.each do |user| %>
+  <tr class="spectrum-Table-row">
+    <td class="spectrum-Table-cell"><%= link_to user.id.truncate(8), user_path(user.id) %></td>
+    <td class="spectrum-Table-cell"><%= user.full_name %></td>
+    <td class="spectrum-Table-cell"><%= user.email %></td>
+    <td class="spectrum-Table-cell"><%= user.role %></td>
+  </tr>
+  <% end %>
+  </tbody>
+</table>

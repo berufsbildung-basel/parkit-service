@@ -1,0 +1,7 @@
+<h1><%= @user.full_name %></h1>
+
+<ul>
+  <li>Role: <%= @user.role %></li>
+</ul>
+
+<%= link_to 'Edit', edit_user_path(@user.id) %>

@@ -1,17 +1,19 @@
-require_relative "boot"
+# frozen_string_literal: true
 
-require "rails/all"
+require_relative 'boot'
+
+require 'rails/all'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.ˆ
 Bundler.require(*Rails.groups)
 
 module ParkitService
-
   RESERVATION_MAX_WEEKS_INTO_THE_FUTURE = 2
   RESERVATION_MAX_RESERVATIONS_PER_DAY = 1
   RESERVATION_MAX_RESERVATIONS_PER_WEEK = 3
 
+  # Main application
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
