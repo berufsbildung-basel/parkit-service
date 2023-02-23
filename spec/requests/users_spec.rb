@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe 'Users', type: :request do
   let!(:user) {
     User.create!(
-      oktaId: Faker::Internet.unique.uuid,
       username: Faker::Internet.username,
       email: Faker::Internet.email,
       first_name: Faker::Name.first_name,
@@ -157,7 +156,6 @@ RSpec.describe 'Users', type: :request do
       expect(json[:users].size).to eq(1)
 
       expect(json[:users][0][:id]).to eq(expected_user.id)
-      expect(json[:users][0][:oktaId]).to eq(expected_user.oktaId)
       expect(json[:users][0][:email]).to eq(expected_user.email)
       expect(json[:users][0][:username]).to eq(expected_user.username)
       expect(json[:users][0][:role]).to eq(expected_user.role)
@@ -210,7 +208,6 @@ RSpec.describe 'Users', type: :request do
       json = JSON.parse(response.body).deep_symbolize_keys
 
       expect(json[:id]).to eq(user.id)
-      expect(json[:oktaId]).to eq(user.oktaId)
       expect(json[:email]).to eq(user.email)
       expect(json[:username]).to eq(user.username)
       expect(json[:role]).to eq(user.role)
@@ -256,7 +253,6 @@ RSpec.describe 'Users', type: :request do
       json = JSON.parse(response.body).deep_symbolize_keys
 
       expect(json[:id]).to eq(user.id)
-      expect(json[:oktaId]).to eq(user.oktaId)
       expect(json[:email]).to eq(user.email)
       expect(json[:username]).to eq(user.username)
       expect(json[:role]).to eq(user.role)
@@ -274,7 +270,6 @@ RSpec.describe 'Users', type: :request do
       json = JSON.parse(response.body).deep_symbolize_keys
 
       expect(json[:id]).to eq(user.id)
-      expect(json[:oktaId]).to eq(user.oktaId)
       expect(json[:email]).to eq(user.email)
       expect(json[:username]).to eq(expected_username)
       expect(json[:role]).to eq(user.role)

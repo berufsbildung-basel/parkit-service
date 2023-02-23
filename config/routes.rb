@@ -3,17 +3,12 @@
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
+  devise_for :users,
+             controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
+
   root 'static#welcome'
 
-  devise_for :users,
-             controllers: { omniauth_callbacks: 'users/omniauth_callbacks' },
-             skip: %i[sessions registrations]
-
   resources :users
-
-  devise_scope :user do
-    delete 'sign_out', to: 'devise/sessions#destroy', as: :destroy_user_session
-  end
 
   namespace :api, defaults: { format: :json } do
     # devise_for :users

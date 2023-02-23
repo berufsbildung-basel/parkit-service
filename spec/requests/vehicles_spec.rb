@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe 'Vehicles Requests', type: :request do
   let!(:user) do
     User.create!({
-                   oktaId: Faker::Internet.unique.uuid,
                    username: Faker::Internet.username,
                    email: Faker::Internet.email,
                    first_name: Faker::Name.first_name,

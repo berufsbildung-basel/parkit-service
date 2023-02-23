@@ -1,7 +1,7 @@
 OKTA_CLIENT_ID: "0oa1mktuqvbkG72lq1d8"
 OKTA_CLIENT_SECRET: "tThjdYdnUIaTr1Jx3Z_Kh-py_0vTJHZZIsqJwdbJ"
 OKTA_ISSUER: "https://adobe-stage.okta.com"
-OKTA_URI_REDIRECT: "http://localhost:3000/users/auth/oktaoauth/callback"
+OKTA_URI_REDIRECT: "http://localhost:3000/users/auth/okta/callback"
 OKTA_URL_AUTH: "https://adobe-stage.okta.com/oauth2/v1/authorize"
 OKTA_URL_TOKEN: "https://adobe-stage.okta.com/oauth2/v1/token"
 OKTA_URL_USER_INFO: "https://adobe-stage.okta.com/oauth2/v1/userinfo"

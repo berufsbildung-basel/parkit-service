@@ -5,7 +5,6 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.0]
     create_table :users, id: :uuid do |t|
       ## Database authenticatable
       t.string :email, null: false
-      t.string :oktaId, null: false
       t.string :username, null: false
       t.integer :role
       t.string :encrypted_password
@@ -32,6 +31,5 @@ class DeviseCreateUsers < ActiveRecord::Migration[7.0]
 
     add_index :users, :email, unique: true
     add_index :users, :username, unique: true
-    add_index :users, :oktaId, unique: true
   end
 end
