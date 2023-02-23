@@ -76,7 +76,6 @@ RSpec.describe ReservationValidator, type: :validator do
       parking_spot = ParkingSpot.create({ number: 2 })
       unavailable_parking_spot = ParkingSpot.create({ number: 3, unavailable: true, unavailability_reason: 'test' })
       user1 = User.create!({
-                             oktaId: 'ABCD1234@AdobeOrg',
                              username: 'some-user1',
                              email: 'some-user1@adobe.com',
                              first_name: 'Jane',
@@ -97,7 +96,6 @@ RSpec.describe ReservationValidator, type: :validator do
                                     })
 
       user2 = User.create!({
-                             oktaId: 'EFGH5678@AdobeOrg',
                              username: 'some-user2',
                              email: 'some-user2@adobe.com',
                              first_name: 'John',
@@ -118,7 +116,6 @@ RSpec.describe ReservationValidator, type: :validator do
                                     })
 
       user3 = User.create!({
-                             oktaId: 'HAE1312@AdobeOrg',
                              username: 'some-user3',
                              email: 'some-user3@adobe.com',
                              first_name: 'Ella',
@@ -132,7 +129,6 @@ RSpec.describe ReservationValidator, type: :validator do
                                       user: user3
                                     })
       disabled_user = User.create!({
-                                     oktaId: 'dis1234@AdobeOrg',
                                      username: 'disabled-user',
                                      email: 'disabled-user@adobe.com',
                                      first_name: 'Dis',

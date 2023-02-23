@@ -64,7 +64,6 @@ RSpec.describe 'Parking Spots', type: :request do
 
     before(:each) do
       user = User.create!({
-                            oktaId: Faker::Internet.unique.uuid,
                             username: Faker::Internet.username,
                             email: Faker::Internet.email,
                             first_name: Faker::Name.first_name,
@@ -104,7 +103,6 @@ RSpec.describe 'Parking Spots', type: :request do
                           })
 
       user2 = User.create!({
-                             oktaId: Faker::Internet.unique.uuid,
                              username: Faker::Internet.username,
                              email: Faker::Internet.email,
                              first_name: Faker::Name.first_name,

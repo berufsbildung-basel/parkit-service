@@ -1,7 +1,14 @@
+# frozen_string_literal: true
+
 Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
-  root 'welcome#index'
+  devise_for :users,
+             controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
+
+  root 'static#welcome'
+
+  resources :users
 
   namespace :api, defaults: { format: :json } do
     # devise_for :users

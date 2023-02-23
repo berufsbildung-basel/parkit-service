@@ -46,7 +46,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_12_090647) do
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "email", null: false
-    t.string "oktaId", null: false
     t.string "username", null: false
     t.integer "role"
     t.string "encrypted_password"
@@ -65,7 +64,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_01_12_090647) do
     t.string "provider"
     t.string "uid"
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["oktaId"], name: "index_users_on_oktaId", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["uid"], name: "index_users_on_uid"
     t.index ["username"], name: "index_users_on_username", unique: true

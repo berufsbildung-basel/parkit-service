@@ -14,17 +14,14 @@ RSpec.describe User, type: :model do
       expect(errors.size).to eql(3)
 
       expect(errors.objects.first.attribute).to eql(:email)
-      expect(errors.objects.second.attribute).to eql(:oktaId)
-      expect(errors.objects.third.attribute).to eql(:username)
+      expect(errors.objects.second.attribute).to eql(:username)
 
       expect(errors.objects.first.full_message).to eql('Email is invalid')
-      expect(errors.objects.second.full_message).to eql("Oktaid can't be blank")
-      expect(errors.objects.third.full_message).to eql("Username can't be blank")
+      expect(errors.objects.second.full_message).to eql("Username can't be blank")
     end
 
     it 'fails creating a user with invalid email' do
       user = User.new(
-        oktaId: Faker::Internet.unique.uuid,
         username: Faker::Internet.username,
         first_name: Faker::Name.first_name,
         last_name: Faker::Name.last_name,
@@ -41,7 +38,6 @@ RSpec.describe User, type: :model do
 
     it 'fails setting invalid role' do
       user = User.create!(
-        oktaId: Faker::Internet.unique.uuid,
         username: Faker::Internet.username,
         first_name: Faker::Name.first_name,
         last_name: Faker::Name.last_name,
@@ -57,7 +53,6 @@ RSpec.describe User, type: :model do
   context 'creation' do
     it 'successfully assigns valid roles' do
       user = User.create({
-                           oktaId: Faker::Internet.unique.uuid,
                            username: Faker::Internet.username,
                            email: Faker::Internet.email,
                            first_name: Faker::Name.first_name,
@@ -103,7 +98,6 @@ RSpec.describe User, type: :model do
       expected_attributes = %w[
         id
         email
-        oktaId
         username
         role
         encrypted_password
@@ -123,14 +117,12 @@ RSpec.describe User, type: :model do
         uid
       ]
 
-      oktaId = Faker::Internet.unique.uuid
       username = Faker::Internet.username
       email = Faker::Internet.email
       first_name = Faker::Name.first_name
       last_name = Faker::Name.last_name
 
       user = User.create(
-        oktaId:,
         username:,
         email:,
         first_name:,
@@ -143,7 +135,6 @@ RSpec.describe User, type: :model do
 
       expect(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.match?(user.id)).to eql(true)
       expect(user.email).to eql(email)
-      expect(user.oktaId).to eql(oktaId)
       expect(user.username).to eql(username)
       expect(user.role).to eql('user')
       expect(user.user?).to eql(true)

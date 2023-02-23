@@ -7,7 +7,6 @@
 
   user = User.create!(
     email: Faker::Internet.unique.email(domain: 'adobe.com'),
-    oktaId: Faker::Internet.unique.uuid,
     username: Faker::Internet.unique.username,
     role:,
     password: 'test',
