@@ -3,6 +3,8 @@
 # Serves static pages
 class StaticController < ApplicationController
 
-  def index; end
+  def welcome
+    authorize current_user
+  end
 
 end

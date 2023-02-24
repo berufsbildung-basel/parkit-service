@@ -28,4 +28,8 @@ class UserPolicy < ApplicationPolicy
   def show?
     edit?
   end
+
+  def welcome?
+    true
+  end
 end
