@@ -44,7 +44,7 @@ class ReservationValidator < ActiveModel::Validator
   end
 
   def validate_user_does_not_exceed_reservations_per_week(reservation)
-    return unless reservation.user.exceeds_reservations_per_week?
+    return unless reservation.user.exceeds_reservations_per_week?(reservation)
 
     reservation.errors.add(:user, :exceeds_max_reservations_per_week)
   end
@@ -65,13 +65,6 @@ class ReservationValidator < ActiveModel::Validator
     )
 
     return unless overlapping_reservations.size.positive?
-
-    # We allow two motorcycles on a single parking spot
-    if overlapping_reservations.size == 1 &&
-       overlapping_reservations.first.vehicle.motorcycle? &&
-       reservation.vehicle.motorcycle?
-      return
-    end
 
     reservation.errors.add(:base, :overlaps_with_existing_reservation)
   end

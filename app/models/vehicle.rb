@@ -16,4 +16,8 @@ class Vehicle < ApplicationRecord
   def set_default_vehicle_type
     self.vehicle_type ||= :car
   end
+
+  def full_title
+    "#{license_plate_number} (#{make} / #{model})"
+  end
 end

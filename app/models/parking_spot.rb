@@ -25,12 +25,7 @@ class ParkingSpot < ApplicationRecord
         end_time
       )
 
-      reservations.size.zero? ||
-        (
-          reservations.size == 1 &&
-            vehicle.motorcycle? &&
-            reservations.first.vehicle.motorcycle?
-        )
+      reservations.size.zero?
     end
   }
 

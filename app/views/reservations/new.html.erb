@@ -1,0 +1,20 @@
+<%
+  content_for :title, 'New Reservation'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      About to reserve a parking spot for:
+      <ul>
+        <li>User: <%= @user.full_name %></li>
+        <li>Vehicle: <%= @vehicle.full_title %></li>
+      </ul>
+    </p>
+    <div class="spectrum-CSSExample-example">
+
+      <% (0..13).each do |n| %>
+        <%= Date.today + n.days %><br>
+      <% end %>
+    </div>
+  </div>
+</section>

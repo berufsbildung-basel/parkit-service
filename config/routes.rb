@@ -6,11 +6,17 @@ Rails.application.routes.draw do
   devise_for :users,
              controllers: { omniauth_callbacks: 'users/omniauth_callbacks' }
 
-  root 'static#welcome'
+  root to: redirect(path: '/dashboard', status: 302)
+
+  get '/dashboard', controller: 'dashboard', action: 'welcome'
 
   resources :users do
-    resources :reservations
-    resources :vehicles, controller: 'user_vehicles'
+    resources :reservations do
+      put '/cancel'
+    end
+    resources :vehicles, controller: 'user_vehicles' do
+      resources :reservations
+    end
   end
 
   resources :parking_spots

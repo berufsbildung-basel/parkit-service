@@ -48,6 +48,18 @@ class Reservation < ApplicationRecord
     active_on_date(date).where(user:).where.not(id: reservation_id)
   }
 
+  scope :active_within_a_week_of_user, lambda { |reservation_date, user|
+    weeks_ahead = ((reservation_date - Date.today).to_i / 7).floor
+    week_start = Date.today + weeks_ahead.weeks;
+    week_end = week_start + 1.weeks
+
+    active.where(user:).where(
+      'reservations.date >= ? and reservations.date <= ?',
+      week_start,
+      week_end
+    )
+  }
+
   scope :active_within_max_weeks_of_user, lambda { |user|
     active.where(user:).where(
       'reservations.date >= ? and reservations.date <= ?',
