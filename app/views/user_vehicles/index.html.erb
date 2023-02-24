@@ -1,0 +1,38 @@
+<%
+  content_for :title, 'My Vehicles'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      List of vehicles you own.
+    </p>
+
+    <p>
+      <%= link_to 'Add Vehicle',
+                  new_user_vehicle_path(@user.id),
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+    </p>
+
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">License Plate</th>
+        <th class="spectrum-Table-headCell">Make</th>
+        <th class="spectrum-Table-headCell">Model</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @vehicles.each do |vehicle| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= link_to vehicle.id.truncate(8), user_vehicle_path(vehicle.user_id, vehicle.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= vehicle.license_plate_number %></td>
+          <td class="spectrum-Table-cell"><%= vehicle.make %></td>
+          <td class="spectrum-Table-cell"><%= vehicle.model %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

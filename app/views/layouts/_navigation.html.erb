@@ -1,0 +1,87 @@
+<% if current_user %>
+  <nav>
+    <ul class="spectrum-SideNav spectrum-SideNav--multiLevel">
+      <li class="spectrum-SideNav-item is-selected">
+        <a class="spectrum-SideNav-itemLink js-fastLoad" href="/dashboard">
+          <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-icon-18-Dashboard"/>
+          </svg>
+          Dashboard
+        </a>
+      </li>
+      <li class="spectrum-SideNav-item">
+        <a class="spectrum-SideNav-itemLink js-fastLoad" href="#">
+          <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-icon-18-RealTimeCustomerProfile"/>
+          </svg>
+          Profile
+        </a>
+        <ul class="spectrum-SideNav spectrum-SideNav--multiLevel">
+          <li class="spectrum-SideNav-item">
+            <a class="spectrum-SideNav-itemLink js-fastLoad" href="<%= user_vehicles_path(current_user.id) %>">
+              <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                <use xlink:href="#spectrum-icon-18-Car"/>
+              </svg>
+              My Vehicles
+            </a>
+          </li>
+        </ul>
+      </li>
+      <% if current_user.admin? %>
+        <li class="spectrum-SideNav-item">
+          <a class="spectrum-SideNav-itemLink" href="#">
+            <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-icon-18-Settings"/>
+            </svg>
+            Administration
+          </a>
+          <ul class="spectrum-SideNav spectrum-SideNav--multiLevel">
+            <li class="spectrum-SideNav-item">
+              <a class="spectrum-SideNav-itemLink js-fastLoad" href="/reservations">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                  <use xlink:href="#spectrum-icon-18-Calendar"/>
+                </svg>
+                Reservations
+              </a>
+            </li>
+            <li class="spectrum-SideNav-item">
+              <a class="spectrum-SideNav-itemLink js-fastLoad" href="/parking_spots">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                  <use xlink:href="#spectrum-icon-18-BracketsSquare"/>
+                </svg>
+                Parking Spots
+              </a>
+            </li>
+            <li class="spectrum-SideNav-item">
+              <a class="spectrum-SideNav-itemLink js-fastLoad" href="/users">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                  <use xlink:href="#spectrum-icon-18-BulkEditUsers"/>
+                </svg>
+                Users
+              </a>
+            </li>
+            <li class="spectrum-SideNav-item">
+              <a class="spectrum-SideNav-itemLink js-fastLoad" href="/vehicles">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                  <use xlink:href="#spectrum-icon-18-Car"/>
+                </svg>
+                Vehicles
+              </a>
+            </li>
+          </ul>
+        </li>
+      <% end %>
+    </ul>
+  </nav>
+  <nav class="spectrum-Site-bottomNav">
+    <ul class="spectrum-SideNav">
+      <li class="spectrum-SideNav-item">
+        <a class="spectrum-SideNav-itemLink" href="/help" rel="noopener">Help</a>
+      </li>
+      <li class="spectrum-SideNav-item">
+        <a class="spectrum-SideNav-itemLink" href="https://github.com/berufsbildung-basel/parkit-service/issues" target="_blank" rel="noopener">Report
+          Issue</a>
+      </li>
+    </ul>
+  </nav>
+<% end %>

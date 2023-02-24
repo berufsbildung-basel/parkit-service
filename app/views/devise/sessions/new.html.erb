@@ -1,28 +1,79 @@
-<h2>Log in</h2>
+<%
+  content_for :title, "Log in"
+%>
 
-<%= button_to "Sign in with Okta", user_okta_omniauth_authorize_path, data: { turbo: false }  %>
-
-<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="field">
-    <%= f.label :email %><br />
-    <%= f.email_field :email, autofocus: true, autocomplete: "email" %>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeL">
+    <h2>Parking Users:</h2>
+    <%= button_to "Sign in with Okta",
+                  user_okta_omniauth_authorize_path,
+                  data: { turbo: false },
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+    %>
   </div>
+</section>
 
-  <div class="field">
-    <%= f.label :password %><br />
-    <%= f.password_field :password, autocomplete: "current-password" %>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeL">
+    <h3>For local administrators:</h3>
+    <%= form_for resource,
+                 as: resource_name,
+                 url: session_path(resource_name),
+                 html: { class: 'spectrum-Form' } do |f|
+    %>
+      <div class="spectrum-Form-item">
+        <%= f.label :email,
+                    class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+        %>
+        <div class="spectrum-Form-itemField">
+          <div class="spectrum-Textfield">
+            <%= f.email_field :email,
+                              autofocus: true,
+                              autocomplete: "email",
+                              class: 'spectrum-Textfield-input'
+            %>
+          </div>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :password,
+                    class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+        %>
+        <div class="spectrum-Form-itemField">
+          <div class="spectrum-Textfield">
+            <%= f.password_field :password,
+                                 autocomplete: "current-password",
+                                 class: 'spectrum-Textfield-input'
+            %>
+          </div>
+        </div>
+      </div>
+
+      <% if devise_mapping.rememberable? %>
+        <div class="spectrum-Form-item">
+          <%= f.label :remember_me,
+                      class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+          %>
+          <div class="spectrum-Form-itemField">
+            <div class="spectrum-FieldGroup spectrum-FieldGroup--vertical">
+              <label class="spectrum-Checkbox spectrum-Checkbox--sizeL spectrum-FieldGroup-item">
+                <%= f.check_box :remember_me, class: 'spectrum-Checkbox-input' %>
+                <span class="spectrum-Checkbox-box">
+                  <svg class="spectrum-Icon spectrum-UIIcon-Checkmark100 spectrum-Checkbox-checkmark" focusable="false" aria-hidden="true">
+                    <use xlink:href="#spectrum-css-icon-Checkmark100"/>
+                  </svg>
+                </span>
+                <span class="spectrum-Checkbox-label"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <div class="actions">
+        <%= f.submit "Log in" %>
+      </div>
+    <% end %>
   </div>
-
-  <% if devise_mapping.rememberable? %>
-    <div class="field">
-      <%= f.check_box :remember_me %>
-      <%= f.label :remember_me %>
-    </div>
-  <% end %>
-
-  <div class="actions">
-    <%= f.submit "Log in" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</section>

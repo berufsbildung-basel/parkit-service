@@ -1,0 +1,28 @@
+<%
+  content_for :title, "Parking Spot #{@parking_spot.number}"
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <h2>Details</h2>
+    <ul>
+      <li>Number: <%= @parking_spot.number %></li>
+      <li>Charger: <%= @parking_spot.charger_available %></li>
+      <li>Unavailable: <%= @parking_spot.unavailable %></li>
+      <li>Reason: <%= @parking_spot.unavailability_reason %></li>
+    </ul>
+  </div>
+</section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <%= link_to 'Edit',
+                edit_parking_spot_path(@parking_spot.id),
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+    %>
+
+    <%= link_to "Delete",
+                parking_spot_path(@parking_spot.id),
+                data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' },
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
+    %>
+  </div>
+</section>

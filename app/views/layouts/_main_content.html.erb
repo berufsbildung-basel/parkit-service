@@ -1,0 +1,44 @@
+<div class="spectrum-Site-mainContainer">
+  <article class="spectrum-CSSComponent">
+    <header class="spectrum-CSSComponent-heading" id="users">
+      <h1 class="spectrum-CSSComponent-title spectrum-Heading spectrum-Heading--sizeXXXL spectrum-Heading--serif">
+        <a class="spectrum-BigSubtleLink" href="#<%= ERB::Util.u(yield(:title).downcase) %>"><%= yield(:title) %></a>
+      </h1>
+    </header>
+    <%= yield %>
+
+    <% flash.each do |name, msg| -%>
+      <%
+        case name
+        when 'notice'
+          css_class = 'info'
+          icon = 'Info'
+        when 'alert'
+          css_class = 'negative'
+          icon = 'Alert'
+        when 'success'
+          css_class = 'positive'
+          icon = 'Info'
+        else
+          css_class = 'negative'
+          icon = 'Alert'
+        end
+      %>
+      <div class="spectrum-Toast spectrum-Toast--<%= css_class %>">
+        <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-Toast-typeIcon" focusable="false" aria-hidden="true">
+          <use xlink:href="#spectrum-icon-18-<%= icon %>"/>
+        </svg>
+        <div class="spectrum-Toast-body">
+          <div class="spectrum-Toast-content"><%= msg %></div>
+        </div>
+        <div class="spectrum-Toast-buttons">
+          <button class="spectrum-CloseButton spectrum-CloseButton--sizeM spectrum-CloseButton--staticWhite" onclick="closeToast()">
+            <svg class="spectrum-CloseButton-UIIcon spectrum-Icon spectrum-UIIcon-Cross100" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-css-icon-Cross100"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    <% end -%>
+  </article>
+</div>

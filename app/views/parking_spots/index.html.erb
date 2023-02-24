@@ -1,0 +1,43 @@
+<%
+  content_for :title, 'Parking Spots'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      List of parking spots available.
+    </p>
+
+    <p>
+      <%= link_to 'Add Parking Spot',
+                  new_parking_spot_path,
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+    </p>
+  </div>
+</section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">Number</th>
+        <th class="spectrum-Table-headCell">Charger</th>
+        <th class="spectrum-Table-headCell">Unavailable</th>
+        <th class="spectrum-Table-headCell">Reason</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @parking_spots.each do |parking_spot| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= link_to parking_spot.id.truncate(8), parking_spot_path(parking_spot.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= parking_spot.number %></td>
+          <td class="spectrum-Table-cell"><%= parking_spot.charger_available %></td>
+          <td class="spectrum-Table-cell"><%= parking_spot.unavailable %></td>
+          <td class="spectrum-Table-cell"><%= parking_spot.unavailability_reason %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

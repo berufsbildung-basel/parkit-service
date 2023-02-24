@@ -1,0 +1,14 @@
+<%
+  content_for :title, 'Edit Parking Spot'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      Edit this parking spot.
+    </p>
+    <div class="spectrum-CSSExample-example">
+      <h2>Parking Spot <%= @parking_spot.number %></h2>
+      <%= render 'form' %>
+    </div>
+  </div>
+</section>

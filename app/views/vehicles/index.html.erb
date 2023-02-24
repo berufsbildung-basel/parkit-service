@@ -1,20 +1,22 @@
 <%
-  content_for :title, @user.full_name
+  content_for :title, 'Vehicles'
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Details</h2>
-    <ul>
-      <li>Last Name: <%= @user.last_name %></li>
-      <li>First Name: <%= @user.first_name %></li>
-      <li>Email: <%= @user.email %></li>
-      <li>Role: <%= @user.role %></li>
-    </ul>
+    <p>
+      List of vehicles by all users.
+    </p>
+
+    <p>
+      <%= link_to 'Add Vehicle',
+                  new_vehicle_path,
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+    </p>
   </div>
 </section>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Vehicles</h2>
     <table class="spectrum-Table spectrum-Table--sizeM">
       <thead class="spectrum-Table-head">
       <tr>
@@ -22,26 +24,20 @@
         <th class="spectrum-Table-headCell">License Plate</th>
         <th class="spectrum-Table-headCell">Make</th>
         <th class="spectrum-Table-headCell">Model</th>
+        <th class="spectrum-Table-headCell">Owner</th>
       </tr>
       </thead>
       <tbody class="spectrum-Table-body">
-      <% @user.vehicles.each do |vehicle| %>
+      <% @vehicles.each do |vehicle| %>
         <tr class="spectrum-Table-row">
           <td class="spectrum-Table-cell"><%= link_to vehicle.id.truncate(8), vehicle_path(vehicle.id), class: 'spectrum-Link' %></td>
           <td class="spectrum-Table-cell"><%= vehicle.license_plate_number %></td>
           <td class="spectrum-Table-cell"><%= vehicle.make %></td>
           <td class="spectrum-Table-cell"><%= vehicle.model %></td>
+          <td class="spectrum-Table-cell"><%= link_to vehicle.user.full_name, user_path(vehicle.user.id), class: 'spectrum-Link' %></td>
         </tr>
       <% end %>
       </tbody>
     </table>
-  </div>
-</section>
-<section class="spectrum-CSSComponent-description">
-  <div class="spectrum-Body spectrum-Body--sizeM">
-    <%= link_to 'Edit',
-                edit_user_path(@user.id),
-                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
-    %>
   </div>
 </section>

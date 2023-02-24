@@ -1,20 +1,33 @@
-<table class="spectrum-Table spectrum-Table--sizeM">
-  <thead class="spectrum-Table-head">
-  <tr>
-    <th class="spectrum-Table-headCell">ID</th>
-    <th class="spectrum-Table-headCell">Name</th>
-    <th class="spectrum-Table-headCell">Email</th>
-    <th class="spectrum-Table-headCell">Role</th>
-  </tr>
-  </thead>
-  <tbody class="spectrum-Table-body">
-  <% @users.each do |user| %>
-  <tr class="spectrum-Table-row">
-    <td class="spectrum-Table-cell"><%= link_to user.id.truncate(8), user_path(user.id) %></td>
-    <td class="spectrum-Table-cell"><%= user.full_name %></td>
-    <td class="spectrum-Table-cell"><%= user.email %></td>
-    <td class="spectrum-Table-cell"><%= user.role %></td>
-  </tr>
-  <% end %>
-  </tbody>
-</table>
+<%
+  content_for :title, 'Users'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      All users of the reservation system.
+    </p>
+
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">Name</th>
+        <th class="spectrum-Table-headCell">Email</th>
+        <th class="spectrum-Table-headCell">Role</th>
+        <th class="spectrum-Table-headCell">Vehicles</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @users.each do |user| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= link_to user.id.truncate(8), user_path(user.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= user.full_name %></td>
+          <td class="spectrum-Table-cell"><%= user.email %></td>
+          <td class="spectrum-Table-cell"><%= user.role %></td>
+          <td class="spectrum-Table-cell"><%= user.vehicles.count %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

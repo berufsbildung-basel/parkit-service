@@ -1,0 +1,14 @@
+<%
+  content_for :title, 'Edit Vehicle'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      Edit this vehicle.
+    </p>
+    <div class="spectrum-CSSExample-example">
+      <h2><%= @vehicle.license_plate_number %></h2>
+      <%= render 'form' %>
+    </div>
+  </div>
+</section>

@@ -3,19 +3,13 @@
 # User controller
 class UsersController < ApplicationController
 
-  # Enforces access right checks for individuals resources
-  after_action :verify_authorized, except: [:index]
-
-  # Enforces access right checks for collections
-  after_action :verify_policy_scoped, only: [:index]
-
   def edit
     @user = User.find(params[:id])
     authorize @user
   end
 
   def index
-    @users = policy_scope(User.all)
+    @users = policy_scope(User.all.order(:last_name))
   end
 
   def show

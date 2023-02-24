@@ -1,0 +1,23 @@
+<%
+  content_for :title, @vehicle.license_plate_number
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <ul>
+      <li>License Plate Number: <%= @vehicle.license_plate_number %></li>
+      <li>Make: <%= @vehicle.make %></li>
+      <li>Model: <%= @vehicle.model %></li>
+    </ul>
+
+    <%= link_to 'Edit',
+                edit_user_vehicle_path(@user.id, @vehicle.id),
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+    %>
+
+    <%= link_to "Delete",
+                  user_vehicle_path(@user.id, @vehicle.id),
+                  data: {turbo_method: :delete, turbo_confirm: 'Are you sure?'},
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
+    %>
+  </div>
+</section>

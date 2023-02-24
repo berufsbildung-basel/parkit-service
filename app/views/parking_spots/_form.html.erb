@@ -1,0 +1,88 @@
+<%= form_for [@parking_spot], html: { class: 'spectrum-Form' }, data: { turbo: false } do |f| %>
+  <% if @parking_spot.errors.any? %>
+    <div id="error_explanation">
+      <h3><%= pluralize(@parking_spot.errors.count, 'error') %> prohibited
+        this parking spot from being added:</h3>
+      <ul>
+        <% @parking_spot.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="spectrum-Form-item">
+    <%= f.label :number,
+                "Number (as painted) *",
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+    %>
+    <div class="spectrum-Form-itemField">
+      <div class="spectrum-Textfield">
+        <%= f.text_field :number,
+                         autofocus: true,
+                         required: true,
+                         placeholder: '43',
+                         class: 'spectrum-Textfield-input'
+        %>
+      </div>
+    </div>
+  </div>
+
+  <div class="spectrum-Form-item">
+    <%= f.label :charger_available,
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+    %>
+    <div class="spectrum-Form-itemField">
+      <div class="spectrum-FieldGroup spectrum-FieldGroup--vertical">
+        <label class="spectrum-Checkbox spectrum-Checkbox--sizeL spectrum-FieldGroup-item">
+          <%= f.check_box :charger_available, class: 'spectrum-Checkbox-input' %>
+          <span class="spectrum-Checkbox-box">
+                  <svg class="spectrum-Icon spectrum-UIIcon-Checkmark100 spectrum-Checkbox-checkmark" focusable="false" aria-hidden="true">
+                    <use xlink:href="#spectrum-css-icon-Checkmark100"/>
+                  </svg>
+                </span>
+          <span class="spectrum-Checkbox-label"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="spectrum-Form-item">
+    <%= f.label :unavailable,
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+    %>
+    <div class="spectrum-Form-itemField">
+      <div class="spectrum-FieldGroup spectrum-FieldGroup--vertical">
+        <label class="spectrum-Checkbox spectrum-Checkbox--sizeL spectrum-FieldGroup-item">
+          <%= f.check_box :unavailable, class: 'spectrum-Checkbox-input' %>
+          <span class="spectrum-Checkbox-box">
+                  <svg class="spectrum-Icon spectrum-UIIcon-Checkmark100 spectrum-Checkbox-checkmark" focusable="false" aria-hidden="true">
+                    <use xlink:href="#spectrum-css-icon-Checkmark100"/>
+                  </svg>
+                </span>
+          <span class="spectrum-Checkbox-label"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="spectrum-Form-item">
+    <%= f.label :unavailability_reason,
+                "Unavailability Reason",
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+    %>
+    <div class="spectrum-Form-itemField">
+      <div class="spectrum-Textfield spectrum-Textfield--multiline">
+        <%= f.text_area :unavailability_reason,
+                        rows: 5,
+                        placeholder: 'Blocked due construction',
+                        class: 'spectrum-Textfield-input'
+        %>
+      </div>
+    </div>
+  </div>
+
+  <p>
+    <%= f.submit "Save", class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL' %>
+  </p>
+<% end %>

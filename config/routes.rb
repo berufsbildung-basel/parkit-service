@@ -8,7 +8,14 @@ Rails.application.routes.draw do
 
   root 'static#welcome'
 
-  resources :users
+  resources :users do
+    resources :reservations
+    resources :vehicles, controller: 'user_vehicles'
+  end
+
+  resources :parking_spots
+  resources :reservations
+  resources :vehicles
 
   namespace :api, defaults: { format: :json } do
     # devise_for :users
