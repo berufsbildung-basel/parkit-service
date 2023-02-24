@@ -2,7 +2,7 @@
 
 # A parking spot can hold reservations
 class ParkingSpot < ApplicationRecord
-  has_many :reservations
+  has_many :reservations, dependent: :destroy
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true
 

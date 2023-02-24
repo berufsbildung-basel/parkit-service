@@ -4,7 +4,7 @@
 class Vehicle < ApplicationRecord
   belongs_to :user
 
-  has_many :reservations
+  has_many :reservations, dependent: :destroy
 
   enum vehicle_type: %i[car motorcycle]
   after_initialize :set_default_vehicle_type, if: :new_record?
