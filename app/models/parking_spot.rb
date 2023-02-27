@@ -6,6 +6,20 @@ class ParkingSpot < ApplicationRecord
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true
 
+  def self.status_for_user_next_days(user, num_days)
+    result = {}
+
+    return result if num_days <= 0
+
+    (0..(num_days.to_i - 1)).each do |n|
+      date = Date.today + n.days
+      parking_spots = ParkingSpot.with_reservations_on_date(date)
+      result[date] = parking_spots
+    end
+
+    result
+  end
+
   scope :available, lambda {
     where(unavailable: false)
   }
@@ -25,11 +39,11 @@ class ParkingSpot < ApplicationRecord
         end_time
       )
 
-      reservations.size.zero?
+      reservations.empty?
     end
   }
 
-  # List parking spots and any reservations + vehicles on today's date
+  # List parking spots and any reservations + vehicles on the given date
   scope :with_reservations_on_date, lambda { |date|
     join_sql = 'LEFT OUTER JOIN reservations ON ('
     join_sql << ' reservations.parking_spot_id = parking_spots.id'
@@ -40,6 +54,6 @@ class ParkingSpot < ApplicationRecord
     # We use custom SQL here, as semantic rails does not yet support left *outer* join conditions
     sanitized_sql = sanitize_sql_array([join_sql, false, date])
 
-    available.joins(sanitized_sql)
+    all.joins(sanitized_sql).order(:number)
   }
 end

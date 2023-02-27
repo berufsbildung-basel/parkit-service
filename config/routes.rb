@@ -12,7 +12,7 @@ Rails.application.routes.draw do
 
   resources :users do
     resources :reservations do
-      put '/cancel'
+      put '/cancel', action: 'cancel'
     end
     resources :vehicles, controller: 'user_vehicles' do
       resources :reservations

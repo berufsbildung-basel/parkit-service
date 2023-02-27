@@ -8,3 +8,4 @@ pin '@hotwired/stimulus', to: 'stimulus.min.js', preload: true
 pin '@hotwired/stimulus-loading', to: 'stimulus-loading.js', preload: true
 pin_all_from 'app/javascript/controllers', under: 'controllers'
 pin_all_from 'app/javascript/loadicons', under: 'loadicons'
+pin_all_from 'app/javascript/parking-spot-status', under: 'parking-spot-status'

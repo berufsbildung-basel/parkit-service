@@ -49,6 +49,7 @@ class ReservationsController < ApplicationController
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.find(params[:vehicle_id])
     @reservation = @vehicle.reservations.new
+    @parking_spots = ParkingSpot.status_for_user_next_days(@user, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
     authorize @reservation
   end
 
@@ -72,6 +73,10 @@ class ReservationsController < ApplicationController
         format.html { render :edit }
       end
     end
+  end
+
+  def cancel
+    # code here
   end
 
   private
