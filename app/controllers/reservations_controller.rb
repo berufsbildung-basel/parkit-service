@@ -3,42 +3,23 @@
 # Vehicle controller
 class ReservationsController < ApplicationController
   def create
-    @vehicle = Vehicle.create(vehicle_params)
-    authorize @vehicle
-
-    if @vehicle.save
-      respond_to do |format|
-        flash[:success] = 'Vehicle was successfully created.'
-        format.html { redirect_to vehicle_path(@vehicle.id) }
-      end
-    else
-      respond_to do |format|
-        flash[:danger] = 'There was a problem creating the vehicle.'
-        format.html { render :new }
+    params[:reservations].each do |reservation|
+      @reservation = Reservation.create(reservation_params(reservation))
+      authorize @reservation
+      unless @reservation.save
+        respond_to do |format|
+          flash[:danger] = 'There was a problem creating the reservations.'
+          format.html { redirect_to dashboard_path }
+        end
+        return
       end
     end
-  end
 
-  def destroy
-    @vehicle = Vehicle.find(params[:id])
-    authorize @vehicle
-
-    if @vehicle.destroy
-      respond_to do |format|
-        flash[:success] = 'Vehicle was successfully deleted.'
-        format.html { redirect_to vehicle_path(@user.id) }
-      end
-    else
-      respond_to do |format|
-        flash[:danger] = 'There was a problem deleting the vehicle.'
-        format.html { render :show }
-      end
+    respond_to do |format|
+      flash[:success] = 'Reservations were successfully created.'
+      format.html { redirect_to dashboard_path }
     end
-  end
 
-  def edit
-    @vehicle = Vehicle.find(params[:id])
-    authorize @vehicle
   end
 
   def index
@@ -81,13 +62,14 @@ class ReservationsController < ApplicationController
 
   private
 
-  def vehicle_params
-    params.require(:vehicle).permit(
-      :ev,
-      :license_plate_number,
-      :make,
-      :model,
-      :user_id
+  def reservation_params(params)
+    params.require(:reservation).permit(
+      :date,
+      :am,
+      :half_day,
+      :user_id,
+      :parking_spot_id,
+      :vehicle_id
     )
   end
 end

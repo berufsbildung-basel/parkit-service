@@ -107,8 +107,8 @@ const processParkingSpotToggle = (parkingSpot) => {
       return;
     }
 
-    const parkingSpotNumber = parseInt(day.querySelector('.parking-spots .selected h3').textContent);
-    reservations[date] = { slot, parkingSpotNumber };
+    const parkingSpotId = day.querySelector('.parking-spots .selected').getAttribute('data-id');
+    reservations[date] = { slot, parkingSpotId };
   } else {
     toggleAvailableParkingSpots(
       slotOption,
@@ -217,6 +217,49 @@ const initSlotOptions = () => {
     });
 };
 
+const createHiddenInput = (name, value) => {
+  const input = document.createElement('input');
+
+  input.setAttribute('type', 'hidden');
+  input.setAttribute('name', `reservations[]reservation[${name}]`);
+  input.setAttribute('value', value)
+
+  return input;
+};
+
+const submitForm = (event) => {
+  event.preventDefault();
+
+  const form = document.getElementById('reservation-form');
+  const status = document.getElementById("parking-spot-status");
+
+  Object.keys(reservations).forEach((date) => {
+    const reservation = reservations[date];
+    const half_day = reservation.slot === SLOT_NAME_MORNING || reservation.slot === SLOT_NAME_AFTERNOON;
+    const am = reservation.slot === SLOT_NAME_MORNING;
+    const userId = status.getAttribute('data-user');
+    const vehicleId = status.getAttribute('data-vehicle');
+
+    form.appendChild(createHiddenInput('user_id', userId));
+    form.appendChild(createHiddenInput('parking_spot_id', reservation.parkingSpotId));
+    form.appendChild(createHiddenInput('vehicle_id', vehicleId));
+    form.appendChild(createHiddenInput('date', date));
+    form.appendChild(createHiddenInput('half_day', half_day));
+    form.appendChild(createHiddenInput('am', am));
+  });
+
+  form.submit();
+};
+
+const initForm = () => {
+  document.getElementById('submit-reservations').addEventListener(EVENT_NAME_CLICK, submitForm);
+};
+
 document.addEventListener('turbo:load', function () {
+  if (!document.getElementById('parking-spot-status')) {
+    return;
+  }
+
   initSlotOptions();
+  initForm();
 });

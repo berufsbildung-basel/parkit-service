@@ -28,7 +28,7 @@
       <p>
         <strong>AM:</strong> Morning Slot, <strong>PM:</strong> Afternoon Slot, <strong>FD:</strong> Full Day Slot
       </p>
-      <div id="parking-spot-status">
+      <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
         <%
           @parking_spots.each do |week, days|
             num_existing_reservations = Reservation.active_within_a_week_of_user(days.first[0], @user).count
@@ -41,7 +41,8 @@
             <div class="week-header">
               <div class="title">Week <%= week %></div>
               <div class="budget">
-                <%= num_existing_reservations %> of <%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %> reservation(s) used.
+                <%= num_existing_reservations %> of <%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %>
+                reservation(s) used.
               </div>
             </div>
             <%
@@ -79,7 +80,7 @@
                         css_class += ' full-day'
                       end
                   %>
-                    <div class="parking-spot <%= css_class %> disabled">
+                    <div class="parking-spot <%= css_class %> disabled" data-id="<%= parking_spot.id %>">
                       <h3><%= parking_spot.number %></h3>
                     </div>
                   <% end %>
@@ -98,9 +99,12 @@
           </section>
         </div>
       </div>
-      <%= form_tag user_vehicle_reservations_path, method: :post do |f| %>
-        <%= hidden_field_tag :test %>
-        <%= submit_tag %>
+      <%= form_tag user_vehicle_reservations_path, method: :post, id: 'reservation-form' do |f| %>
+        <button
+          id="submit-reservations"
+          class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL">
+          <span class="spectrum-Button-label">Reserve</span>
+        </button>
       <% end %>
     </div>
   </div>
