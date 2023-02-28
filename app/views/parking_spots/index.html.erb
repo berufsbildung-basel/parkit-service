@@ -25,6 +25,7 @@
         <th class="spectrum-Table-headCell">Charger</th>
         <th class="spectrum-Table-headCell">Unavailable</th>
         <th class="spectrum-Table-headCell">Reason</th>
+        <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
       <tbody class="spectrum-Table-body">
@@ -35,6 +36,14 @@
           <td class="spectrum-Table-cell"><%= parking_spot.charger_available %></td>
           <td class="spectrum-Table-cell"><%= parking_spot.unavailable %></td>
           <td class="spectrum-Table-cell"><%= parking_spot.unavailability_reason %></td>
+          <td class="spectrum-Table-cell">
+            <div class="spectrum-ButtonGroup">
+              <%= link_to 'Edit',
+                          edit_parking_spot_path(parking_spot.id),
+                          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeS'
+              %>
+            </div>
+          </td>
         </tr>
       <% end %>
       </tbody>

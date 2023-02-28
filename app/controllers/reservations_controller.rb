@@ -24,45 +24,34 @@ class ReservationsController < ApplicationController
   end
 
   def index
-    @vehicles = policy_scope(Vehicle.all.order(:license_plate_number))
+    @reservations = policy_scope(
+      Reservation.joins(:parking_spot)
+                 .where('reservations.date >= ?', Date.today)
+                 .order('reservations.date, parking_spots.number asc')
+    )
   end
 
   def new
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.find(params[:vehicle_id])
     @parking_spots = ParkingSpot.status_for_user_next_days(@user,
-ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+                                                           ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
     @reservation = @vehicle.reservations.new
 
     authorize @reservation
-  end
-
-  def show
-    @vehicle = Vehicle.find(params[:id])
-    authorize @vehicle
-  end
-
-  def update
-    @vehicle = Vehicle.find(params[:id])
-    authorize @vehicle
-
-    if @vehicle.update(vehicle_params)
-      respond_to do |format|
-        flash[:success] = 'Vehicle was successfully updated.'
-        format.html { redirect_to vehicle_path(@vehicle.id) }
-      end
-    else
-      respond_to do |format|
-        flash[:danger] = 'There was a problem updating the vehicle.'
-        format.html { render :edit }
-      end
-    end
   end
 
   def cancel
     @user = User.find(params[:user_id])
     @reservation = @user.reservations.find(params[:reservation_id])
     authorize @reservation
+
+    if @reservation.start_time <= Time.now
+      respond_to do |format|
+        flash[:success] = 'Only future reservations can be cancelled.'
+        format.html { redirect_to dashboard_path }
+      end
+    end
 
     @reservation.assign_attributes({
                                      cancelled: true,

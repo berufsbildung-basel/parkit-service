@@ -3,18 +3,41 @@
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Details</h2>
+    <header class="spectrum-CSSComponent-sectionHeading" id="user-details">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#user-details">Details</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <% if @user.disabled? %>
+      <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--negative">
+        <div class="spectrum-Badge-label">Disabled</div>
+      </div>
+    <% end %>
     <ul>
-      <li>Last Name: <%= @user.last_name %></li>
-      <li>First Name: <%= @user.first_name %></li>
-      <li>Email: <%= @user.email %></li>
+      <li>Last name: <%= @user.last_name %></li>
+      <li>First name: <%= @user.first_name %></li>
+      <li>Email: <a href="mailto:<%= @user.email %>"><%= @user.email %></a></li>
       <li>Role: <%= @user.role %></li>
     </ul>
   </div>
 </section>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Vehicles</h2>
+    <%= link_to 'Edit',
+                edit_user_path(@user.id),
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+    %>
+  </div>
+</section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="user-vehicles">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#user-vehicles">Vehicles</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
     <table class="spectrum-Table spectrum-Table--sizeM">
       <thead class="spectrum-Table-head">
       <tr>
@@ -22,6 +45,7 @@
         <th class="spectrum-Table-headCell">License Plate</th>
         <th class="spectrum-Table-headCell">Make</th>
         <th class="spectrum-Table-headCell">Model</th>
+        <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
       <tbody class="spectrum-Table-body">
@@ -31,6 +55,20 @@
           <td class="spectrum-Table-cell"><%= vehicle.license_plate_number %></td>
           <td class="spectrum-Table-cell"><%= vehicle.make %></td>
           <td class="spectrum-Table-cell"><%= vehicle.model %></td>
+          <td class="spectrum-Table-cell">
+            <div class="spectrum-ButtonGroup">
+              <%= link_to 'Edit',
+                          edit_vehicle_path(vehicle.id),
+                          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeS'
+              %>
+              <%= button_to 'Delete',
+                            vehicle_path(vehicle.id),
+                            method: :delete,
+                            form: { data: { turbo_confirm: 'Are you sure?' } },
+                            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
+              %>
+            </div>
+          </td>
         </tr>
       <% end %>
       </tbody>
@@ -39,9 +77,136 @@
 </section>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <%= link_to 'Edit',
-                edit_user_path(@user.id),
-                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
-    %>
+    <header class="spectrum-CSSComponent-sectionHeading" id="user-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#user-reservations">Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <p>
+    <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--neutral">
+      <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+        <use xlink:href="#spectrum-icon-18-Info"/>
+      </svg>
+      <div class="spectrum-Badge-label"><%= @user.reservations.count %> Total</div>
+    </div>
+    <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--positive">
+      <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+        <use xlink:href="#spectrum-icon-18-Info"/>
+      </svg>
+      <div class="spectrum-Badge-label"><%= @reservations.count %> Active</div>
+    </div>
+    <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--negative">
+      <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+        <use xlink:href="#spectrum-icon-18-Info"/>
+      </svg>
+      <div class="spectrum-Badge-label"><%= @user.reservations.where(cancelled: true).count %> Cancelled</div>
+    </div>
+    </p>
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">User</th>
+        <th class="spectrum-Table-headCell">Date</th>
+        <th class="spectrum-Table-headCell">Parking Spot</th>
+        <th class="spectrum-Table-headCell">Vehicle</th>
+        <th class="spectrum-Table-headCell">Slot</th>
+        <th class="spectrum-Table-headCell">Actions</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @reservations.each do |reservation| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
+          <td class="spectrum-Table-cell"><%= link_to reservation.user.full_name, user_path(reservation.user.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= reservation.date %></td>
+          <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.slot_name %></td>
+          <td class="spectrum-Table-cell">
+            <div class="spectrum-ButtonGroup">
+              <%= button_to 'Cancel',
+                            user_reservation_cancel_path(reservation.user.id, reservation.id),
+                            method: :put,
+                            #data: { turbo: false },
+                            form: { data: { turbo_confirm: 'Are you sure?' } },
+                            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
+              %>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="past-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">User</th>
+        <th class="spectrum-Table-headCell">Date</th>
+        <th class="spectrum-Table-headCell">Parking Spot</th>
+        <th class="spectrum-Table-headCell">Vehicle</th>
+        <th class="spectrum-Table-headCell">Slot</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @user.reservations.where('reservations.date < ?', Date.today).order(date: 'desc').each do |reservation| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
+          <td class="spectrum-Table-cell"><%= link_to reservation.user.full_name, user_path(reservation.user.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= reservation.date %></td>
+          <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.slot_name %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="cancelled-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#cancelled-reservations">Cancelled Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">User</th>
+        <th class="spectrum-Table-headCell">Date</th>
+        <th class="spectrum-Table-headCell">Parking Spot</th>
+        <th class="spectrum-Table-headCell">Vehicle</th>
+        <th class="spectrum-Table-headCell">Slot</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @user.reservations.where(cancelled: true).order(date: 'desc').each do |reservation| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
+          <td class="spectrum-Table-cell"><%= link_to reservation.user.full_name, user_path(reservation.user.id), class: 'spectrum-Link' %></td>
+          <td class="spectrum-Table-cell"><%= reservation.date %></td>
+          <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.slot_name %></td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
   </div>
 </section>

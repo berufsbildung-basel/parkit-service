@@ -14,6 +14,7 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
+    @reservations = @user.reservations.active.where('reservations.date >= ?', Date.today).order(:date)
     authorize @user
   end
 
@@ -23,12 +24,12 @@ class UsersController < ApplicationController
 
     if @user.update(user_params)
       respond_to do |format|
-        flash[:success] = 'user was successfully deleted.'
+        flash[:success] = 'User was successfully updated.'
         format.html { redirect_to user_path(@user.id) }
       end
     else
       respond_to do |format|
-        flash[:danger] = 'There was a problem udpating the User.'
+        flash[:danger] = 'There was a problem updating the user.'
         format.html { render :edit }
       end
     end
@@ -41,7 +42,8 @@ class UsersController < ApplicationController
       params.require(:user).permit(
         :password,
         :password_confirmation,
-        :role
+        :role,
+        :disabled
       )
     else
       params.require(:user).permit([])

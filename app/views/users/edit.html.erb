@@ -48,6 +48,25 @@
           </div>
         </div>
 
+        <div class="spectrum-Form-item">
+          <%= f.label :disabled,
+                      class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
+          %>
+          <div class="spectrum-Form-itemField">
+            <div class="spectrum-FieldGroup spectrum-FieldGroup--vertical">
+              <label class="spectrum-Checkbox spectrum-Checkbox--sizeL spectrum-FieldGroup-item">
+                <%= f.check_box :disabled, class: 'spectrum-Checkbox-input' %>
+                <span class="spectrum-Checkbox-box">
+                  <svg class="spectrum-Icon spectrum-UIIcon-Checkmark100 spectrum-Checkbox-checkmark" focusable="false" aria-hidden="true">
+                    <use xlink:href="#spectrum-css-icon-Checkmark100"/>
+                  </svg>
+                </span>
+                <span class="spectrum-Checkbox-label"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         <p>
           <%= f.submit "Update", class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL' %>
         </p>

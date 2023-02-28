@@ -23,6 +23,14 @@ class Reservation < ApplicationRecord
 
   validates_with ReservationValidator
 
+  def slot_name
+    if half_day?
+      am? ? 'AM' : 'PM'
+    else
+      'FD'
+    end
+  end
+
   scope :active, lambda {
     where(cancelled: false)
   }

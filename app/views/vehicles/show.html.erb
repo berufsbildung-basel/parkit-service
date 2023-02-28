@@ -3,7 +3,12 @@
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Details</h2>
+    <header class="spectrum-CSSComponent-sectionHeading" id="vehicle-details">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#vehicle-details">Details</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
     <ul>
       <li>Owner: <%= link_to @vehicle.user.full_name, user_path(@vehicle.user.id) %></li>
       <li>License Plate Number: <%= @vehicle.license_plate_number %></li>

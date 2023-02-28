@@ -21,6 +21,7 @@
         <th class="spectrum-Table-headCell">License Plate</th>
         <th class="spectrum-Table-headCell">Make</th>
         <th class="spectrum-Table-headCell">Model</th>
+        <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
       <tbody class="spectrum-Table-body">
@@ -30,6 +31,20 @@
           <td class="spectrum-Table-cell"><%= vehicle.license_plate_number %></td>
           <td class="spectrum-Table-cell"><%= vehicle.make %></td>
           <td class="spectrum-Table-cell"><%= vehicle.model %></td>
+          <td class="spectrum-Table-cell">
+            <div class="spectrum-ButtonGroup">
+              <%= link_to 'Edit',
+                          edit_user_vehicle_path(@user.id, vehicle.id),
+                          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeS'
+              %>
+              <%= button_to 'Delete',
+                            user_vehicle_path(@user.id, vehicle.id),
+                            method: :delete,
+                            form: { data: { turbo_confirm: 'Are you sure?' } },
+                            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
+              %>
+            </div>
+          </td>
         </tr>
       <% end %>
       </tbody>
