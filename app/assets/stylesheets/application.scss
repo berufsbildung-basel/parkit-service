@@ -75,3 +75,7 @@ code[class*="language-"], pre[class*="language-"] {
   text-decoration: none;
   cursor: pointer;
 }
+
+table.reservations-table tr.cancelled td {
+  color: var(--spectrum-global-color-gray-400)
+}

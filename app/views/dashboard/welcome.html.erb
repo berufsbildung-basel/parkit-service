@@ -1,7 +1,7 @@
 <%
-  content_for :title, 'Welcome'
+  content_for :title, 'Welcome ' + current_user.first_name
 %>
-<header class="spectrum-CSSComponent-sectionHeading" id="usage">
+<header class="spectrum-CSSComponent-sectionHeading" id="new-reservation">
   <h2 class="spectrum-Heading spectrum-Heading--sizeM">
     <a class="spectrum-BigSubtleLink" href="#new-reservation">Make a Reservation</a>
   </h2>
@@ -27,9 +27,9 @@
   </div>
 </section>
 
-<header class="spectrum-CSSComponent-sectionHeading" id="usage">
+<header class="spectrum-CSSComponent-sectionHeading" id="your-reservations">
   <h2 class="spectrum-Heading spectrum-Heading--sizeM">
-    <a class="spectrum-BigSubtleLink" href="#future-reservations">Your Reservations</a>
+    <a class="spectrum-BigSubtleLink" href="#your-reservations">Your Reservations</a>
   </h2>
   <hr class="spectrum-Divider spectrum-Divider--large">
 </header>

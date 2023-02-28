@@ -14,6 +14,7 @@
         <th class="spectrum-Table-headCell">Name</th>
         <th class="spectrum-Table-headCell">Email</th>
         <th class="spectrum-Table-headCell">Role</th>
+        <th class="spectrum-Table-headCell">Status</th>
         <th class="spectrum-Table-headCell">Vehicles</th>
         <th class="spectrum-Table-headCell">Actions</th>
       </tr>
@@ -25,6 +26,7 @@
           <td class="spectrum-Table-cell"><%= user.full_name %></td>
           <td class="spectrum-Table-cell"><%= user.email %></td>
           <td class="spectrum-Table-cell"><%= user.role %></td>
+          <td class="spectrum-Table-cell"><%= user.disabled? ? 'disabled' : 'active' %></td>
           <td class="spectrum-Table-cell"><%= user.vehicles.count %></td>
           <td class="spectrum-Table-cell">
             <div class="spectrum-ButtonGroup">
