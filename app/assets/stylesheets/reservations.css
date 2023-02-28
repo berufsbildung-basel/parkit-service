@@ -1,70 +1,42 @@
 #parking-spot-status {
+    box-sizing: border-box;
     margin-top: 40px;
 }
 
-#parking-spot-status h2 {
+#parking-spot-status h2,
+#parking-spot-status h3 {
     margin: 0;
     padding: 0;
 }
 
-#parking-spot-status h3 {
-    margin: 0;
-    padding: 20px 25px;
+#parking-spot-status .day {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    margin-bottom: 5px;
+    padding: 5px;
+    text-align: center;
 }
 
 #parking-spot-status .day {
-    margin-bottom: 20px;
-}
-#parking-spot-status .day-header {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: nowrap;
-    padding: 10px 15px;
-}
-
-#parking-spot-status .day-header {
     color: var(--spectrum-global-color-static-white);
+    background-color: var(--spectrum-magenta-400);
 }
 
-#parking-spot-status .weekday {
+#parking-spot-status .day.sat,
+#parking-spot-status .day.sun {
+    background-color: var(--spectrum-blue-400);
+}
+
+#parking-spot-status .date {
     width: 100px;
-}
-
-#parking-spot-status .week-number {
-    display: flex;
-    align-items: center;
-}
-
-#parking-spot-status .day-header.mon {
-    background-color: var(--spectrum-global-color-magenta-400);
-}
-
-#parking-spot-status .day-header.tue {
-    background-color: var(--spectrum-global-color-orange-400);
-}
-
-#parking-spot-status .day-header.wed {
-    background-color: var(--spectrum-global-color-yellow-400);
-}
-
-#parking-spot-status .day-header.thu {
-    background-color: var(--spectrum-global-color-green-400);
-}
-
-#parking-spot-status .day-header.fri {
-    background-color: var(--spectrum-global-color-celery-400);
-}
-
-#parking-spot-status .day-header.sat {
-    background-color: var(--spectrum-global-color-blue-400);
-}
-
-#parking-spot-status .day-header.sun {
-    background-color: var(--spectrum-global-color-blue-700);
+    padding: 5px;
 }
 
 #parking-spot-status .day-options,
 #parking-spot-status .parking-spots {
+    min-width: 260px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -73,12 +45,12 @@
 
 #parking-spot-status .slot-options {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     margin-right: 7px;
 }
 
 #parking-spot-status .slot-options > div {
-    height: 68px;
+    width: 60px;
     margin: 5px 5px 5px 0;
     color: var(--spectrum-white);
     background-color: var(--spectrum-global-color-chartreuse-400);
@@ -86,7 +58,7 @@
 }
 
 #parking-spot-status .slot-options h3 {
-    padding: 20px 17px;
+    padding: 16px 17px;
 }
 
 #parking-spot-status .slot-options > div:not(.selected) h3:hover {
@@ -110,11 +82,14 @@
 }
 
 #parking-spot-status .parking-spot {
-    width: 75px;
     margin: 5px 0 5px 5px;
     color: var(--spectrum-white);
     background-color: var(--spectrum-global-color-seafoam-400);
     transition: background-color 0.25s ease;
+}
+
+#parking-spot-status .parking-spot h3 {
+    padding: 16px 18px;
 }
 
 #parking-spot-status .parking-spot.available:not(.disabled) {
@@ -125,6 +100,8 @@
     background-color: var(--spectrum-global-color-static-seafoam-300);
 }
 
-#parking-spot-status .parking-spot.unavailable {
+#parking-spot-status .parking-spot.unavailable,
+#parking-spot-status .parking-spot.fully-booked
+{
     background-color: var(--spectrum-global-color-gray-400);
 }

@@ -30,52 +30,41 @@
           @parking_spots.each do |date, parking_spots|
             week_day = date.strftime("%a");
         %>
-          <div class="day">
-            <div class="day-header <%= week_day.downcase %>">
-              <div class="weekday">
-                <h2><%= week_day %></h2>
+          <div class="day <%= week_day.downcase %>">
+            <div class="date" data-date="<%= date %>">
+              <h2><%= week_day %><br><%= date.strftime('%d.%m.') %></h2>
+            </div>
+            <div class="slot-options">
+              <div class="morning disabled">
+                <h3>AM</h3>
               </div>
-              <div class="date">
-                <h2><%= date %></h2>
+              <div class="afternoon disabled">
+                <h3>PM</h3>
               </div>
-              <div class="week-number">
-                <div>Week:&nbsp;</div>
-                <h2><%= date.cweek %></h2>
+              <div class="full-day disabled">
+                <h3>FD</h3>
               </div>
             </div>
-            <div class="day-options">
-              <div class="slot-options">
-                <div class="morning disabled">
-                  <h3>Morning</h3>
-                </div>
-                <div class="afternoon disabled">
-                  <h3>Afternoon</h3>
-                </div>
-                <div class="full-day disabled">
-                  <h3>Full Day</h3>
-                </div>
-              </div>
-              <div class="parking-spots">
-                <%
-                  parking_spots.each do |parking_spot|
-                    css_class = 'available'
-                    reservation = parking_spot.reservations.first
+            <div class="parking-spots">
+              <%
+                parking_spots.each do |parking_spot|
+                  css_class = 'available'
+                  reservation = parking_spot.reservations.first
 
-                    if parking_spot.unavailable?
-                      css_class = 'unavailable'
-                    elsif parking_spot.reservations.count == 1 && reservation.half_day?
-                      css_class += " #{reservation.am? ? 'pm' : 'am'}"
-                    elsif parking_spot.reservations.count > 0
-                      css_class = 'fully-booked'
-                    else
-                      css_class += ' full-day'
-                    end
-                %>
-                  <div class="parking-spot <%= css_class %> disabled">
-                    <h3><%= parking_spot.number %></h3>
-                  </div>
-                <% end %>
-              </div>
+                  if parking_spot.unavailable?
+                    css_class = 'unavailable'
+                  elsif parking_spot.reservations.count == 1 && reservation.half_day?
+                    css_class += " #{reservation.am? ? 'pm' : 'am'}"
+                  elsif parking_spot.reservations.count > 0
+                    css_class = 'fully-booked'
+                  else
+                    css_class += ' full-day'
+                  end
+              %>
+                <div class="parking-spot <%= css_class %> disabled">
+                  <h3><%= parking_spot.number %></h3>
+                </div>
+              <% end %>
             </div>
           </div>
         <% end %>

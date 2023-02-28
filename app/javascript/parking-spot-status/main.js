@@ -41,7 +41,7 @@ const parkingSpotSlotFilter = (parkingSpot, slot) => {
 };
 
 const processParkingSpotToggle = (parkingSpotOption) => {
-  const date = parkingSpotOption.parentElement.parentElement.parentElement.querySelector('.day-header .date').textContent;
+  const date = parkingSpotOption.parentElement.parentElement.querySelector('.date').getAttribute('data-date');
 
   if (parkingSpotOption.classList.contains(CLASS_NAME_SELECTED)) {
     const slot = parkingSpotOption.parentElement.parentElement.querySelector('.slot-options .selected').classList[0];
