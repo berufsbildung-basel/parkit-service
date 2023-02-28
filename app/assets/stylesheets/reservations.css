@@ -1,12 +1,28 @@
 #parking-spot-status {
     box-sizing: border-box;
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 #parking-spot-status h2,
 #parking-spot-status h3 {
     margin: 0;
     padding: 0;
+}
+
+#parking-spot-status .week {
+    margin-top: 20px;
+}
+
+#parking-spot-status .week-header {
+    display: flex;
+}
+
+#parking-spot-status .week-header .title {
+    font-weight: bold;
+}
+
+#parking-spot-status .budget {
+    margin-left: 40px;
 }
 
 #parking-spot-status .day {
@@ -21,12 +37,12 @@
 
 #parking-spot-status .day {
     color: var(--spectrum-global-color-static-white);
-    background-color: var(--spectrum-magenta-400);
+    background-color: var(--spectrum-gray-400);
 }
 
 #parking-spot-status .day.sat,
 #parking-spot-status .day.sun {
-    background-color: var(--spectrum-blue-400);
+    background-color: var(--spectrum-gray-500);
 }
 
 #parking-spot-status .date {
@@ -61,7 +77,7 @@
     padding: 16px 17px;
 }
 
-#parking-spot-status .slot-options > div:not(.selected) h3:hover {
+#parking-spot-status .slot-options > div:not(.disabled):not(.selected) h3:hover {
     background-color: var(--spectrum-global-color-chartreuse-500);
 }
 
@@ -103,5 +119,12 @@
 #parking-spot-status .parking-spot.unavailable,
 #parking-spot-status .parking-spot.fully-booked
 {
-    background-color: var(--spectrum-global-color-gray-400);
+    background-color: var(--spectrum-gray-600);
+}
+
+#parking-spot-status .spectrum-Modal {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
 }

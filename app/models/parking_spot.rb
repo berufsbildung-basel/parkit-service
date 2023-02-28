@@ -14,7 +14,8 @@ class ParkingSpot < ApplicationRecord
     (0..(num_days.to_i - 1)).each do |n|
       date = Date.today + n.days
       parking_spots = ParkingSpot.with_reservations_on_date(date)
-      result[date] = parking_spots
+      result[date.cweek] = {} if result[date.cweek].nil?
+      result[date.cweek][date] = parking_spots
     end
 
     result

@@ -25,49 +25,78 @@
         </svg>
         <div class="spectrum-Badge-label"><%= @vehicle.full_title %></div>
       </div>
+      <p>
+        <strong>AM:</strong> Morning Slot, <strong>PM:</strong> Afternoon Slot, <strong>FD:</strong> Full Day Slot
+      </p>
       <div id="parking-spot-status">
         <%
-          @parking_spots.each do |date, parking_spots|
-            week_day = date.strftime("%a");
+          @parking_spots.each do |week, days|
+            num_existing_reservations = Reservation.active_within_a_week_of_user(days.first[0], @user).count
         %>
-          <div class="day <%= week_day.downcase %>">
-            <div class="date" data-date="<%= date %>">
-              <h2><%= week_day %><br><%= date.strftime('%d.%m.') %></h2>
-            </div>
-            <div class="slot-options">
-              <div class="morning disabled">
-                <h3>AM</h3>
-              </div>
-              <div class="afternoon disabled">
-                <h3>PM</h3>
-              </div>
-              <div class="full-day disabled">
-                <h3>FD</h3>
+          <div class="week"
+               data-weeknumber="<%= week %>"
+               data-used-budget="<%= num_existing_reservations %>"
+               data-max-budget="<%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %>"
+          >
+            <div class="week-header">
+              <div class="title">Week <%= week %></div>
+              <div class="budget">
+                <%= num_existing_reservations %> of <%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %> reservation(s) used.
               </div>
             </div>
-            <div class="parking-spots">
-              <%
-                parking_spots.each do |parking_spot|
-                  css_class = 'available'
-                  reservation = parking_spot.reservations.first
-
-                  if parking_spot.unavailable?
-                    css_class = 'unavailable'
-                  elsif parking_spot.reservations.count == 1 && reservation.half_day?
-                    css_class += " #{reservation.am? ? 'pm' : 'am'}"
-                  elsif parking_spot.reservations.count > 0
-                    css_class = 'fully-booked'
-                  else
-                    css_class += ' full-day'
-                  end
-              %>
-                <div class="parking-spot <%= css_class %> disabled">
-                  <h3><%= parking_spot.number %></h3>
+            <%
+              days.each do |date, parking_spots|
+                week_day = date.strftime("%a")
+            %>
+              <div class="day <%= week_day.downcase %>">
+                <div class="date" data-date="<%= date %>">
+                  <h2><%= week_day %><br><%= date.strftime('%d.%m.') %></h2>
                 </div>
-              <% end %>
-            </div>
+                <div class="slot-options">
+                  <div class="morning disabled">
+                    <h3>AM</h3>
+                  </div>
+                  <div class="afternoon disabled">
+                    <h3>PM</h3>
+                  </div>
+                  <div class="full-day disabled">
+                    <h3>FD</h3>
+                  </div>
+                </div>
+                <div class="parking-spots">
+                  <%
+                    parking_spots.each do |parking_spot|
+                      css_class = 'available'
+                      reservation = parking_spot.reservations.first
+
+                      if parking_spot.unavailable?
+                        css_class = 'unavailable'
+                      elsif parking_spot.reservations.count == 1 && reservation.half_day?
+                        css_class += " #{reservation.am? ? 'pm' : 'am'}"
+                      elsif parking_spot.reservations.count > 0
+                        css_class = 'fully-booked'
+                      else
+                        css_class += ' full-day'
+                      end
+                  %>
+                    <div class="parking-spot <%= css_class %> disabled">
+                      <h3><%= parking_spot.number %></h3>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
           </div>
         <% end %>
+        <div class="spectrum-Modal spectrum-Tray spectrum-Tray">
+          <section class="spectrum-Dialog spectrum-Dialog--large" role="dialog" tabindex="-1" aria-modal="true">
+            <div class="spectrum-Dialog-grid">
+              <h1 class="spectrum-Dialog-heading spectrum-Dialog-heading--noHeader">Remaining Budget</h1>
+              <hr class="spectrum-Divider spectrum-Divider--sizeM spectrum-Divider--horizontal spectrum-Dialog-divider">
+              <section class="spectrum-Dialog-content"></section>
+            </div>
+          </section>
+        </div>
       </div>
       <%= form_tag user_vehicle_reservations_path, method: :post do |f| %>
         <%= hidden_field_tag :test %>

@@ -7,6 +7,7 @@ const SLOT_NAME_MORNING = 'morning';
 const SLOT_NAME_AFTERNOON = 'afternoon';
 const SLOT_NAME_FULL_DAY = 'full-day';
 
+const budget = {};
 let reservations = {};
 
 const toggleOption = (option) => {
@@ -40,26 +41,102 @@ const parkingSpotSlotFilter = (parkingSpot, slot) => {
   return false;
 };
 
-const processParkingSpotToggle = (parkingSpotOption) => {
-  const date = parkingSpotOption.parentElement.parentElement.querySelector('.date').getAttribute('data-date');
+const closeTray = () => {
+  const tray = document.querySelector('#parking-spot-status .spectrum-Modal');
 
-  if (parkingSpotOption.classList.contains(CLASS_NAME_SELECTED)) {
-    const slot = parkingSpotOption.parentElement.parentElement.querySelector('.slot-options .selected').classList[0];
-    const parkingSpotNumber = parseInt(parkingSpotOption.parentElement.parentElement.querySelector('.parking-spots .selected h3').textContent);
+  tray.classList.remove('is-open');
+};
 
+const openTray = (budget) => {
+  const tray = document.querySelector('#parking-spot-status .spectrum-Modal');
+  const text = tray.querySelector('section.spectrum-Dialog-content');
+
+  text.textContent = `${budget.currentBudget} of ${budget.maxPerWeek} reservations used for week ${budget.weekNumber}.`;
+
+  tray.classList.add('is-open');
+
+  setTimeout(closeTray, 5000);
+};
+
+const updateBudget = (week) => {
+  const weekNumber = parseInt(week.getAttribute('data-weeknumber'));
+  const maxPerWeek = parseInt(week.getAttribute('data-max-budget'));
+  const usedBudget = parseInt(week.getAttribute('data-used-budget'));
+
+  const numSelections = week.querySelectorAll(`.parking-spots .${CLASS_NAME_SELECTED}`).length;
+  const currentBudget = usedBudget + numSelections;
+  const budgetRemaining = currentBudget - maxPerWeek;
+
+  const budgetStatus = week.querySelector('.week-header .budget');
+  budgetStatus.innerHTML = `${currentBudget} of ${maxPerWeek} reservation used.`
+
+  return {
+    budgetRemaining,
+    currentBudget,
+    maxPerWeek,
+    weekNumber,
+  }
+};
+
+const disableAll = (week) => {
+  week.querySelectorAll('.slot-options > div').forEach((slotOption) => {
+    disableSlotOption(slotOption);
+  });
+  week.querySelectorAll('.parking-spot:not(.selected)').forEach((parkingSpot) => {
+    disableParkingSpot(parkingSpot);
+  });
+};
+
+const enableAll = (week) => {
+  week.querySelectorAll('.slot-options > div').forEach((slotOption) => {
+    enableSlotOption(slotOption);
+  });
+  week.querySelectorAll('.parking-spot:not(.selected)').forEach((parkingSpot) => {
+    //enableParkingSpot(parkingSpot);
+  });
+};
+
+const processParkingSpotToggle = (parkingSpot) => {
+  const day = parkingSpot.parentElement.parentElement;
+  const date = day.querySelector('.date').getAttribute('data-date');
+  const slotOption = day.querySelector('.slot-options .selected');
+  const slot = slotOption.classList[0]
+
+  if (parkingSpot.classList.contains(CLASS_NAME_SELECTED)) {
+    if (budget.budgetRemaining && budget.budgetRemaining === 0) {
+      return;
+    }
+
+    const parkingSpotNumber = parseInt(day.querySelector('.parking-spots .selected h3').textContent);
     reservations[date] = { slot, parkingSpotNumber };
   } else {
+    toggleAvailableParkingSpots(
+      slotOption,
+      parkingSpot.parentElement.querySelectorAll('.parking-spot'),
+      slot,
+    )
     delete reservations[date];
+  }
+
+  const week = day.parentElement;
+  const updatedBudget = updateBudget(week);
+
+  openTray(updatedBudget);
+
+  if (updatedBudget.budgetRemaining === 0) {
+    disableAll(week);
+  } else {
+    enableAll(week);
   }
 
   console.log(JSON.stringify(reservations))
 };
 
 const parkingSpotClickHandler = (event) => {
-  const parkingSpotOption = event.target.parentElement;
+  const parkingSpot = event.target.parentElement;
 
-  toggleOption(parkingSpotOption);
-  processParkingSpotToggle(parkingSpotOption);
+  toggleOption(parkingSpot);
+  processParkingSpotToggle(parkingSpot);
 };
 
 const toggleAvailableParkingSpots = (slotOption, parkingSpots, slot) => {
@@ -78,40 +155,68 @@ const toggleAvailableParkingSpots = (slotOption, parkingSpots, slot) => {
   });
 };
 
+const unselectParkingSpot = (day, slotOption) => {
+  const selectedParkingSpot = day.querySelector('.parking-spot.selected');
+  if (selectedParkingSpot) {
+    selectedParkingSpot.classList.remove(CLASS_NAME_SELECTED);
+    processParkingSpotToggle(selectedParkingSpot);
+  }
+};
+
 const slotOptionClickHandler = (event) => {
   const day = event.target.parentElement.parentElement.parentElement;
   const parkingSpots = day.querySelectorAll('.parking-spot');
   const slotOption = event.target.parentElement;
   const slotName = slotOption.classList[0];
 
+  unselectParkingSpot(day, slotOption);
   toggleOption(slotOption);
   toggleAvailableParkingSpots(slotOption, parkingSpots, slotName);
 };
 
-const initReservationSlot = (day, slot) => {
-  const slotOption = day.querySelector(`.${slot}`);
-  const availableSpots = Array.prototype.slice.call(
-    day.querySelectorAll('.parking-spot.available'),
-  );
+const enableSlotOption = (slotOption) => {
+  slotOption.classList.remove(CLASS_NAME_DISABLED);
+  slotOption.addEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
+};
 
-  const availableSlotSpots = availableSpots.filter((spot) => parkingSpotSlotFilter(spot, slot));
+const disableSlotOption = (slotOption) => {
+  slotOption.classList.add(CLASS_NAME_DISABLED);
+  slotOption.removeEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
+};
+
+const enableParkingSpot = (parkingSpot) => {
+  if (parkingSpot.classList.contains('unavailable') || parkingSpot.classList.contains('fully-booked')) {
+    return;
+  }
+  parkingSpot.classList.remove(CLASS_NAME_DISABLED);
+  parkingSpot.addEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler());
+};
+
+const disableParkingSpot = (parkingSpot) => {
+  parkingSpot.classList.add(CLASS_NAME_DISABLED);
+  parkingSpot.removeEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
+};
+
+const initSlotOption = (day, slotName) => {
+  const slotOption = day.querySelector(`.${slotName}`);
+  const availableSpots = Array.prototype.slice.call(day.querySelectorAll('.parking-spot.available'));
+  const availableSlotSpots = availableSpots.filter((spot) => parkingSpotSlotFilter(spot, slotName));
 
   if (availableSlotSpots.length > 0) {
-    slotOption.classList.remove(CLASS_NAME_DISABLED);
-    slotOption.addEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
+    enableSlotOption(slotOption);
   }
 };
 
-const initReservationSlots = () => {
+const initSlotOptions = () => {
   document
     .querySelectorAll('#parking-spot-status .day')
     .forEach((day) => {
-      initReservationSlot(day, SLOT_NAME_MORNING);
-      initReservationSlot(day, SLOT_NAME_AFTERNOON);
-      initReservationSlot(day, SLOT_NAME_FULL_DAY);
+      initSlotOption(day, SLOT_NAME_MORNING);
+      initSlotOption(day, SLOT_NAME_AFTERNOON);
+      initSlotOption(day, SLOT_NAME_FULL_DAY);
     });
 };
 
 document.addEventListener('turbo:load', function () {
-  initReservationSlots();
+  initSlotOptions();
 });
