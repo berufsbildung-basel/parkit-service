@@ -128,3 +128,7 @@
     left: 50%;
     transform: translate(-50%, 0);
 }
+
+#parking-spot-status .parking-spot.self {
+    background-color: var(--spectrum-global-color-magenta-400);
+}

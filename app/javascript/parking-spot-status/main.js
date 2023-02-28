@@ -139,20 +139,23 @@ const parkingSpotClickHandler = (event) => {
   processParkingSpotToggle(parkingSpot);
 };
 
+const disableParkingSpots = (parkingSpots) => {
+  parkingSpots.forEach((parkingSpot) => {
+    disableParkingSpot(parkingSpot);
+  });
+};
+
 const toggleAvailableParkingSpots = (slotOption, parkingSpots, slot) => {
   const candidateSpots = Array.prototype.slice.call(parkingSpots);
   const spotsToEnable = candidateSpots.filter((spot) => parkingSpotSlotFilter(spot, slot));
 
-  spotsToEnable.forEach((spot) => {
-    if (slotOption.classList.contains(CLASS_NAME_SELECTED)) {
-      spot.classList.remove(CLASS_NAME_DISABLED);
-      spot.addEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler);
-    } else {
-      spot.classList.add(CLASS_NAME_DISABLED);
-      spot.classList.remove(CLASS_NAME_SELECTED);
-      spot.removeEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler);
-    }
-  });
+  disableParkingSpots(parkingSpots);
+
+  if (slotOption.classList.contains(CLASS_NAME_SELECTED)) {
+    spotsToEnable.forEach((spot) => {
+      enableParkingSpot(spot);
+    });
+  }
 };
 
 const unselectParkingSpot = (day, slotOption) => {
@@ -189,7 +192,7 @@ const enableParkingSpot = (parkingSpot) => {
     return;
   }
   parkingSpot.classList.remove(CLASS_NAME_DISABLED);
-  parkingSpot.addEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler());
+  parkingSpot.addEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler);
 };
 
 const disableParkingSpot = (parkingSpot) => {
@@ -209,11 +212,20 @@ const initSlotOption = (day, slotName) => {
 
 const initSlotOptions = () => {
   document
-    .querySelectorAll('#parking-spot-status .day')
-    .forEach((day) => {
-      initSlotOption(day, SLOT_NAME_MORNING);
-      initSlotOption(day, SLOT_NAME_AFTERNOON);
-      initSlotOption(day, SLOT_NAME_FULL_DAY);
+    .querySelectorAll('#parking-spot-status .week')
+    .forEach((week) => {
+      const usedBudget = parseInt(week.getAttribute('data-used-budget'));
+      const maxPerWeek = parseInt(week.getAttribute('data-max-budget'));
+
+      if (usedBudget >= maxPerWeek) {
+        return;
+      }
+
+      week.querySelectorAll('.day').forEach((day) => {
+        initSlotOption(day, SLOT_NAME_MORNING);
+        initSlotOption(day, SLOT_NAME_AFTERNOON);
+        initSlotOption(day, SLOT_NAME_FULL_DAY);
+      });
     });
 };
 

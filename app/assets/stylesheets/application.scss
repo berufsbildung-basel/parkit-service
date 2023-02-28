@@ -5,6 +5,7 @@
 @import 'spectrum/page/index-vars';
 @import 'spectrum/typography/index-vars';
 @import 'spectrum/icon/index-vars';
+@import 'spectrum/buttongroup/index-vars';
 @import 'spectrum/button/index-vars';
 @import 'spectrum/site/index-vars';
 @import 'spectrum/sidenav/index-vars';
@@ -67,4 +68,9 @@ code[class*="language-"], pre[class*="language-"] {
 .spectrum-BigSubtleLink.focus-ring,
 .spectrum-BigSubtleLink:hover {
   text-decoration: underline;
+}
+
+#start-reservation a {
+  text-decoration: none;
+  cursor: pointer;
 }

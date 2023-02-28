@@ -6,32 +6,39 @@
     <p class="help">
       How to make reservations:
     <ul>
-      <li>Select duration/time slot for a day (morning, afternoon or full day)</li>
-      <li>Tap on an available parking spot</li>
-      <li>Repeat if you want to reserve on multiple days</li>
+      <li>First, select a time slot for the desired day</li>
+      <li>Parking spots available for the selected time slot will activate</li>
+      <li>Select a parking spot</li>
+      <li>Repeat for other days, if desired</li>
       <li>You can reserve up to once a day and max 3 per week</li>
+      <li>Your already existing reservations are marked magenta</li>
+      <li>Your budget includes reservations previously made ;)</li>
     </ul>
     </p>
     <div class="spectrum-CSSExample-example">
-      <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--accent">
-        <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
-          <use xlink:href="#spectrum-icon-18-User"/>
-        </svg>
-        <div class="spectrum-Badge-label"><%= @user.full_name %></div>
-      </div>
-      <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
-        <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
-          <use xlink:href="#spectrum-icon-18-Car"/>
-        </svg>
-        <div class="spectrum-Badge-label"><%= @vehicle.full_title %></div>
+      <div class="spectrum-ButtonGroup">
+        <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--accent">
+          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-icon-18-User"/>
+          </svg>
+          <div class="spectrum-Badge-label"><%= @user.full_name %></div>
+        </div>
+        <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
+          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-icon-18-Car"/>
+          </svg>
+          <div class="spectrum-Badge-label"><%= @vehicle.full_title %></div>
+        </div>
       </div>
       <p>
-        <strong>AM:</strong> Morning Slot, <strong>PM:</strong> Afternoon Slot, <strong>FD:</strong> Full Day Slot
+        <strong>AM:</strong> Morning Slot (00:00-11:59),<br>
+        <strong>PM:</strong> Afternoon Slot (12:00-23:59),<br>
+        <strong>FD:</strong> Full Day Slot (00:00-23:59)
       </p>
       <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
         <%
           @parking_spots.each do |week, days|
-            num_existing_reservations = Reservation.active_within_a_week_of_user(days.first[0], @user).count
+            num_existing_reservations = Reservation.active_within_business_week(days.first[0], @user).count
         %>
           <div class="week"
                data-weeknumber="<%= week %>"
@@ -68,16 +75,20 @@
                   <%
                     parking_spots.each do |parking_spot|
                       css_class = 'available'
-                      reservation = parking_spot.reservations.first
+                      reservations = parking_spot.reservations.active.where(date: date)
 
                       if parking_spot.unavailable?
                         css_class = 'unavailable'
-                      elsif parking_spot.reservations.count == 1 && reservation.half_day?
-                        css_class += " #{reservation.am? ? 'pm' : 'am'}"
-                      elsif parking_spot.reservations.count > 0
+                      elsif reservations.count == 1 && reservations.first.half_day?
+                        css_class += " #{reservations.first.am? ? 'pm' : 'am'}"
+                      elsif reservations.count > 0
                         css_class = 'fully-booked'
                       else
                         css_class += ' full-day'
+                      end
+
+                      if reservations.where(user_id: @user.id).count > 0
+                        css_class += ' self'
                       end
                   %>
                     <div class="parking-spot <%= css_class %> disabled" data-id="<%= parking_spot.id %>">

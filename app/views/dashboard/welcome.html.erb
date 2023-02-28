@@ -1,57 +1,71 @@
 <%
   content_for :title, 'Welcome'
 %>
+<header class="spectrum-CSSComponent-sectionHeading" id="usage">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+    <a class="spectrum-BigSubtleLink" href="#new-reservation">Make a Reservation</a>
+  </h2>
+  <hr class="spectrum-Divider spectrum-Divider--large">
+</header>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <div class="spectrum-CSSExample-example">
-      <h2>Make a Reservation</h2>
-      <%= form_for @reservation, html: { class: 'spectrum-Form', id: 'reservation-form' } do |f| %>
-        <div class="spectrum-Form-item">
-          <%= f.label :vehicle_id,
-                      "Select Vehicle",
-                      class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
-          %>
-          <div class="spectrum-Form-itemField">
-            <div class="spectrum-Textfield">
-              <%= f.select :vehicle_id,
-                           options_from_collection_for_select(current_user.vehicles, :id, :license_plate_number),
-                           include_blank: true,
-                           required: true,
-                           placeholder: 'Select Vehicle',
-                           class: 'spectrum-Textfield-input vehicle-select'
-              %>
-            </div>
-          </div>
-        </div>
-        <p>
-          <button
-            disabled="disabled"
-            class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL">
-            <span class="spectrum-Button-label">Start</span>
-          </button>
-        </p>
+    <p>
+      Select a vehicle:
+    </p>
+    <div id="start-reservation" class="spectrum-ButtonGroup">
+      <% current_user.vehicles.order(:license_plate_number).each do |vehicle| %>
+        <a
+          href="<%= new_user_vehicle_reservation_path(vehicle.user.id, vehicle.id) %>"
+          class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
+          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-icon-18-Car"/>
+          </svg>
+          <div class="spectrum-Badge-label"><%= vehicle.full_title %></div>
+        </a>
       <% end %>
     </div>
   </div>
 </section>
 
-<script>
-  const vehicleSelect = document.querySelector('#reservation-form select');
-  const startButton = document.querySelector("#reservation-form button");
-
-  vehicleSelect.addEventListener('change', (event) => {
-    const vehicleId = event.target.selectedOptions[0].value;
-    if (!vehicleId) {
-      return;
-    }
-    startButton.disabled = false;
-  });
-
-  startButton.addEventListener('click', () => {
-    const vehicleId = vehicleSelect.selectedOptions[0].value;
-    if (!vehicleId) {
-      return;
-    }
-    top.location.href = `/users/<%= current_user.id %>/vehicles/${vehicleId}/reservations/new`;
-  });
-</script>
+<header class="spectrum-CSSComponent-sectionHeading" id="usage">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+    <a class="spectrum-BigSubtleLink" href="#future-reservations">Future Reservations</a>
+  </h2>
+  <hr class="spectrum-Divider spectrum-Divider--large">
+</header>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <th class="spectrum-Table-headCell">ID</th>
+        <th class="spectrum-Table-headCell">Date</th>
+        <th class="spectrum-Table-headCell">Parking Spot</th>
+        <th class="spectrum-Table-headCell">Vehicle</th>
+        <th class="spectrum-Table-headCell">Slot</th>
+        <th class="spectrum-Table-headCell">Actions</th>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <% @reservations.each do |reservation| %>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
+          <td class="spectrum-Table-cell"><%= reservation.date %></td>
+          <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
+          <td class="spectrum-Table-cell"><%= reservation.half_day? %></td>
+          <td class="spectrum-Table-cell">
+            <%= button_to 'Cancel',
+                          user_reservation_cancel_path(reservation.user.id, reservation.id),
+                          method: :put,
+                          #data: { turbo: false },
+                          form: { data: { turbo_confirm: 'Are you sure?' } },
+                          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
+            %>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+  </div>
+</section>

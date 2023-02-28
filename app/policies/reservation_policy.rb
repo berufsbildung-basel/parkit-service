@@ -25,6 +25,10 @@ class ReservationPolicy < ApplicationPolicy
     edit?
   end
 
+  def cancel?
+    edit?
+  end
+
   def create?
     edit?
   end

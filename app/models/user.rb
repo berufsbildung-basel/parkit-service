@@ -34,7 +34,7 @@ class User < ApplicationRecord
   end
 
   def exceeds_reservations_per_week?(reservation)
-    reservations = Reservation.active_within_a_week_of_user(reservation.date, self)
+    reservations = Reservation.active_within_business_week(reservation.date, self)
 
     reservations.size >= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
   end

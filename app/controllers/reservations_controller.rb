@@ -4,11 +4,12 @@
 class ReservationsController < ApplicationController
   def create
     params[:reservations].each do |reservation|
-      @reservation = Reservation.create(reservation_params(reservation))
+      @reservation = Reservation.new(reservation_params(reservation))
       authorize @reservation
       unless @reservation.save
         respond_to do |format|
-          flash[:danger] = 'There was a problem creating the reservations.'
+          flash[:danger] =
+            "There was a problem creating the reservations: #{@reservation.errors.full_messages.join(';')}"
           format.html { redirect_to dashboard_path }
         end
         return
@@ -29,8 +30,10 @@ class ReservationsController < ApplicationController
   def new
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.find(params[:vehicle_id])
+    @parking_spots = ParkingSpot.status_for_user_next_days(@user,
+ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
     @reservation = @vehicle.reservations.new
-    @parking_spots = ParkingSpot.status_for_user_next_days(@user, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+
     authorize @reservation
   end
 
@@ -57,7 +60,26 @@ class ReservationsController < ApplicationController
   end
 
   def cancel
-    # code here
+    @user = User.find(params[:user_id])
+    @reservation = @user.reservations.find(params[:reservation_id])
+    authorize @reservation
+
+    @reservation.assign_attributes({
+                                     cancelled: true,
+                                     cancelled_at: Time.now,
+                                     cancelled_by: current_user
+                                   })
+    if @reservation.save(validate: false)
+      respond_to do |format|
+        flash[:success] = 'Reservation was successfully cancelled.'
+        format.html { redirect_to dashboard_path }
+      end
+    else
+      respond_to do |format|
+        flash[:danger] = 'There was a problem cancelling the reservation.'
+        format.html { redirect_to dashboard_path }
+      end
+    end
   end
 
   private
