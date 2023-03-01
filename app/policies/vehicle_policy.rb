@@ -25,6 +25,10 @@ class VehiclePolicy < ApplicationPolicy
     edit?
   end
 
+  def new?
+    edit?
+  end
+
   def create?
     true
   end

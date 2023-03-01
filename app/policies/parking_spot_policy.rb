@@ -25,6 +25,10 @@ class ParkingSpotPolicy < ApplicationPolicy
     edit?
   end
 
+  def new?
+    edit?
+  end
+
   def create?
     edit?
   end

@@ -9,21 +9,32 @@
 </header>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <p>
-      Select a vehicle:
-    </p>
-    <div id="start-reservation" class="spectrum-ButtonGroup">
-      <% current_user.vehicles.order(:license_plate_number).each do |vehicle| %>
-        <a
-          href="<%= new_user_vehicle_reservation_path(vehicle.user.id, vehicle.id) %>"
-          class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
-          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
-            <use xlink:href="#spectrum-icon-18-Car"/>
-          </svg>
-          <div class="spectrum-Badge-label"><%= vehicle.full_title %></div>
-        </a>
-      <% end %>
-    </div>
+    <% if current_user.vehicles.empty? %>
+      <p>
+        In order to make a reservation, you need a vehicle.
+      </p>
+      <%= button_to 'Create Vehicle',
+                    new_user_vehicle_path(current_user.id),
+                    method: :get,
+                    class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+    <% else %>
+      <p>
+        Select a vehicle:
+      </p>
+      <div id="start-reservation" class="spectrum-ButtonGroup">
+        <% current_user.vehicles.order(:license_plate_number).each do |vehicle| %>
+          <a
+            href="<%= new_user_vehicle_reservation_path(vehicle.user.id, vehicle.id) %>"
+            class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
+            <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-icon-18-Car"/>
+            </svg>
+            <div class="spectrum-Badge-label"><%= vehicle.full_title %></div>
+          </a>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </section>
 

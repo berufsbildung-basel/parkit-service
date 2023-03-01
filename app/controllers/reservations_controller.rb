@@ -32,7 +32,8 @@ class ReservationsController < AuthorizableController
     @vehicle = @user.vehicles.find(params[:vehicle_id])
     @parking_spots = ParkingSpot.status_for_user_next_days(@user,
                                                            ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
-    @reservation = @vehicle.reservations.new
+    @reservation = @user.reservations.new
+    @reservation.vehicle = @vehicle
 
     authorize @reservation
   end

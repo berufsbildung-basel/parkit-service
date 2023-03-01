@@ -33,6 +33,10 @@ class ReservationPolicy < ApplicationPolicy
     edit?
   end
 
+  def new?
+    edit?
+  end
+
   def show?
     edit?
   end
