@@ -19,7 +19,7 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
-    <%= render 'users/reservations_table',
+    <%= render 'reservations_table',
                reservations: @reservations.active_in_the_future,
                show_actions: true,
                show_user: true
@@ -35,7 +35,7 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
-    <%= render 'users/reservations_table',
+    <%= render 'reservations_table',
                reservations: @reservations.active_in_the_past,
                show_user: true
     %>
@@ -50,7 +50,7 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
-    <%= render 'users/reservations_table',
+    <%= render 'reservations_table',
                reservations: @reservations.cancelled,
                show_user: true
     %>
