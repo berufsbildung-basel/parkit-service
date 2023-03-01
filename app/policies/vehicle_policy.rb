@@ -8,7 +8,7 @@ class VehiclePolicy < ApplicationPolicy
       if user.admin?
         scope.all
       else
-        scope.none
+        scope.where(user_id: user.id)
       end
     end
   end

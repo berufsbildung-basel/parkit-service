@@ -8,7 +8,7 @@ class ReservationPolicy < ApplicationPolicy
       if user.admin?
         scope.all
       else
-        scope.where(user_id: current_user.id)
+        scope.where(user_id: user.id)
       end
     end
   end
