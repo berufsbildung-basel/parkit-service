@@ -184,6 +184,9 @@ const enableSlotOption = (slotOption) => {
 
 const disableSlotOption = (slotOption) => {
   slotOption.classList.add(CLASS_NAME_DISABLED);
+  if (slotOption.parentElement.parentElement.querySelectorAll('.parking-spot.selected').length === 0) {
+    slotOption.classList.remove(CLASS_NAME_SELECTED);
+  }
   slotOption.removeEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
 };
 
@@ -197,7 +200,7 @@ const enableParkingSpot = (parkingSpot) => {
 
 const disableParkingSpot = (parkingSpot) => {
   parkingSpot.classList.add(CLASS_NAME_DISABLED);
-  parkingSpot.removeEventListener(EVENT_NAME_CLICK, slotOptionClickHandler);
+  parkingSpot.removeEventListener(EVENT_NAME_CLICK, parkingSpotClickHandler);
 };
 
 const initSlotOption = (day, slotName) => {
