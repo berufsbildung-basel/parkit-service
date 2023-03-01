@@ -18,16 +18,20 @@
 </section>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <%= link_to 'Edit',
-                edit_user_vehicle_path(@vehicle.user.id, @vehicle.id),
-                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
-    %>
-
-    <%= link_to "Delete",
-                user_vehicle_path(@vehicle.user.id, @vehicle.id),
-                data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' },
-                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
-    %>
+    <div class="spectrum-ButtonGroup">
+      <%= link_to 'Edit',
+                  edit_user_vehicle_path(@vehicle.user.id, @vehicle.id),
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+      <%= button_to "Delete",
+                    user_vehicle_path(@vehicle.user.id, @vehicle.id),
+                    disabled: @vehicle.reservations.any?,
+                    title: 'Vehicle can only be deleted if there is no reservations associated',
+                    method: :delete,
+                    form: { data: { turbo_confirm: 'Are you sure?' } },
+                    class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
+      %>
+    </div>
   </div>
 </section>
 

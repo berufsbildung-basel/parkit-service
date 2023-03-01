@@ -39,6 +39,8 @@
               %>
               <%= button_to 'Delete',
                             user_vehicle_path(@user.id, vehicle.id),
+                            disabled: vehicle.reservations.any?,
+                            title: 'Vehicle can only be deleted if there is no reservations associated',
                             method: :delete,
                             form: { data: { turbo_confirm: 'Are you sure?' } },
                             class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'

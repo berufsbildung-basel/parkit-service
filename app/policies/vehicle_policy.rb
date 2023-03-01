@@ -22,7 +22,7 @@ class VehiclePolicy < ApplicationPolicy
   end
 
   def destroy?
-    edit?
+    user.admin? or (user.id == record.user_id and record.reservations.empty?)
   end
 
   def new?
