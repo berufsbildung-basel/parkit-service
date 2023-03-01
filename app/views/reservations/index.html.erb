@@ -8,53 +8,51 @@
     </p>
   </div>
 </section>
+
+
+
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <table class="spectrum-Table spectrum-Table--sizeM reservations-table">
-      <thead class="spectrum-Table-head">
-      <tr>
-        <th class="spectrum-Table-headCell">ID</th>
-        <th class="spectrum-Table-headCell">User</th>
-        <th class="spectrum-Table-headCell">Date</th>
-        <th class="spectrum-Table-headCell">Parking Spot</th>
-        <th class="spectrum-Table-headCell">Vehicle</th>
-        <th class="spectrum-Table-headCell">Slot</th>
-        <th class="spectrum-Table-headCell">Status</th>
-        <th class="spectrum-Table-headCell">Actions</th>
-      </tr>
-      </thead>
-      <tbody class="spectrum-Table-body">
-      <% @reservations.each do |reservation| %>
-        <tr class="spectrum-Table-row<%= reservation.cancelled? ? ' cancelled' : '' %>">
-          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
-          <td class="spectrum-Table-cell"><%= link_to reservation.user.full_name, user_path(reservation.user.id), class: 'spectrum-Link' %></td>
-          <td class="spectrum-Table-cell"><%= reservation.date %></td>
-          <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
-          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
-          <td class="spectrum-Table-cell">
-            <% if reservation.half_day? %>
-              <%= reservation.am? ? 'AM' : 'PM' %>
-            <% else %>
-              FD
-            <% end %>
-          </td>
-          <td class="spectrum-Table-cell"><%= reservation.cancelled? ? 'cancelled' : 'ok' %></td>
-          <td class="spectrum-Table-cell">
-            <div class="spectrum-ButtonGroup">
-              <% unless reservation.cancelled? %>
-                <%= button_to 'Cancel',
-                              user_reservation_cancel_path(reservation.user.id, reservation.id),
-                              method: :put,
-                              #data: { turbo: false },
-                              form: { data: { turbo_confirm: 'Are you sure?' } },
-                              class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
-                %>
-              <% end %>
-            </div>
-          </td>
-        </tr>
-      <% end %>
-      </tbody>
-    </table>
+    <header class="spectrum-CSSComponent-sectionHeading" id="active-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#active-reservations">Active Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'users/reservations_table',
+               reservations: @reservations.active_in_the_future,
+               show_actions: true,
+               show_user: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="past-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'users/reservations_table',
+               reservations: @reservations.active_in_the_past,
+               show_user: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="cancelled-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#cancelled-reservations">Cancelled Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'users/reservations_table',
+               reservations: @reservations.cancelled,
+               show_user: true
+    %>
   </div>
 </section>

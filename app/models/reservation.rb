@@ -23,6 +23,10 @@ class Reservation < ApplicationRecord
 
   validates_with ReservationValidator
 
+  def can_be_cancelled?(current_user)
+    current_user.admin? || start_time > Time.now
+  end
+
   def slot_name
     if half_day?
       am? ? 'AM' : 'PM'
@@ -35,8 +39,28 @@ class Reservation < ApplicationRecord
     where(cancelled: false)
   }
 
+  scope :cancelled, lambda {
+    where(cancelled: true)
+      .joins(:parking_spot)
+      .order('reservations.start_time, parking_spots.number')
+  }
+
   scope :active_on_date, lambda { |date|
     active.where(date:)
+  }
+
+  scope :active_in_the_future, lambda {
+    active
+      .joins(:parking_spot)
+      .where('reservations.date >= ?', Date.today)
+      .order('reservations.start_time, parking_spots.number')
+  }
+
+  scope :active_in_the_past, lambda {
+    active
+      .joins(:parking_spot)
+      .where('reservations.date < ?', Date.today)
+      .order('reservations.start_time, parking_spots.number')
   }
 
   scope :overlapping_on_date_and_parking_spot, lambda { |date, parking_spot, user, start_time, end_time|
@@ -74,7 +98,7 @@ class Reservation < ApplicationRecord
 
   def self.calculate_end_time(date, half_day, am)
     if half_day && am
-      date.noon
+      date.noon - 1.minute
     else
       date.end_of_day
     end

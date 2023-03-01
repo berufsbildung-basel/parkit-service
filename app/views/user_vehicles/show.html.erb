@@ -3,21 +3,69 @@
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="vehicle-details">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#vehicle-details">Details</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
     <ul>
       <li>License Plate Number: <%= @vehicle.license_plate_number %></li>
       <li>Make: <%= @vehicle.make %></li>
       <li>Model: <%= @vehicle.model %></li>
     </ul>
-
+  </div>
+</section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
     <%= link_to 'Edit',
-                edit_user_vehicle_path(@user.id, @vehicle.id),
+                edit_user_vehicle_path(@vehicle.user.id, @vehicle.id),
                 class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
     %>
 
     <%= link_to "Delete",
-                  user_vehicle_path(@user.id, @vehicle.id),
-                  data: {turbo_method: :delete, turbo_confirm: 'Are you sure?'},
-                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
+                user_vehicle_path(@vehicle.user.id, @vehicle.id),
+                data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' },
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
     %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="active-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#active-reservations">Active Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table',
+               reservations: @vehicle.reservations.active_in_the_future,
+               show_actions: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="past-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table', reservations: @vehicle.reservations.active_in_the_past %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="cancelled-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#cancelled-reservations">Cancelled Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table', reservations: @vehicle.reservations.cancelled %>
   </div>
 </section>

@@ -3,7 +3,12 @@
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <h2>Details</h2>
+    <header class="spectrum-CSSComponent-sectionHeading" id="details">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#details">Details</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
     <ul>
       <li>Number: <%= @parking_spot.number %></li>
       <li>Charger: <%= @parking_spot.charger_available %></li>
@@ -23,6 +28,53 @@
                 parking_spot_path(@parking_spot.id),
                 data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' },
                 class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeL'
+    %>
+  </div>
+</section>
+
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="active-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#active-reservations">Active Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table',
+               reservations: @parking_spot.reservations.active_in_the_future,
+               show_actions: true,
+               show_user: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="past-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table',
+               reservations: @parking_spot.reservations.active_in_the_past,
+               show_user: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="cancelled-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#cancelled-reservations">Cancelled Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table',
+               reservations: @parking_spot.reservations.cancelled,
+               show_user: true
     %>
   </div>
 </section>

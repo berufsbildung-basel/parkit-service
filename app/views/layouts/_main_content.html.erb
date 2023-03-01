@@ -5,7 +5,6 @@
         <a class="spectrum-BigSubtleLink" href="#<%= ERB::Util.u(yield(:title).downcase) %>"><%= yield(:title) %></a>
       </h1>
     </header>
-    <%= yield %>
 
     <% flash.each do |name, msg| -%>
       <%
@@ -40,5 +39,7 @@
         </div>
       </div>
     <% end -%>
+
+    <%= yield %>
   </article>
 </div>

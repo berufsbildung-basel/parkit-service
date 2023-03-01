@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # User controller
-class UsersController < ApplicationController
+class UsersController < AuthorizableController
 
   def edit
     @user = User.find(params[:id])
@@ -14,8 +14,8 @@ class UsersController < ApplicationController
 
   def show
     @user = User.find(params[:id])
-    @reservations = @user.reservations.active.where('reservations.date >= ?', Date.today).order(:date)
     authorize @user
+    @reservations = @user.reservations.active_in_the_future
   end
 
   def update

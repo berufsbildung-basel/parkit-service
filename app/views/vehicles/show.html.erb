@@ -31,3 +31,42 @@
     %>
   </div>
 </section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="active-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#active-reservations">Active Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table',
+               reservations: @vehicle.reservations.active_in_the_future,
+               show_actions: true
+    %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="past-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table', reservations: @vehicle.reservations.active_in_the_past %>
+  </div>
+</section>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="cancelled-reservations">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#cancelled-reservations">Cancelled Reservations</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <%= render 'reservations/reservations_table', reservations: @vehicle.reservations.cancelled %>
+  </div>
+</section>

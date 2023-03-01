@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # ParkingSpot controller
-class ParkingSpotsController < ApplicationController
+class ParkingSpotsController < AuthorizableController
   def create
     @parking_spot = ParkingSpot.create(parking_spot_params)
     authorize @parking_spot

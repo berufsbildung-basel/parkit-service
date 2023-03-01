@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Vehicle controller
-class UserVehiclesController < ApplicationController
+class UserVehiclesController < AuthorizableController
   def create
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.create(vehicle_params)

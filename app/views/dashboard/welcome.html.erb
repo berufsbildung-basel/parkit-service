@@ -40,9 +40,9 @@
       <tr>
         <th class="spectrum-Table-headCell">ID</th>
         <th class="spectrum-Table-headCell">Date</th>
+        <th class="spectrum-Table-headCell">Time</th>
         <th class="spectrum-Table-headCell">Parking Spot</th>
         <th class="spectrum-Table-headCell">Vehicle</th>
-        <th class="spectrum-Table-headCell">Slot</th>
         <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
@@ -51,15 +51,24 @@
         <tr class="spectrum-Table-row">
           <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
           <td class="spectrum-Table-cell"><%= reservation.date %></td>
+          <td class="spectrum-Table-cell">
+            <%= reservation.slot_name %>
+            (<%= reservation.start_time.strftime('%H:%M') %> - <%= reservation.end_time.strftime('%H:%M') %>)
+          </td>
           <td class="spectrum-Table-cell"><%= reservation.parking_spot.number %></td>
-          <td class="spectrum-Table-cell"><%= reservation.vehicle.license_plate_number %></td>
-          <td class="spectrum-Table-cell"><%= reservation.slot_name %></td>
+          <td class="spectrum-Table-cell">
+            <%= link_to reservation.vehicle.license_plate_number, user_vehicle_path(reservation.user.id, reservation.vehicle.id) %>
+          </td>
           <td class="spectrum-Table-cell">
             <div class="spectrum-ButtonGroup">
+              <%
+                reservation_can_be_cancelled = reservation.can_be_cancelled?(current_user)
+              %>
               <%= button_to 'Cancel',
                             user_reservation_cancel_path(reservation.user.id, reservation.id),
+                            disabled: !reservation_can_be_cancelled,
+                            title: !reservation_can_be_cancelled ? 'You can only cancel reservations that have not started' : 'Cancels this reservation',
                             method: :put,
-                            #data: { turbo: false },
                             form: { data: { turbo_confirm: 'Are you sure?' } },
                             class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeS'
               %>

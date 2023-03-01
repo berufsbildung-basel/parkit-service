@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Vehicle controller
-class VehiclesController < ApplicationController
+class VehiclesController < AuthorizableController
   def create
     @vehicle = Vehicle.create(vehicle_params)
     authorize @vehicle

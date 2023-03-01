@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Vehicle controller
-class ReservationsController < ApplicationController
+class ReservationsController < AuthorizableController
   def create
     params[:reservations].each do |reservation|
       @reservation = Reservation.new(reservation_params(reservation))
@@ -24,11 +24,7 @@ class ReservationsController < ApplicationController
   end
 
   def index
-    @reservations = policy_scope(
-      Reservation.joins(:parking_spot)
-                 .where('reservations.date >= ?', Date.today)
-                 .order('reservations.date, parking_spots.number asc')
-    )
+    @reservations = policy_scope(Reservation.active_in_the_future)
   end
 
   def new
@@ -46,11 +42,12 @@ class ReservationsController < ApplicationController
     @reservation = @user.reservations.find(params[:reservation_id])
     authorize @reservation
 
-    if @reservation.start_time <= Time.now
+    unless @reservation.can_be_cancelled?(current_user)
       respond_to do |format|
-        flash[:success] = 'Only future reservations can be cancelled.'
+        flash[:danger] = 'Only future reservations can be cancelled.'
         format.html { redirect_to dashboard_path }
       end
+      return
     end
 
     @reservation.assign_attributes({
