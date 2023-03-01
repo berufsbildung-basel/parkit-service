@@ -1,0 +1,30 @@
+<%
+  content_for :title, 'My Billing'
+%>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <p>
+      Months with reservations in reverse chronological order with the total amount of charges.
+    </p>
+  </div>
+  <table class="spectrum-Table spectrum-Table--sizeM">
+    <thead class="spectrum-Table-head">
+    <tr>
+      <th class="spectrum-Table-headCell">Month</th>
+      <th class="spectrum-Table-headCell">Reservations</th>
+      <th class="spectrum-Table-headCell">Total CHF</th>
+      <th class="spectrum-Table-headCell">Status</th>
+    </tr>
+    </thead>
+    <tbody class="spectrum-Table-body">
+    <% @reservations.each do |month, reservations| %>
+      <tr class="spectrum-Table-row">
+        <td class="spectrum-Table-cell"><strong><%= month.strftime('%b %Y') %></strong></td>
+        <td class="spectrum-Table-cell"><%= reservations.count %></td>
+        <td class="spectrum-Table-cell"><%= reservations.sum(&:price) %></td>
+        <td class="spectrum-Table-cell"><%= Date.today > month ? 'Due' : 'Accruing' %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+</section>

@@ -24,6 +24,12 @@
               </svg>
               My Vehicles
             </a>
+            <a class="spectrum-SideNav-itemLink js-fastLoad" href="<%= user_billing_path(current_user.id) %>">
+              <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                <use xlink:href="#spectrum-icon-18-Money"/>
+              </svg>
+              My Billing
+            </a>
           </li>
         </ul>
       </li>
@@ -36,6 +42,14 @@
             Administration
           </a>
           <ul class="spectrum-SideNav spectrum-SideNav--multiLevel">
+            <li class="spectrum-SideNav-item">
+              <a class="spectrum-SideNav-itemLink js-fastLoad" href="/billing">
+                <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+                  <use xlink:href="#spectrum-icon-18-Money"/>
+                </svg>
+                Billing
+              </a>
+            </li>
             <li class="spectrum-SideNav-item">
               <a class="spectrum-SideNav-itemLink js-fastLoad" href="/reservations">
                 <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">

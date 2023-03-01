@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   root to: redirect(path: '/dashboard', status: 302)
 
   get '/dashboard', controller: 'dashboard', action: 'welcome'
+  get '/billing', controller: 'billing', action: 'index'
 
   resources :users do
     resources :reservations do
@@ -17,6 +18,7 @@ Rails.application.routes.draw do
     resources :vehicles, controller: 'user_vehicles' do
       resources :reservations
     end
+    get 'billing', controller: 'user_billing', action: 'index'
   end
 
   resources :parking_spots
