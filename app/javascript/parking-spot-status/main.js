@@ -202,6 +202,11 @@ const disableParkingSpot = (parkingSpot) => {
 
 const initSlotOption = (day, slotName) => {
   const slotOption = day.querySelector(`.${slotName}`);
+
+  if (day.querySelectorAll('.parking-spot.self').length > 0) {
+    return;
+  }
+
   const availableSpots = Array.prototype.slice.call(day.querySelectorAll('.parking-spot.available'));
   const availableSlotSpots = availableSpots.filter((spot) => parkingSpotSlotFilter(spot, slotName));
 
