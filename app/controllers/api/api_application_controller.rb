@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # API base controller
-class ApplicationController < ActionController::API
+class ApiApplicationController < ActionController::API
 
   include Pundit::Authorization
 

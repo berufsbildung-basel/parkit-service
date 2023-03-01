@@ -3,7 +3,7 @@
 module Api
   module V1
     # Base API controller
-    class ApiController < ActionController::API
+    class ApiController < ApiApplicationController
 
       def has_error?(resource, attribute, error)
         resource.errors.details.include?(attribute) &&
