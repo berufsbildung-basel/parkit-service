@@ -19,9 +19,6 @@
                     class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
       %>
     <% else %>
-      <p>
-        Select a vehicle:
-      </p>
       <div id="start-reservation" class="spectrum-ButtonGroup">
         <% current_user.vehicles.order(:license_plate_number).each do |vehicle| %>
           <a
@@ -30,7 +27,9 @@
             <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
               <use xlink:href="#spectrum-icon-18-Car"/>
             </svg>
-            <div class="spectrum-Badge-label"><%= vehicle.full_title %></div>
+            <div class="spectrum-Badge-label">
+              Make reservation for <%= vehicle.full_title %>
+            </div>
           </a>
         <% end %>
       </div>

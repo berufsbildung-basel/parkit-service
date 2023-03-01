@@ -3,18 +3,6 @@
 %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
-    <p class="help">
-      How to make reservations:
-    <ul>
-      <li>First, select a time slot for the desired day</li>
-      <li>Parking spots available for the selected time slot will activate</li>
-      <li>Select a parking spot</li>
-      <li>Repeat for other days, if desired</li>
-      <li>You can reserve up to once a day and max 3 per week</li>
-      <li>Your already existing reservations are marked magenta</li>
-      <li>Your budget includes reservations previously made ;)</li>
-    </ul>
-    </p>
     <div class="spectrum-CSSExample-example">
       <div class="spectrum-ButtonGroup">
         <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--accent">
@@ -34,6 +22,18 @@
         <strong>AM:</strong> Morning Slot (00:00-11:59),<br>
         <strong>PM:</strong> Afternoon Slot (12:00-23:59),<br>
         <strong>FD:</strong> Full Day Slot (00:00-23:59)
+      </p>
+      <p>
+      <div class="spectrum-Examples-item">
+        <a href="https://adobe.sharepoint.com/sites/BaselWorkplaceCommittee/SitePages/New-Office-Parking-Help.aspx">
+          <button class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL">
+            <svg class="spectrum-Icon spectrum-Icon--sizeL" focusable="false" aria-hidden="true" aria-label="Edit">
+              <use xlink:href="#spectrum-icon-18-Help"/>
+            </svg>
+            <span class="spectrum-Button-label">Help</span>
+          </button>
+        </a>
+      </div>
       </p>
       <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
         <%
