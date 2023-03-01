@@ -6,7 +6,7 @@ class Reservation < ApplicationRecord
   belongs_to :vehicle
   belongs_to :user
 
-  before_validation :set_start_time, :set_end_time
+  before_validation :set_start_time, :set_end_time, :set_price
 
   validates_date :date,
                  on_or_after: :today,
@@ -118,5 +118,9 @@ class Reservation < ApplicationRecord
     return unless date.present?
 
     self.end_time = Reservation.calculate_end_time(date, half_day, am)
+  end
+
+  def set_price
+    self.price = half_day? ? ParkitService::RESERVATION_PRICE_HALF_DAY : ParkitService::RESERVATION_PRICE_FULL_DAY
   end
 end

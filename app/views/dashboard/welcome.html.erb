@@ -52,6 +52,7 @@
         <th class="spectrum-Table-headCell">Time</th>
         <th class="spectrum-Table-headCell">Parking Spot</th>
         <th class="spectrum-Table-headCell">Vehicle</th>
+        <th class="spectrum-Table-headCell">Price CHF</th>
         <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
@@ -67,6 +68,7 @@
           <td class="spectrum-Table-cell">
             <%= link_to reservation.vehicle.license_plate_number, user_vehicle_path(reservation.user.id, reservation.vehicle.id) %>
           </td>
+          <td class="spectrum-Table-cell"><%= reservation.price %></td>
           <td class="spectrum-Table-cell">
             <div class="spectrum-ButtonGroup">
               <%

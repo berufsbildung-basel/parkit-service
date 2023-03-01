@@ -13,6 +13,9 @@ module ParkitService
   RESERVATION_MAX_RESERVATIONS_PER_DAY = 1
   RESERVATION_MAX_RESERVATIONS_PER_WEEK = 3
 
+  RESERVATION_PRICE_HALF_DAY = 10
+  RESERVATION_PRICE_FULL_DAY = 20
+
   # Main application
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
