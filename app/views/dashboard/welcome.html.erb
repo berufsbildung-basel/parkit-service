@@ -48,7 +48,6 @@
     <table class="spectrum-Table spectrum-Table--sizeM">
       <thead class="spectrum-Table-head">
       <tr>
-        <th class="spectrum-Table-headCell">ID</th>
         <th class="spectrum-Table-headCell">Date</th>
         <th class="spectrum-Table-headCell">Time</th>
         <th class="spectrum-Table-headCell">Parking Spot</th>
@@ -59,7 +58,6 @@
       <tbody class="spectrum-Table-body">
       <% @reservations.each do |reservation| %>
         <tr class="spectrum-Table-row">
-          <td class="spectrum-Table-cell"><%= reservation.id.truncate(8) %></td>
           <td class="spectrum-Table-cell"><%= reservation.date %></td>
           <td class="spectrum-Table-cell">
             <%= reservation.slot_name %>

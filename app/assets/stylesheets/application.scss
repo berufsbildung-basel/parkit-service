@@ -76,6 +76,10 @@ code[class*="language-"], pre[class*="language-"] {
   cursor: pointer;
 }
 
+.spectrum-Site-sideBarHeader {
+  align-items: flex-start;
+}
+
 table.reservations-table tr.cancelled td {
   color: var(--spectrum-global-color-gray-400)
 }
