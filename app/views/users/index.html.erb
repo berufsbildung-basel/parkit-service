@@ -15,6 +15,7 @@
         <th class="spectrum-Table-headCell">Role</th>
         <th class="spectrum-Table-headCell">Status</th>
         <th class="spectrum-Table-headCell">Vehicles</th>
+        <th class="spectrum-Table-headCell">Reservations</th>
         <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
@@ -26,6 +27,7 @@
           <td class="spectrum-Table-cell"><%= user.role %></td>
           <td class="spectrum-Table-cell"><%= user.disabled? ? 'disabled' : 'active' %></td>
           <td class="spectrum-Table-cell"><%= user.vehicles.count %></td>
+          <td class="spectrum-Table-cell"><%= user.reservations.count %></td>
           <td class="spectrum-Table-cell">
             <div class="spectrum-ButtonGroup">
               <%= link_to 'Edit',
