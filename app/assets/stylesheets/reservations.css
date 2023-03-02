@@ -98,6 +98,7 @@
 }
 
 #parking-spot-status .parking-spot {
+    position: relative;
     margin: 5px 0 5px 5px;
     color: var(--spectrum-white);
     background-color: var(--spectrum-global-color-seafoam-400);
@@ -131,4 +132,29 @@
 
 #parking-spot-status .parking-spot.self {
     background-color: var(--spectrum-global-color-magenta-400);
+}
+
+#parking-spot-status .parking-spot.self:before {
+    content: 'FD';
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    font-size: 0.7em;
+}
+
+#parking-spot-status .parking-spot.self.am {
+    background-color: var(--spectrum-global-color-indigo-400);
+}
+
+#parking-spot-status .parking-spot.self.am:before {
+    content: 'AM';
+}
+
+#parking-spot-status .parking-spot.self.pm {
+    background-color: var(--spectrum-global-color-purple-400);
+}
+
+#parking-spot-status .parking-spot.self.pm:before {
+    content: 'PM';
 }
