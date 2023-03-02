@@ -148,7 +148,7 @@
 }
 
 #parking-spot-status .parking-spot.self.am:before {
-    content: 'AM';
+    content: 'PM';
 }
 
 #parking-spot-status .parking-spot.self.pm {
@@ -156,5 +156,5 @@
 }
 
 #parking-spot-status .parking-spot.self.pm:before {
-    content: 'PM';
+    content: 'AM';
 }
