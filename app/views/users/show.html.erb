@@ -38,6 +38,12 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
+    <p>
+      <%= link_to 'Add Vehicle',
+                  new_user_vehicle_path(@user.id),
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+      %>
+    </p>
     <table class="spectrum-Table spectrum-Table--sizeM">
       <thead class="spectrum-Table-head">
       <tr>
