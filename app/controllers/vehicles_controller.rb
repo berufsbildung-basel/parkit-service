@@ -26,7 +26,7 @@ class VehiclesController < AuthorizableController
     if @vehicle.destroy
       respond_to do |format|
         flash[:success] = 'Vehicle was successfully deleted.'
-        format.html { redirect_to vehicle_path(@user.id) }
+        format.html { redirect_to vehicle_path(@vehicle.user.id) }
       end
     else
       respond_to do |format|

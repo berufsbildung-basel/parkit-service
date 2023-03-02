@@ -19,6 +19,10 @@
 </section>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
+    <%= link_to 'Create Reservation',
+                new_user_vehicle_reservation_path(@vehicle.user.id, @vehicle.id),
+                class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
+    %>
     <%= link_to 'Edit',
                 edit_vehicle_path(@vehicle.id),
                 class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'

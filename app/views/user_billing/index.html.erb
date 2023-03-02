@@ -27,4 +27,9 @@
     <% end %>
     </tbody>
   </table>
+  <% if @reservations.empty? %>
+    <p>
+      No data yet.
+    </p>
+  <% end %>
 </section>
