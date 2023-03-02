@@ -37,6 +37,8 @@
       </p>
       <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
         <%
+          today_class = ' today'
+
           @parking_spots.each do |week, days|
             num_existing_reservations = Reservation.active_within_business_week(days.first[0], @user).count
         %>
@@ -56,7 +58,7 @@
               days.each do |date, parking_spots|
                 week_day = date.strftime("%a")
             %>
-              <div class="day <%= week_day.downcase %>">
+              <div class="day <%= week_day.downcase %><%= today_class %>">
                 <div class="date" data-date="<%= date %>">
                   <h2><%= week_day %><br><%= date.strftime('%d.%m.') %></h2>
                 </div>
@@ -97,7 +99,10 @@
                   <% end %>
                 </div>
               </div>
-            <% end %>
+            <%
+              today_class = ''
+              end
+            %>
           </div>
         <% end %>
         <div class="spectrum-Modal spectrum-Tray spectrum-Tray">
