@@ -49,6 +49,10 @@ class Reservation < ApplicationRecord
     active.where(date:)
   }
 
+  scope :active_between, lambda { |from, to|
+    active.where('reservations.date between ? and ?', from, to)
+  }
+
   scope :active_in_the_future, lambda {
     active
       .joins(:parking_spot)

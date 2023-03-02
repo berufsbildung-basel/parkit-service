@@ -30,11 +30,7 @@
           divider_class = ' spectrum-Table-cell--divider'
 
           months.each do |month|
-            sum = user
-              .reservations
-              .active
-              .where('reservations.date between ? and ?', month.beginning_of_month, month.end_of_month)
-              .sum(&:price)
+            sum = user.reservations.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
         %>
           <td class="spectrum-Table-cell<%= divider_class %>">CHF <%= sum %></td>
         <%
@@ -43,6 +39,15 @@
         %>
       </tr>
     <% end %>
+    <tr class="spectrum-Table-row">
+      <td class="spectrum-Table-cell"><strong>TOTAL</strong></td>
+      <%
+        months.each do |month|
+          sum = Reservation.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
+      %>
+        <td class="spectrum-Table-cell"><strong>CHF <%= sum %></strong></td>
+      <% end %>
+    </tr>
     </tbody>
   </table>
 </section>
