@@ -129,6 +129,9 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
-    <%= render 'reservations/reservations_table', reservations: @user.reservations.cancelled %>
+    <%= render 'reservations/reservations_table',
+               reservations: @user.reservations.cancelled,
+               show_price: false
+    %>
   </div>
 </section>

@@ -1,6 +1,7 @@
 <%
-  show_actions = defined?(show_actions) && show_actions
-  show_user = defined?(show_user) && show_user
+  show_actions = !show_actions.nil? && show_actions
+  show_user = !show_user.nil? && show_user
+  show_price = !show_price.nil? ? show_price : true
 %>
 <table class="spectrum-Table spectrum-Table--sizeM">
   <thead class="spectrum-Table-head">
@@ -12,7 +13,9 @@
     <th class="spectrum-Table-headCell">Time</th>
     <th class="spectrum-Table-headCell">Parking Spot</th>
     <th class="spectrum-Table-headCell">Vehicle</th>
-    <th class="spectrum-Table-headCell">Price CHF</th>
+    <% if show_price %>
+      <th class="spectrum-Table-headCell">Price CHF</th>
+    <% end %>
     <% if show_actions %>
       <th class="spectrum-Table-headCell">Actions</th>
     <% end %>
@@ -35,7 +38,9 @@
       <td class="spectrum-Table-cell">
         <%= link_to reservation.vehicle.license_plate_number, vehicle_path(reservation.vehicle.id) %>
       </td>
-      <td class="spectrum-Table-cell"><%= reservation.price %></td>
+      <% if show_price %>
+        <td class="spectrum-Table-cell"><%= reservation.price %></td>
+      <% end %>
       <% if show_actions %>
         <td class="spectrum-Table-cell">
           <div class="spectrum-ButtonGroup">

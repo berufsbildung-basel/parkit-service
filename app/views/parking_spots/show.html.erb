@@ -74,7 +74,8 @@
     </header>
     <%= render 'reservations/reservations_table',
                reservations: @parking_spot.reservations.cancelled,
-               show_user: true
+               show_user: true,
+               show_price: false
     %>
   </div>
 </section>

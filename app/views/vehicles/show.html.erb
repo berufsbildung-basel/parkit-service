@@ -71,6 +71,9 @@
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
-    <%= render 'reservations/reservations_table', reservations: @vehicle.reservations.cancelled %>
+    <%= render 'reservations/reservations_table',
+               reservations: @vehicle.reservations.cancelled,
+               show_price: false
+    %>
   </div>
 </section>
