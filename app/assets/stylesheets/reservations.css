@@ -52,7 +52,6 @@
 
 #parking-spot-status .day-options,
 #parking-spot-status .parking-spots {
-    min-width: 260px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -100,6 +99,7 @@
 #parking-spot-status .parking-spot {
     position: relative;
     margin: 5px 0 5px 5px;
+    width: 60px;
     color: var(--spectrum-white);
     background-color: var(--spectrum-global-color-seafoam-400);
     transition: background-color 0.25s ease;
@@ -157,4 +157,11 @@
 
 #parking-spot-status .parking-spot.self.pm:before {
     content: 'AM';
+}
+
+@media screen and (max-width: 500px) {
+    #parking-spot-status h2,
+    #parking-spot-status h3 {
+        font-size: 1.1em;
+    }
 }
