@@ -23,7 +23,12 @@
     </tr>
     </thead>
     <tbody class="spectrum-Table-body">
-    <% @users.each do |user| %>
+    <%
+      @users.each do |user|
+        if user.reservations.active_between(months.last.beginning_of_month, months.first.end_of_month).empty?
+          next
+        end
+    %>
       <tr class="spectrum-Table-row">
         <td class="spectrum-Table-cell spectrum-Table-cell--divider"><%= link_to user.full_name, user_path(user.id) %></td>
         <%
