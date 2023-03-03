@@ -3,6 +3,17 @@
 # Vehicle controller
 class ReservationsController < AuthorizableController
   def create
+    if params[:reservations].nil?
+      @reservation = Reservation.new
+      authorize @reservation
+      respond_to do |format|
+        flash[:danger] =
+          'Could not reserve. You did not select a parking spot.'
+        format.html { redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id]) }
+      end
+      return
+    end
+
     params[:reservations].each do |reservation|
       @reservation = Reservation.new(reservation_params(reservation))
       authorize @reservation
