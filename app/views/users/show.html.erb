@@ -13,12 +13,19 @@
       <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--negative">
         <div class="spectrum-Badge-label">Disabled</div>
       </div>
+    <% else %>
+      <div class="spectrum-Badge spectrum-Badge--sizeM spectrum-Badge--positive">
+        <div class="spectrum-Badge-label">Active</div>
+      </div>
     <% end %>
     <ul>
       <li>Last name: <%= @user.last_name %></li>
       <li>First name: <%= @user.first_name %></li>
       <li>Email: <a href="mailto:<%= @user.email %>"><%= @user.email %></a></li>
       <li>Role: <%= @user.role %></li>
+      <li>Last login: <%= @user.last_sign_in_at %></li>
+      <li>Last IP: <%= @user.last_sign_in_ip %></li>
+      <li>Login Count: <%= @user.sign_in_count %></li>
     </ul>
   </div>
 </section>

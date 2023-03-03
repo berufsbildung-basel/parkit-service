@@ -3,7 +3,7 @@
 # The user represents an actor in the system and must be authenticated
 class User < ApplicationRecord
   devise :database_authenticatable,
-         :rememberable,
+         :trackable,
          :omniauthable, omniauth_providers: %i[okta]
 
   has_many :reservations, dependent: :destroy
