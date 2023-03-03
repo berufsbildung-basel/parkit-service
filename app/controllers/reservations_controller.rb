@@ -14,6 +14,8 @@ class ReservationsController < AuthorizableController
       return
     end
 
+    reservations = []
+
     params[:reservations].each do |reservation|
       @reservation = Reservation.new(reservation_params(reservation))
       authorize @reservation
@@ -25,6 +27,8 @@ class ReservationsController < AuthorizableController
         end
         return
       end
+
+      reservations << @reservation
     end
 
     respond_to do |format|
@@ -32,6 +36,11 @@ class ReservationsController < AuthorizableController
       format.html { redirect_to dashboard_path }
     end
 
+    message = ":car: <#{user_url(current_user.id)}|#{current_user.full_name}> created the following reservations:"
+    reservations.each do |r|
+      message += "\n - #{r.date}, #{r.slot_name} on spot <#{parking_spot_url(r.parking_spot.id)}|#{r.parking_spot.number}> with vehicle <#{vehicle_url(r.vehicle.id)}|#{r.vehicle.license_plate_number}> for <#{user_url(r.user.id)}|#{r.user.full_name}>"
+    end
+    SlackHelper.send_message(message)
   end
 
   def index
@@ -73,6 +82,10 @@ class ReservationsController < AuthorizableController
         flash[:success] = 'Reservation was successfully cancelled.'
         format.html { redirect_to dashboard_path }
       end
+
+      message = ":trash-can: <#{user_url(current_user.id)}|#{current_user.full_name}> cancelled reservation:
+        \n - #{@reservation.date}, #{@reservation.slot_name} on spot <#{parking_spot_url(@reservation.parking_spot.id)}|#{@reservation.parking_spot.number}> with vehicle <#{vehicle_url(@reservation.vehicle.id)}|#{@reservation.vehicle.license_plate_number}> for <#{user_url(@reservation.user.id)}|#{@reservation.user.full_name}>"
+      SlackHelper.send_message(message)
     else
       respond_to do |format|
         flash[:danger] = 'There was a problem cancelling the reservation.'

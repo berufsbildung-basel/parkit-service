@@ -23,7 +23,8 @@
       <li>First name: <%= @user.first_name %></li>
       <li>Email: <a href="mailto:<%= @user.email %>"><%= @user.email %></a></li>
       <li>Role: <%= @user.role %></li>
-      <li>Last login: <%= @user.last_sign_in_at %></li>
+      <li>Last login: <%= @user.current_sign_in_at %></li>
+      <li>Previous login: <%= @user.last_sign_in_at %></li>
       <li>Last IP: <%= @user.last_sign_in_ip %></li>
       <li>Login Count: <%= @user.sign_in_count %></li>
     </ul>

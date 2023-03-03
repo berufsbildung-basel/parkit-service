@@ -48,6 +48,9 @@ gem 'kaminari', '1.2.2'
 # For JSON view templates
 gem 'jbuilder', '2.11.5'
 
+# Send slack messages
+gem 'slack-ruby-client'
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 
