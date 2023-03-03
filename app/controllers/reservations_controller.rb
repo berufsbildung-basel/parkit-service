@@ -36,6 +36,7 @@ class ReservationsController < AuthorizableController
 
   def index
     @reservations = policy_scope(Reservation.active_in_the_future)
+    @parking_spots = policy_scope(ParkingSpot.all.order(:number))
   end
 
   def new

@@ -10,6 +10,48 @@
 </section>
 
 
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="status-today">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#status-today">Status Today</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large">
+    </header>
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+      <tr>
+        <% @parking_spots.each do |parking_spot| %>
+          <th class="spectrum-Table-headCell"># <%= parking_spot.number %></th>
+        <% end %>
+      </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+      <tr class="spectrum-Table-row">
+        <% @parking_spots.each do |parking_spot| %>
+          <td class="spectrum-Table-cell spectrum-Table-cell--divider">
+            <%
+              reservations = parking_spot.reservations.active.where(date: Date.today).order(:start_time)
+
+              if reservations.empty?
+                %><span style="color: var(--spectrum-celery-400)"><strong>Available</strong></span><%
+              end
+
+              reservations.each do |reservation|
+            %>
+              <div style="border: 1px solid var(--spectrum-gray-300); padding: 5px; margin-bottom: 5px;">
+              <%= link_to reservation.user.full_name, user_path(reservation.user.id) %><br>
+              <%= link_to reservation.vehicle.license_plate_number, vehicle_path(reservation.vehicle.id) %><br>
+              <%= reservation.slot_name %>
+              </div>
+            <% end %>
+          </td>
+        <% end %>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
 
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
