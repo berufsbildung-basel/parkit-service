@@ -23,6 +23,8 @@ class Reservation < ApplicationRecord
 
   validates_with ReservationValidator
 
+  attr_accessor :current_user
+
   def can_be_cancelled?(current_user)
     current_user.admin? || start_time > Time.now
   end

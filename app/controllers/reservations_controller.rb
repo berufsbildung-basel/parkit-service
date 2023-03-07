@@ -18,6 +18,7 @@ class ReservationsController < AuthorizableController
 
     params[:reservations].each do |reservation|
       @reservation = Reservation.new(reservation_params(reservation))
+      @reservation.current_user = current_user
       authorize @reservation
       unless @reservation.save
         respond_to do |format|

@@ -44,6 +44,8 @@ class ReservationValidator < ActiveModel::Validator
   end
 
   def validate_user_does_not_exceed_reservations_per_week(reservation)
+    return unless reservation.current_user.nil? || !reservation.current_user.admin?
+
     return unless reservation.user.exceeds_reservations_per_week?(reservation)
 
     reservation.errors.add(:user, :exceeds_max_reservations_per_week)

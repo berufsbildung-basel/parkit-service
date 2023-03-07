@@ -46,6 +46,7 @@
       <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
         <%
           today_class = ' today'
+          max_reservations_per_week = current_user.admin? ? 99 : ParkitService.RESERVATION_MAX_RESERVATIONS_PER_WEEK
 
           @parking_spots.each do |week, days|
             num_existing_reservations = Reservation.active_within_business_week(days.first[0], @user).count
@@ -53,12 +54,12 @@
           <div class="week"
                data-weeknumber="<%= week %>"
                data-used-budget="<%= num_existing_reservations %>"
-               data-max-budget="<%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %>"
+               data-max-budget="<%= max_reservations_per_week %>"
           >
             <div class="week-header">
               <div class="title">Week <%= week %></div>
               <div class="budget">
-                <%= num_existing_reservations %> of <%= ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK %>
+                <%= num_existing_reservations %> of <%= max_reservations_per_week %>
                 reservation(s) used.
               </div>
             </div>

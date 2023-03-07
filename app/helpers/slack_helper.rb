@@ -4,6 +4,8 @@
 module SlackHelper
 
   def self.send_message(message)
+    return unless ENV['RAILS_ENV'] == 'production'
+
     client = Slack::Web::Client.new
     begin
       client.chat_postMessage(
