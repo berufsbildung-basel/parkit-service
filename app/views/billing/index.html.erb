@@ -3,7 +3,7 @@
 
   months = []
 
-  (0..5).each do |num|
+  6.times do |num|
     months << Date.today - num.months
   end
 %>
@@ -11,6 +11,11 @@
   <div class="spectrum-Body spectrum-Body--sizeM">
     <p>
       List of users and their charge total from the current and previous 5 months.
+    </p>
+    <p>
+      <%= link_to 'XLS',
+                  billing_path(format: 'xlsx'),
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
     </p>
   </div>
   <table class="spectrum-Table spectrum-Table--sizeM">

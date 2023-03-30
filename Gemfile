@@ -51,6 +51,9 @@ gem 'jbuilder', '2.11.5'
 # Send slack messages
 gem 'slack-ruby-client'
 
+# Write XLSX files
+gem 'write_xlsx', '1.10.2'
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 

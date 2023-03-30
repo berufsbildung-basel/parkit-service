@@ -110,6 +110,50 @@ class Reservation < ApplicationRecord
     end
   end
 
+  def self.to_billing_xlsx(users)
+    now = DateTime.now
+    xlsx_file = Tempfile.new("parkit-billing-export-#{now.strftime('%Y%m%d%H%M%s')}.xlsx")
+    workbook = WriteXLSX.new(xlsx_file)
+
+    worksheet = workbook.add_worksheet("Export #{now.month}")
+    worksheet.write(0, 0, 'User')
+
+    months = []
+
+    6.times do |num|
+      month = Date.today - num.months
+      months << month
+      worksheet.write(0, num + 1, "#{month.strftime('%b %y')}")
+    end
+
+    count = 1
+    users.each do |user|
+      next if user.reservations.active_between(months.last.beginning_of_month, months.first.end_of_month).empty?
+
+      worksheet.write(count, 0, user.full_name)
+
+      6.times do |num|
+        month = months[num]
+        sum = user.reservations.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
+        worksheet.write(count, num + 1, sum)
+      end
+
+      count += 1
+    end
+
+    worksheet.write(count, 0, 'TOTAL')
+    6.times do |num|
+      month = months[num]
+      sum = Reservation.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
+      worksheet.write(count, num + 1, sum)
+    end
+
+    workbook.close
+
+    xlsx_file.rewind
+    xlsx_file.read
+  end
+
   private
 
   # Set the start and end time of the reservation based on whether
