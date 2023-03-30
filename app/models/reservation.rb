@@ -117,13 +117,14 @@ class Reservation < ApplicationRecord
 
     worksheet = workbook.add_worksheet("Export #{now.month}")
     worksheet.write(0, 0, 'User')
+    worksheet.write(0, 1, 'Email')
 
     months = []
 
     6.times do |num|
       month = Date.today - num.months
       months << month
-      worksheet.write(0, num + 1, "#{month.strftime('%b %y')}")
+      worksheet.write(0, num + 1, month.strftime('%b %y').to_s)
     end
 
     count = 1
@@ -131,11 +132,12 @@ class Reservation < ApplicationRecord
       next if user.reservations.active_between(months.last.beginning_of_month, months.first.end_of_month).empty?
 
       worksheet.write(count, 0, user.full_name)
+      worksheet.write(count, 1, user.email)
 
       6.times do |num|
         month = months[num]
         sum = user.reservations.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
-        worksheet.write(count, num + 1, sum)
+        worksheet.write(count, num + 2, sum)
       end
 
       count += 1
@@ -145,7 +147,7 @@ class Reservation < ApplicationRecord
     6.times do |num|
       month = months[num]
       sum = Reservation.active_between(month.beginning_of_month, month.end_of_month).sum(&:price)
-      worksheet.write(count, num + 1, sum)
+      worksheet.write(count, num + 2, sum)
     end
 
     workbook.close
