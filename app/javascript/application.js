@@ -2,6 +2,8 @@
 import "@hotwired/turbo-rails"
 import "loadicons/main"
 import "parking-spot-status/main"
+import 'chartkick'
+import 'Chart.bundle'
 
 document.addEventListener("turbo:load", function () {
   loadIcons('/spectrum-css-icons.svg');

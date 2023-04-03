@@ -54,6 +54,12 @@ gem 'slack-ruby-client'
 # Write XLSX files
 gem 'write_xlsx', '1.10.2'
 
+# group by date elements
+gem 'groupdate', '6.2.0'
+
+# simple charting support
+gem 'chartkick', '5.0.1'
+
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
 

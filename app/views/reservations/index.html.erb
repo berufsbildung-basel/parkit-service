@@ -76,6 +76,8 @@
         <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
+      <%= line_chart @reservations.active_between(Date.today - 3.months, Date.today).unscope(:order).group_by_day(:start_time).count %>
+      <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
     <%= render 'reservations_table',
                reservations: @reservations.active_in_the_past,

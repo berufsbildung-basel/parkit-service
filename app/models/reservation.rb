@@ -124,7 +124,7 @@ class Reservation < ApplicationRecord
     6.times do |num|
       month = Date.today - num.months
       months << month
-      worksheet.write(0, num + 1, month.strftime('%b %y').to_s)
+      worksheet.write(0, num + 2, month.strftime('%b %y').to_s)
     end
 
     count = 1
