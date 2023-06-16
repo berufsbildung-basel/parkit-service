@@ -68,7 +68,7 @@ const updateBudget = (week) => {
   const budgetRemaining = currentBudget - maxPerWeek;
 
   const budgetStatus = week.querySelector('.week-header .budget');
-  budgetStatus.innerHTML = `${currentBudget} of ${maxPerWeek} reservation used.`
+  // budgetStatus.innerHTML = `${currentBudget} of ${maxPerWeek} reservation used.`
 
   return {
     budgetRemaining,
@@ -121,10 +121,10 @@ const processParkingSpotToggle = (parkingSpot) => {
   const week = day.parentElement;
   const updatedBudget = updateBudget(week);
 
-  openTray(updatedBudget);
+  // openTray(updatedBudget);
 
   if (updatedBudget.budgetRemaining === 0) {
-    disableAll(week);
+    // disableAll(week);
   } else {
     enableAll(week);
   }

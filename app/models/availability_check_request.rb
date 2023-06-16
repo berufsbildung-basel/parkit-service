@@ -26,7 +26,7 @@ class AvailabilityCheckRequest
   validate :vehicle_exists
   validate :user_not_disabled
   validate :user_does_not_exceed_reservations_per_day
-  validate :user_does_not_exceed_reservations_per_week
+  # validate :user_does_not_exceed_reservations_per_week
 
   def initialize(attributes = {})
     self.date = attributes[:date] unless attributes[:date].nil?
