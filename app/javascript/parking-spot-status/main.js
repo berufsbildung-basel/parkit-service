@@ -103,9 +103,11 @@ const processParkingSpotToggle = (parkingSpot) => {
   const slot = slotOption.classList[0]
 
   if (parkingSpot.classList.contains(CLASS_NAME_SELECTED)) {
+    /*
     if (budget.budgetRemaining && budget.budgetRemaining === 0) {
       return;
     }
+     */
 
     const parkingSpotId = day.querySelector('.parking-spots .selected').getAttribute('data-id');
     reservations[date] = { slot, parkingSpotId };
@@ -119,15 +121,19 @@ const processParkingSpotToggle = (parkingSpot) => {
   }
 
   const week = day.parentElement;
-  const updatedBudget = updateBudget(week);
 
-  // openTray(updatedBudget);
+  /*
+    const updatedBudget = updateBudget(week);
 
-  if (updatedBudget.budgetRemaining === 0) {
-    // disableAll(week);
-  } else {
-    enableAll(week);
-  }
+    openTray(updatedBudget);
+
+    if (updatedBudget.budgetRemaining === 0) {
+      disableAll(week);
+    } else {
+      enableAll(week);
+    }*/
+
+  enableAll(week);
 
   console.log(JSON.stringify(reservations))
 };
@@ -225,9 +231,9 @@ const initSlotOptions = () => {
       const usedBudget = parseInt(week.getAttribute('data-used-budget'));
       const maxPerWeek = parseInt(week.getAttribute('data-max-budget'));
 
-      if (usedBudget >= maxPerWeek) {
+/*      if (usedBudget >= maxPerWeek) {
         return;
-      }
+      }*/
 
       week.querySelectorAll('.day').forEach((day) => {
         initSlotOption(day, SLOT_NAME_MORNING);
