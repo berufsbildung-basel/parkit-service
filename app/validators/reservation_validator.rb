@@ -12,7 +12,7 @@ class ReservationValidator < ActiveModel::Validator
     validate_vehicle_belongs_to_user(reservation)
     validate_parking_spot_is_not_unavailable(reservation)
     validate_user_does_not_exceed_reservations_per_day(reservation)
-    validate_user_does_not_exceed_reservations_per_week(reservation)
+    # validate_user_does_not_exceed_reservations_per_week(reservation)
     validate_overlap(reservation)
   end
 
@@ -43,6 +43,7 @@ class ReservationValidator < ActiveModel::Validator
     reservation.errors.add(:user, :exceeds_max_reservations_per_day)
   end
 
+=begin
   def validate_user_does_not_exceed_reservations_per_week(reservation)
     return unless reservation.current_user.nil? || !reservation.current_user.admin?
 
@@ -50,6 +51,7 @@ class ReservationValidator < ActiveModel::Validator
 
     reservation.errors.add(:user, :exceeds_max_reservations_per_week)
   end
+=end
 
   def validate_vehicle_belongs_to_user(reservation)
     return unless reservation.vehicle.user.nil? || (reservation.vehicle.user.id != reservation.user.id)

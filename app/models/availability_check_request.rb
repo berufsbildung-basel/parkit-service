@@ -86,7 +86,9 @@ class AvailabilityCheckRequest
     errors.add(:user, :exceeds_max_reservations_per_day) if user.present? && user.exceeds_reservations_per_day?(date)
   end
 
+=begin
   def user_does_not_exceed_reservations_per_week
     errors.add(:user, :exceeds_max_reservations_per_week) if user.present? && user.exceeds_reservations_per_week?
   end
+=end
 end
