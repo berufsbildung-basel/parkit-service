@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Parking Spots', type: :request do
+  before(:each) { login_admin }
+
   let!(:parking_spot) do
     ParkingSpot.create(number: 2)
   end

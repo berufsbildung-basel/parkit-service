@@ -22,7 +22,7 @@
         <td class="spectrum-Table-cell"><strong><%= month.strftime('%b %Y') %></strong></td>
         <td class="spectrum-Table-cell"><%= reservations.count %></td>
         <td class="spectrum-Table-cell"><%= reservations.sum(&:price) %></td>
-        <td class="spectrum-Table-cell"><%= Date.today > month ? 'Due' : 'Accruing' %></td>
+        <td class="spectrum-Table-cell"><%= Date.today > month ? 'Final' : 'Accruing' %></td>
       </tr>
     <% end %>
     </tbody>

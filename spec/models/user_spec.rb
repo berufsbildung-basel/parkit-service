@@ -11,7 +11,7 @@ RSpec.describe User, type: :model do
       expect(user.valid?).to eql(false)
       expect(user.save).to eql(false)
 
-      expect(errors.size).to eql(3)
+      expect(errors.size).to eql(2)
 
       expect(errors.objects.first.attribute).to eql(:email)
       expect(errors.objects.second.attribute).to eql(:username)

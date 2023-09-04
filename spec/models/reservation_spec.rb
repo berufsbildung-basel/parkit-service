@@ -107,7 +107,7 @@ RSpec.describe Reservation, type: :model do
 
       # We accept within one second as the database persisted time has less precision than ruby time
       expect(reservation.start_time).to be_within(1.second).of(date.beginning_of_day)
-      expect(reservation.end_time).to be_within(1.second).of(date.noon)
+      expect(reservation.end_time).to be_within(1.second).of(date.noon - 1.minute)
 
       # Half-day reservation in the afternoon
       date = Date.tomorrow
@@ -163,6 +163,7 @@ RSpec.describe Reservation, type: :model do
         cancelled_by
         created_at
         updated_at
+        price
       ]
 
       actual_attributes = reservation.attributes.map { |attribute| attribute[0] }
