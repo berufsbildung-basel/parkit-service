@@ -1,12 +1,14 @@
 # frozen_string_literal: false
 
+require 'concerns/vehicle_type'
+
 # A parking spot can hold reservations
 class ParkingSpot < ApplicationRecord
   has_many :reservations, dependent: :destroy
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true
 
-  enum allowed_vehicle_type: { car: 0, motorcycle: 1 }
+  enum allowed_vehicle_type: VehicleType::TYPES
 
   validates :allowed_vehicle_type, presence: true, inclusion: { in: allowed_vehicle_types.keys }
 
