@@ -79,6 +79,15 @@
     </div>
   </div>
 
+  <div class="spectrum-Form-item">
+    <%= f.label :vehicle_type,
+                "Vehicle Type *",
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left' %>
+    <div class="spectrum-Form-itemField">
+      <%= f.select :vehicle_type, Vehicle.vehicle_types.keys.map { |type| [type.titleize, type] }, {}, class: 'spectrum-Textfield-input' %>
+    </div>
+  </div>
+
   <p>
     <%= f.submit "Save", class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL' %>
   </p>

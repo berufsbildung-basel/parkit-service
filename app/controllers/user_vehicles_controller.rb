@@ -86,7 +86,8 @@ class UserVehiclesController < AuthorizableController
       :ev,
       :license_plate_number,
       :make,
-      :model
+      :model,
+      :vehicle_type
     )
   end
 end
