@@ -14,6 +14,7 @@
       <li>Charger: <%= @parking_spot.charger_available %></li>
       <li>Unavailable: <%= @parking_spot.unavailable %></li>
       <li>Reason: <%= @parking_spot.unavailability_reason %></li>
+      <li>Allowed Vehicle Type: <%= @parking_spot.allowed_vehicle_type.titleize %></li>
     </ul>
   </div>
 </section>

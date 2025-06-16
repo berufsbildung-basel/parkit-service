@@ -8,6 +8,8 @@ class ParkingSpot < ApplicationRecord
 
   enum allowed_vehicle_type: { car: 0, motorcycle: 1 }
 
+  validates :allowed_vehicle_type, presence: true, inclusion: { in: allowed_vehicle_types.keys }
+
   def self.status_for_user_next_days(_user, num_days)
     result = {}
 

@@ -79,7 +79,8 @@ class ParkingSpotsController < AuthorizableController
       :number,
       :charger_available,
       :unavailable,
-      :unavailability_reason
+      :unavailability_reason,
+      :allowed_vehicle_type
     )
   end
 end
