@@ -175,4 +175,14 @@ class Reservation < ApplicationRecord
   def set_price
     self.price = half_day? ? ParkitService::RESERVATION_PRICE_HALF_DAY : ParkitService::RESERVATION_PRICE_FULL_DAY
   end
+
+  validate :parking_spot_vehicle_type_matches
+
+  def parking_spot_vehicle_type_matches
+    return if parking_spot.nil? || vehicle.nil?
+
+    return unless parking_spot.allowed_vehicle_type != vehicle.vehicle_type
+
+    errors.add(:parking_spot_id, "must match the selected vehicle's type (#{vehicle.vehicle_type})")
+  end
 end
