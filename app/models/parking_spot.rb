@@ -6,7 +6,9 @@ class ParkingSpot < ApplicationRecord
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true
 
-  def self.status_for_user_next_days(user, num_days)
+  enum allowed_vehicle_type: { car: 0, motorcycle: 1 }
+
+  def self.status_for_user_next_days(_user, num_days)
     result = {}
 
     return result if num_days <= 0
