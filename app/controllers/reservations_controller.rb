@@ -52,8 +52,15 @@ class ReservationsController < AuthorizableController
   def new
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.find(params[:vehicle_id])
-    @parking_spots = ParkingSpot.status_for_user_next_days(@user,
-                                                           ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    all_spots = ParkingSpot.status_for_user_next_days(@user, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    # Filter parking spots for each day by allowed_vehicle_type
+    @parking_spots = {}
+    all_spots.each do |week, days|
+      @parking_spots[week] = {}
+      days.each do |date, spots|
+        @parking_spots[week][date] = spots.select { |spot| spot.allowed_vehicle_type == @vehicle.vehicle_type }
+      end
+    end
     @reservation = @user.reservations.new
     @reservation.vehicle = @vehicle
 
