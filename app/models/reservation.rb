@@ -173,7 +173,12 @@ class Reservation < ApplicationRecord
   end
 
   def set_price
-    self.price = half_day? ? ParkitService::RESERVATION_PRICE_HALF_DAY : ParkitService::RESERVATION_PRICE_FULL_DAY
+    vehicle_type = vehicle&.vehicle_type || parking_spot&.allowed_vehicle_type
+    if vehicle_type.to_s == 'motorcycle'
+      self.price = half_day? ? ParkitService::RESERVATION_PRICE_MOTORCYCLE_HALF_DAY : ParkitService::RESERVATION_PRICE_MOTORCYCLE_FULL_DAY
+    else
+      self.price = half_day? ? ParkitService::RESERVATION_PRICE_CAR_HALF_DAY : ParkitService::RESERVATION_PRICE_CAR_FULL_DAY
+    end
   end
 
   validate :parking_spot_vehicle_type_matches
