@@ -36,4 +36,12 @@ class ParkingSpotPolicy < ApplicationPolicy
   def show?
     edit?
   end
+
+  def archive?
+    edit?
+  end
+
+  def unarchive?
+    edit?
+  end
 end

@@ -24,6 +24,7 @@
         <th class="spectrum-Table-headCell">Unavailable</th>
         <th class="spectrum-Table-headCell">Reason</th>
         <th class="spectrum-Table-headCell">Allowed Vehicle Type</th>
+        <th class="spectrum-Table-headCell">Archived</th>
         <th class="spectrum-Table-headCell">Actions</th>
       </tr>
       </thead>
@@ -35,6 +36,7 @@
           <td class="spectrum-Table-cell"><%= parking_spot.unavailable %></td>
           <td class="spectrum-Table-cell"><%= parking_spot.unavailability_reason %></td>
           <td class="spectrum-Table-cell"><%= parking_spot.allowed_vehicle_type.titleize %></td>
+          <td class="spectrum-Table-cell"><%= parking_spot.archived ? 'Yes' : 'No' %></td>
           <td class="spectrum-Table-cell">
             <div class="spectrum-ButtonGroup">
               <%= link_to 'Edit',

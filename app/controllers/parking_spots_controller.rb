@@ -72,6 +72,40 @@ class ParkingSpotsController < AuthorizableController
     end
   end
 
+  def archive
+    @parking_spot = ParkingSpot.find(params[:id])
+    authorize @parking_spot
+
+    if @parking_spot.update(archived: true)
+      respond_to do |format|
+        flash[:success] = 'Parking spot was successfully archived.'
+        format.html { redirect_to parking_spots_path }
+      end
+    else
+      respond_to do |format|
+        flash[:danger] = 'There was a problem archiving the parking spot.'
+        format.html { render :show }
+      end
+    end
+  end
+
+  def unarchive
+    @parking_spot = ParkingSpot.find(params[:id])
+    authorize @parking_spot
+
+    if @parking_spot.update(archived: false)
+      respond_to do |format|
+        flash[:success] = 'Parking spot was successfully unarchived.'
+        format.html { redirect_to parking_spots_path }
+      end
+    else
+      respond_to do |format|
+        flash[:danger] = 'There was a problem unarchiving the parking spot.'
+        format.html { render :show }
+      end
+    end
+  end
+
   private
 
   def parking_spot_params
