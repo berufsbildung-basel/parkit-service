@@ -28,7 +28,7 @@ class ParkingSpot < ApplicationRecord
   end
 
   scope :available, lambda {
-    where(unavailable: false)
+    where(unavailable: false, archived: false)
   }
 
   # Returns available parking spots for a given date, vehicle and full-/half-day filter.
@@ -61,6 +61,6 @@ class ParkingSpot < ApplicationRecord
     # We use custom SQL here, as semantic rails does not yet support left *outer* join conditions
     sanitized_sql = sanitize_sql_array([join_sql, false, date])
 
-    all.joins(sanitized_sql).order(:number)
+    where(archived: false).joins(sanitized_sql).order(:number)
   }
 end
