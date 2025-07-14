@@ -16,25 +16,44 @@ class ReservationsController < AuthorizableController
 
     reservations = []
 
+    response_sent = false
+
     params[:reservations].each do |reservation|
       @reservation = Reservation.new(reservation_params(reservation))
       @reservation.current_user = current_user
       authorize @reservation
+
+      parking_spot = ParkingSpot.find_by(id: @reservation.parking_spot_id)
+
+      if parking_spot.nil?
+        flash[:danger] = 'The selected parking spot does not exist anymore.'
+        redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id])
+        response_sent = true
+        break
+      end
+
+      if parking_spot.archived?
+        flash[:danger] = 'The selected parking spot is no longer available for reservation.'
+        redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id])
+        response_sent = true
+        break
+      end
+
       unless @reservation.save
-        respond_to do |format|
-          flash[:danger] =
-            "There was a problem creating the reservations: #{@reservation.errors.full_messages.join(';')}"
-          format.html { redirect_to dashboard_path }
-        end
-        return
+        flash[:danger] = "There was a problem creating the reservations: #{@reservation.errors.full_messages.join(';')}"
+        redirect_to dashboard_path
+        response_sent = true
+        break
       end
 
       reservations << @reservation
     end
 
-    respond_to do |format|
-      flash[:success] = 'Reservations were successfully created.'
-      format.html { redirect_to dashboard_path }
+    unless response_sent
+      respond_to do |format|
+        flash[:success] = 'Reservations were successfully created.'
+        format.html { redirect_to dashboard_path }
+      end
     end
 
     message = ":car: <#{user_url(current_user.id)}|#{current_user.full_name}> created the following reservations:"
@@ -52,8 +71,15 @@ class ReservationsController < AuthorizableController
   def new
     @user = User.find(params[:user_id])
     @vehicle = @user.vehicles.find(params[:vehicle_id])
-    @parking_spots = ParkingSpot.status_for_user_next_days(@user,
-                                                           ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    all_spots = ParkingSpot.status_for_user_next_days(@user, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    # Filter parking spots for each day by allowed_vehicle_type
+    @parking_spots = {}
+    all_spots.each do |week, days|
+      @parking_spots[week] = {}
+      days.each do |date, spots|
+        @parking_spots[week][date] = spots.select { |spot| spot.allowed_vehicle_type == @vehicle.vehicle_type }
+      end
+    end
     @reservation = @user.reservations.new
     @reservation.vehicle = @vehicle
 

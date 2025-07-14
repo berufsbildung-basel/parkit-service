@@ -1,12 +1,18 @@
 # frozen_string_literal: false
 
+require 'concerns/vehicle_type'
+
 # A parking spot can hold reservations
 class ParkingSpot < ApplicationRecord
   has_many :reservations, dependent: :destroy
 
   validates :number, numericality: { only_integer: true, greater_than: 0 }, uniqueness: true
 
-  def self.status_for_user_next_days(user, num_days)
+  enum allowed_vehicle_type: VehicleType::TYPES
+
+  validates :allowed_vehicle_type, presence: true, inclusion: { in: allowed_vehicle_types.keys }
+
+  def self.status_for_user_next_days(_user, num_days)
     result = {}
 
     return result if num_days <= 0
@@ -22,7 +28,7 @@ class ParkingSpot < ApplicationRecord
   end
 
   scope :available, lambda {
-    where(unavailable: false)
+    where(unavailable: false, archived: false)
   }
 
   # Returns available parking spots for a given date, vehicle and full-/half-day filter.
@@ -55,6 +61,6 @@ class ParkingSpot < ApplicationRecord
     # We use custom SQL here, as semantic rails does not yet support left *outer* join conditions
     sanitized_sql = sanitize_sql_array([join_sql, false, date])
 
-    all.joins(sanitized_sql).order(:number)
+    where(archived: false).joins(sanitized_sql).order(:number)
   }
 end

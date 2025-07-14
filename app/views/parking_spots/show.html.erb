@@ -14,6 +14,8 @@
       <li>Charger: <%= @parking_spot.charger_available %></li>
       <li>Unavailable: <%= @parking_spot.unavailable %></li>
       <li>Reason: <%= @parking_spot.unavailability_reason %></li>
+      <li>Allowed Vehicle Type: <%= @parking_spot.allowed_vehicle_type.titleize %></li>
+      <li>Archived: <%= @parking_spot.archived ? 'Yes' : 'No' %></li>
     </ul>
   </div>
 </section>
@@ -23,6 +25,22 @@
                 edit_parking_spot_path(@parking_spot.id),
                 class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL'
     %>
+
+    <% if @parking_spot.archived %>
+      <%= link_to 'Unarchive',
+                  unarchive_parking_spot_path(@parking_spot.id),
+                  method: :patch,
+                  data: { turbo_method: :patch, turbo_confirm: 'Are you sure you want to unarchive this parking spot?' },
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeL'
+      %>
+    <% else %>
+      <%= link_to 'Archive',
+                  archive_parking_spot_path(@parking_spot.id),
+                  method: :patch,
+                  data: { turbo_method: :patch, turbo_confirm: 'Are you sure you want to archive this parking spot?' },
+                  class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeL'
+      %>
+    <% end %>
 
     <%= link_to "Delete",
                 parking_spot_path(@parking_spot.id),

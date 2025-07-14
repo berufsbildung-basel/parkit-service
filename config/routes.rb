@@ -21,7 +21,13 @@ Rails.application.routes.draw do
     get 'billing', controller: 'user_billing', action: 'index'
   end
 
-  resources :parking_spots
+  resources :parking_spots do
+    member do
+      patch :archive
+      patch :unarchive
+    end
+  end
+
   resources :reservations
   resources :vehicles
 

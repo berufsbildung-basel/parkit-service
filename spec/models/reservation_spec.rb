@@ -92,7 +92,6 @@ RSpec.describe Reservation, type: :model do
   end
 
   context 'creation' do
-
     it 'properly sets reservation times' do
       # Half-day reservation in the morning
       date = Date.today
@@ -187,6 +186,39 @@ RSpec.describe Reservation, type: :model do
       expect(reservation.cancelled_by).to be_nil
       expect(reservation.created_at.respond_to?(:strftime)).to eql(true)
       expect(reservation.updated_at.respond_to?(:strftime)).to eql(true)
+    end
+
+    it 'sets correct price for car (full and half day)' do
+      date = Date.today
+      parking_spot = ParkingSpot.create!(number: 10, allowed_vehicle_type: :car)
+      user = User.create!(username: 'usercar', email: 'car@example.com', first_name: 'Car', last_name: 'User')
+      car = Vehicle.create!(license_plate_number: 'CAR123', make: 'VW', model: 'Golf', user:, vehicle_type: :car)
+
+      reservation_full = Reservation.create!(parking_spot:, vehicle: car, user:, date:,
+                                             half_day: false, am: false)
+      # Use a different date for the half-day reservation to avoid validation error
+      reservation_half = Reservation.create!(parking_spot:, vehicle: car, user:, date: date + 1,
+                                             half_day: true, am: true)
+
+      expect(reservation_full.price).to eq(ParkitService::RESERVATION_PRICE_CAR_FULL_DAY)
+      expect(reservation_half.price).to eq(ParkitService::RESERVATION_PRICE_CAR_HALF_DAY)
+    end
+
+    it 'sets correct price for motorcycle (full and half day)' do
+      date = Date.today
+      parking_spot = ParkingSpot.create!(number: 11, allowed_vehicle_type: :motorcycle)
+      user = User.create!(username: 'usermoto', email: 'moto@example.com', first_name: 'Moto', last_name: 'User')
+      moto = Vehicle.create!(license_plate_number: 'MOTO123', make: 'Yamaha', model: 'MT-07', user:,
+                             vehicle_type: :motorcycle)
+
+      reservation_full = Reservation.create!(parking_spot:, vehicle: moto, user:, date:,
+                                             half_day: false, am: false)
+      # Use a different date for the half-day reservation to avoid validation error
+      reservation_half = Reservation.create!(parking_spot:, vehicle: moto, user:, date: date + 1,
+                                             half_day: true, am: true)
+
+      expect(reservation_full.price).to eq(ParkitService::RESERVATION_PRICE_MOTORCYCLE_FULL_DAY)
+      expect(reservation_half.price).to eq(ParkitService::RESERVATION_PRICE_MOTORCYCLE_HALF_DAY)
     end
   end
 end

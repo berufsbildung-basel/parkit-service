@@ -82,6 +82,22 @@
     </div>
   </div>
 
+  <div class="spectrum-Form-item">
+    <%= f.label :allowed_vehicle_type,
+                "Allowed Vehicle Type",
+                class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left' %>
+    <div class="spectrum-Form-itemField">
+      <div class="spectrum-Dropdown">
+        <%= f.select :allowed_vehicle_type, ParkingSpot.allowed_vehicle_types.keys.map { |type| [type.titleize, type] }, {}, class: 'spectrum-Dropdown-select spectrum-Textfield-input' %>
+        <span class="spectrum-Dropdown-chevron">
+          <svg class="spectrum-Icon spectrum-UIIcon-ChevronDown100" focusable="false" aria-hidden="true">
+            <use xlink:href="#spectrum-css-icon-ChevronDown100" />
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>
+
   <p>
     <%= f.submit "Save", class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL' %>
   </p>
