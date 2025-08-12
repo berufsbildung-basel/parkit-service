@@ -6,7 +6,8 @@ class Reservation < ApplicationRecord
   belongs_to :vehicle
   belongs_to :user
 
-  before_validation :set_start_time, :set_end_time, :set_price
+  before_validation :set_start_time, :set_end_time
+  before_validation :set_price, on: :create
 
   validates_date :date,
                  on_or_after: :today,
@@ -173,11 +174,26 @@ class Reservation < ApplicationRecord
   end
 
   def set_price
+    return unless date.present?
+
+    if weekend?(date)
+      self.price = 0.0
+    else
+      self.price = standard_price
+    end
+  end
+
+  def weekend?(reservation_date)
+    day = reservation_date.is_a?(Date) ? reservation_date : reservation_date.in_time_zone(Time.zone).to_date
+    day.saturday? || day.sunday?
+  end
+
+  def standard_price
     vehicle_type = vehicle&.vehicle_type || parking_spot&.allowed_vehicle_type
     if vehicle_type.to_s == 'motorcycle'
-      self.price = half_day? ? ParkitService::RESERVATION_PRICE_MOTORCYCLE_HALF_DAY : ParkitService::RESERVATION_PRICE_MOTORCYCLE_FULL_DAY
+      half_day? ? ParkitService::RESERVATION_PRICE_MOTORCYCLE_HALF_DAY : ParkitService::RESERVATION_PRICE_MOTORCYCLE_FULL_DAY
     else
-      self.price = half_day? ? ParkitService::RESERVATION_PRICE_CAR_HALF_DAY : ParkitService::RESERVATION_PRICE_CAR_FULL_DAY
+      half_day? ? ParkitService::RESERVATION_PRICE_CAR_HALF_DAY : ParkitService::RESERVATION_PRICE_CAR_FULL_DAY
     end
   end
 
