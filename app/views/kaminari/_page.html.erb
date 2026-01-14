@@ -1,0 +1,18 @@
+<%# Link showing page number
+  - available local variables
+    page:          a page object for "this" page
+    url:           url to this page
+    current_page:  a page object for the currently displayed page
+    total_pages:   total number of pages
+    per_page:      number of items to fetch per page
+    remote:        data-remote
+-%>
+<% if page.current? %>
+  <button class="spectrum-ActionButton spectrum-ActionButton--sizeM spectrum-ActionButton--staticBlack" disabled aria-current="page">
+    <span class="spectrum-ActionButton-label"><%= page %></span>
+  </button>
+<% else %>
+  <%= link_to url, class: "spectrum-ActionButton spectrum-ActionButton--sizeM spectrum-ActionButton--quiet", remote: remote, rel: page.rel do %>
+    <span class="spectrum-ActionButton-label"><%= page %></span>
+  <% end %>
+<% end %>

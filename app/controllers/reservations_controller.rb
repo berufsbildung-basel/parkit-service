@@ -66,6 +66,8 @@ class ReservationsController < AuthorizableController
   def index
     @reservations = policy_scope(Reservation.all)
     @parking_spots = policy_scope(ParkingSpot.all.order(:number))
+    @past_reservations = @reservations.active_in_the_past.page(params[:past_page]).per(25)
+    @cancelled_reservations = @reservations.cancelled.page(params[:cancelled_page]).per(25)
   end
 
   def new

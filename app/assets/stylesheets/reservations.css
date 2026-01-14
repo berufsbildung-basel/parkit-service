@@ -159,6 +159,18 @@
     content: 'AM';
 }
 
+#parking-spot-status .parking-spot.has-charger:after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 36'%3E%3Cpath fill='white' d='M12 2h14l-8 12h10L8.9 36H8l6-16H6.25L12 2z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
 @media screen and (max-width: 500px) {
     #parking-spot-status h2,
     #parking-spot-status h3 {

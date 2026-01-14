@@ -80,9 +80,10 @@
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
     <%= render 'reservations_table',
-               reservations: @reservations.active_in_the_past,
+               reservations: @past_reservations,
                show_user: true
     %>
+    <%= paginate @past_reservations, param_name: :past_page %>
   </div>
 </section>
 
@@ -95,9 +96,10 @@
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
     <%= render 'reservations_table',
-               reservations: @reservations.cancelled,
+               reservations: @cancelled_reservations,
                show_user: true,
                show_price: false
     %>
+    <%= paginate @cancelled_reservations, param_name: :cancelled_page %>
   </div>
 </section>

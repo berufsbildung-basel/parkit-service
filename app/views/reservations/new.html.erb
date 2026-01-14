@@ -41,6 +41,12 @@
             <span class="spectrum-Button-label">Parking Policy</span>
           </button>
         </a>
+        <button
+          form="reservation-form"
+          type="submit"
+          class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL">
+          <span class="spectrum-Button-label">Reserve</span>
+        </button>
       </div>
       </p>
       <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
@@ -102,7 +108,7 @@
                         css_class += ' self'
                       end
                   %>
-                    <div class="parking-spot <%= css_class %> disabled" data-id="<%= parking_spot.id %>">
+                    <div class="parking-spot <%= css_class %><%= ' has-charger' if parking_spot.charger_available? %> disabled" data-id="<%= parking_spot.id %>">
                       <h3><%= parking_spot.number %></h3>
                     </div>
                   <% end %>
