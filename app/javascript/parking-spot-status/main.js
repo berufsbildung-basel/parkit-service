@@ -278,7 +278,10 @@ const submitForm = (event) => {
 };
 
 const initForm = () => {
-  document.getElementById('submit-reservations').addEventListener(EVENT_NAME_CLICK, submitForm);
+  // Attach submit handler to all buttons that submit the reservation form
+  document.querySelectorAll('#submit-reservations, [form="reservation-form"][type="submit"]').forEach((button) => {
+    button.addEventListener(EVENT_NAME_CLICK, submitForm);
+  });
 };
 
 document.addEventListener('turbo:load', function () {
