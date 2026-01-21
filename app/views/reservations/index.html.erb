@@ -76,7 +76,84 @@
         <a class="spectrum-BigSubtleLink" href="#past-reservations">Past Reservations</a>
       </h2>
       <hr class="spectrum-Divider spectrum-Divider--large">
-      <%= line_chart @reservations.active_between(Date.today - 3.months, Date.today).unscope(:order).group_by_day(:start_time).count %>
+      <%= line_chart @chart_data, ytitle: "Reservations", xtitle: "Date" %>
+
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 30px;">Monthly Revenue by Vehicle Type (Past 24 Months)</h3>
+      <%= column_chart @monthly_revenue_chart, stacked: true, ytitle: "Revenue (CHF)", xtitle: "Month" %>
+
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 30px;">Car vs Motorcycle Revenue Comparison</h3>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">Year</th>
+            <th class="spectrum-Table-headCell">Car Spots</th>
+            <th class="spectrum-Table-headCell">Car Reservations</th>
+            <th class="spectrum-Table-headCell">Car Revenue</th>
+            <th class="spectrum-Table-headCell">Car Revenue/Spot</th>
+            <th class="spectrum-Table-headCell">Moto Spots</th>
+            <th class="spectrum-Table-headCell">Moto Reservations</th>
+            <th class="spectrum-Table-headCell">Moto Revenue</th>
+            <th class="spectrum-Table-headCell">Moto Revenue/Car-Equiv.</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @yearly_stats.each do |year, stats| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= year %></td>
+              <td class="spectrum-Table-cell"><%= stats[:car_spots] %></td>
+              <td class="spectrum-Table-cell"><%= stats[:car_count] %></td>
+              <td class="spectrum-Table-cell">CHF <%= stats[:car_revenue] %></td>
+              <td class="spectrum-Table-cell"><strong>CHF <%= stats[:car_revenue_per_spot] %></strong></td>
+              <td class="spectrum-Table-cell"><%= stats[:motorcycle_spots] %></td>
+              <td class="spectrum-Table-cell"><%= stats[:motorcycle_count] %></td>
+              <td class="spectrum-Table-cell">CHF <%= stats[:motorcycle_revenue] %></td>
+              <td class="spectrum-Table-cell"><strong>CHF <%= stats[:motorcycle_revenue_per_car_equivalent] %></strong></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+      <p class="spectrum-Body spectrum-Body--sizeS" style="margin-top: 10px; color: var(--spectrum-gray-700);">
+        <strong>How to read this table:</strong> The 4 motorcycle spots occupy the physical space of 1 car spot.
+        Compare <em>Car Revenue/Spot</em> with <em>Moto Revenue/Car-Equiv.</em> to evaluate if the motorcycle space
+        generates comparable revenue. If motorcycle revenue per car-equivalent is significantly lower,
+        consider raising motorcycle prices or converting back to car parking.
+      </p>
+
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 30px;">Spot Occupancy Heatmap (Past 24 Months)</h3>
+      <div style="overflow-x: auto;">
+        <table class="spectrum-Table spectrum-Table--sizeS" style="font-size: 11px;">
+          <thead class="spectrum-Table-head">
+            <tr>
+              <th class="spectrum-Table-headCell" style="position: sticky; left: 0; background: var(--spectrum-gray-100); z-index: 1;">Spot</th>
+              <th class="spectrum-Table-headCell" style="position: sticky; left: 50px; background: var(--spectrum-gray-100); z-index: 1;">Type</th>
+              <% @occupancy_heatmap[:months].each do |month| %>
+                <th class="spectrum-Table-headCell" style="text-align: center; padding: 4px 6px;"><%= month %></th>
+              <% end %>
+            </tr>
+          </thead>
+          <tbody class="spectrum-Table-body">
+            <% @occupancy_heatmap[:spots].each do |spot| %>
+              <tr class="spectrum-Table-row">
+                <td class="spectrum-Table-cell" style="position: sticky; left: 0; background: var(--spectrum-gray-50); z-index: 1;"><strong>#<%= spot[:number] %></strong></td>
+                <td class="spectrum-Table-cell" style="position: sticky; left: 50px; background: var(--spectrum-gray-50); z-index: 1;"><%= spot[:type] == 'car' ? 'Car' : 'Moto' %></td>
+                <% spot[:data].each do |pct| %>
+                  <td class="spectrum-Table-cell" style="background-color: <%= occupancy_color(pct) %>; text-align: center; padding: 4px 6px; color: #000;">
+                    <%= pct.round(0) %>%
+                  </td>
+                <% end %>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <p class="spectrum-Body spectrum-Body--sizeS" style="margin-top: 10px; color: var(--spectrum-gray-700);">
+        <strong>Legend:</strong>
+        <span style="background-color: var(--spectrum-celery-400); padding: 2px 8px; margin-left: 10px;">70%+</span>
+        <span style="background-color: var(--spectrum-yellow-400); padding: 2px 8px; margin-left: 5px;">40-69%</span>
+        <span style="background-color: var(--spectrum-red-400); padding: 2px 8px; margin-left: 5px;">&lt;40%</span>
+        <span style="margin-left: 15px;">(Occupancy = reservations / working days in month)</span>
+      </p>
+
       <hr class="spectrum-Divider spectrum-Divider--large">
     </header>
     <%= render 'reservations_table',

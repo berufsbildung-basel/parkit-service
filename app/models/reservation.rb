@@ -11,7 +11,7 @@ class Reservation < ApplicationRecord
 
   validates_date :date,
                  on_or_after: :today,
-                 before: Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.weeks
+                 before: lambda { Date.today + ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE.weeks }
 
   validates_datetime :start_time,
                      before: :end_time

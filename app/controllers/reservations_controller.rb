@@ -68,6 +68,37 @@ class ReservationsController < AuthorizableController
     @parking_spots = policy_scope(ParkingSpot.all.order(:number))
     @past_reservations = @reservations.active_in_the_past.page(params[:past_page]).per(25)
     @cancelled_reservations = @reservations.cancelled.page(params[:cancelled_page]).per(25)
+
+    # Chart data for past 3 months by vehicle type
+    three_months_ago = Date.today - 3.months
+    base_scope = @reservations.active_between(three_months_ago, Date.today).joins(:vehicle)
+
+    @chart_data = [
+      { name: 'Total', data: base_scope.unscope(:order).group_by_day(:start_time).count },
+      { name: 'Car', data: base_scope.where(vehicles: { vehicle_type: 0 }).unscope(:order).group_by_day(:start_time).count },
+      { name: 'Motorcycle', data: base_scope.where(vehicles: { vehicle_type: 1 }).unscope(:order).group_by_day(:start_time).count }
+    ]
+
+    # Monthly revenue chart (past 24 months) - stacked bar
+    twenty_four_months_ago = Date.today - 24.months
+    monthly_base = @reservations.active_between(twenty_four_months_ago, Date.today).joins(:vehicle)
+
+    @monthly_revenue_chart = [
+      { name: 'Car', data: monthly_base.where(vehicles: { vehicle_type: 0 }).unscope(:order).group_by_month(:start_time).sum(:price) },
+      { name: 'Motorcycle', data: monthly_base.where(vehicles: { vehicle_type: 1 }).unscope(:order).group_by_month(:start_time).sum(:price) }
+    ]
+
+    # Yearly statistics table
+    current_year = Date.today.year
+    last_year = current_year - 1
+
+    @yearly_stats = {
+      current_year => calculate_yearly_stats(current_year),
+      last_year => calculate_yearly_stats(last_year)
+    }
+
+    # Occupancy heatmap (past 24 months)
+    @occupancy_heatmap = calculate_occupancy_heatmap
   end
 
   def new
@@ -124,6 +155,83 @@ class ReservationsController < AuthorizableController
   end
 
   private
+
+  def calculate_yearly_stats(year)
+    start_date = Date.new(year, 1, 1)
+    end_date = [Date.new(year, 12, 31), Date.today].min
+
+    # Count active (non-archived) spots by type
+    car_spots = ParkingSpot.where(allowed_vehicle_type: 0, archived: false).count
+    motorcycle_spots = ParkingSpot.where(allowed_vehicle_type: 1, archived: false).count
+
+    base = Reservation.active_between(start_date, end_date).joins(:vehicle)
+    car_reservations = base.where(vehicles: { vehicle_type: 0 })
+    motorcycle_reservations = base.where(vehicles: { vehicle_type: 1 })
+
+    car_count = car_reservations.count
+    motorcycle_count = motorcycle_reservations.count
+    car_revenue = car_reservations.sum(:price)
+    motorcycle_revenue = motorcycle_reservations.sum(:price)
+
+    {
+      car_spots: car_spots,
+      car_count: car_count,
+      car_revenue: car_revenue,
+      car_revenue_per_spot: car_spots.positive? ? (car_revenue / car_spots).round(2) : 0,
+      motorcycle_spots: motorcycle_spots,
+      motorcycle_count: motorcycle_count,
+      motorcycle_revenue: motorcycle_revenue,
+      # 4 motorcycle spots = 1 car-equivalent space
+      motorcycle_revenue_per_car_equivalent: motorcycle_revenue.round(2),
+      total_count: base.count,
+      total_revenue: base.sum(:price)
+    }
+  end
+
+  def calculate_occupancy_heatmap
+    # Generate list of months (past 24 months)
+    months = []
+    24.times do |i|
+      months << (Date.today - i.months).beginning_of_month
+    end
+    months.reverse!
+
+    # Get all active parking spots
+    spots = ParkingSpot.where(archived: false).order(:allowed_vehicle_type, :number)
+
+    # Pre-fetch all reservations for the date range
+    start_date = months.first
+    end_date = Date.today
+    reservations_by_spot_month = Reservation.active_between(start_date, end_date)
+                                            .group(:parking_spot_id)
+                                            .group_by_month(:date, format: '%Y-%m')
+                                            .count
+
+    spot_data = spots.map do |spot|
+      monthly_occupancy = months.map do |month|
+        month_key = month.strftime('%Y-%m')
+        reservation_count = reservations_by_spot_month[[spot.id, month_key]] || 0
+
+        # Calculate working days in the month (exclude weekends)
+        month_end = [month.end_of_month, Date.today].min
+        working_days = (month..month_end).count { |d| !d.saturday? && !d.sunday? }
+
+        # Calculate occupancy percentage
+        working_days.positive? ? ((reservation_count.to_f / working_days) * 100).round(1) : 0
+      end
+
+      {
+        number: spot.number,
+        type: spot.allowed_vehicle_type,
+        data: monthly_occupancy
+      }
+    end
+
+    {
+      months: months.map { |m| m.strftime('%b %y') },
+      spots: spot_data
+    }
+  end
 
   def reservation_params(params)
     params.require(:reservation).permit(
