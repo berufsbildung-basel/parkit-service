@@ -10,13 +10,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_03_143306) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_03_143810) do
   create_schema "heroku_ext"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "invoice_line_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "invoice_id", null: false
+    t.uuid "reservation_id", null: false
+    t.string "description", null: false
+    t.integer "quantity", default: 1, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_line_items_on_invoice_id"
+    t.index ["reservation_id"], name: "index_invoice_line_items_on_reservation_id"
+  end
 
   create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false
@@ -114,6 +126,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_03_143306) do
     t.index ["user_id"], name: "index_vehicles_on_user_id"
   end
 
+  add_foreign_key "invoice_line_items", "invoices"
+  add_foreign_key "invoice_line_items", "reservations"
   add_foreign_key "invoices", "users"
   add_foreign_key "reservations", "parking_spots"
   add_foreign_key "reservations", "users"
