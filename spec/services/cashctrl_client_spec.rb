@@ -100,4 +100,81 @@ RSpec.describe CashctrlClient do
       expect(result).to eq(456)
     end
   end
+
+  describe '#create_invoice' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'creates invoice with line items' do
+      stub_request(:post, 'https://test-org.cashctrl.com/api/v1/order/create.json')
+        .to_return(status: 200, body: '{"success": true, "insertId": 789}')
+
+      result = client.create_invoice(
+        person_id: 123,
+        due_days: 30,
+        items: [
+          { name: '15.01.2025 | Platz #1 | Ganztag', unit_price: 20.0 }
+        ]
+      )
+      expect(result).to eq(789)
+    end
+  end
+
+  describe '#get_invoice' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'fetches invoice details' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/read.json')
+        .with(query: { id: '789' })
+        .to_return(status: 200, body: '{"id": 789, "statusId": 16}')
+
+      result = client.get_invoice(789)
+      expect(result['statusId']).to eq(16)
+    end
+  end
+
+  describe '#send_invoice_email' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'sends invoice via email' do
+      stub_request(:post, 'https://test-org.cashctrl.com/api/v1/order/send-email.json')
+        .to_return(status: 200, body: '{"success": true}')
+
+      result = client.send_invoice_email(789)
+      expect(result['success']).to be true
+    end
+  end
+
+  describe '#get_invoice_pdf' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'returns PDF binary data' do
+      pdf_content = '%PDF-1.4 test'
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/document.json')
+        .with(query: { id: '789' })
+        .to_return(status: 200, body: pdf_content, headers: { 'Content-Type' => 'application/pdf' })
+
+      result = client.get_invoice_pdf(789)
+      expect(result).to eq(pdf_content)
+    end
+  end
 end

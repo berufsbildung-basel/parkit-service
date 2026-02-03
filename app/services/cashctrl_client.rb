@@ -54,6 +54,46 @@ class CashctrlClient
     )
   end
 
+  # Invoice methods
+  INVOICE_CATEGORY_ID = 1 # Adjust based on CashCtrl setup
+
+  def create_invoice(person_id:, due_days:, items:)
+    items_json = items.map do |item|
+      {
+        accountId: 1, # Revenue account
+        name: item[:name],
+        unitPrice: item[:unit_price],
+        quantity: item[:quantity] || 1
+      }
+    end
+
+    result = post('/order/create.json', {
+                    associateId: person_id,
+                    categoryId: INVOICE_CATEGORY_ID,
+                    dueDays: due_days,
+                    items: items_json.to_json
+                  })
+    result['insertId']
+  end
+
+  def get_invoice(invoice_id)
+    get('/order/read.json', { id: invoice_id.to_s })
+  end
+
+  def send_invoice_email(invoice_id)
+    post('/order/send-email.json', { id: invoice_id })
+  end
+
+  def get_invoice_pdf(invoice_id)
+    uri = URI("#{@base_url}/order/document.json?id=#{invoice_id}")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(@api_key, '')
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request).body
+    end
+  end
+
   private
 
   def execute(uri, request)
