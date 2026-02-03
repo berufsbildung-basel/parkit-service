@@ -56,6 +56,7 @@ RSpec.describe ReservationValidator, type: :validator do
 
   context 'validation' do
     parking_spot = nil
+    motorcycle_parking_spot = nil
     unavailable_parking_spot = nil
 
     user1 = nil
@@ -74,6 +75,7 @@ RSpec.describe ReservationValidator, type: :validator do
 
     before(:each) do
       parking_spot = ParkingSpot.create({ number: 2 })
+      motorcycle_parking_spot = ParkingSpot.create({ number: 4, allowed_vehicle_type: :motorcycle })
       unavailable_parking_spot = ParkingSpot.create({ number: 3, unavailable: true, unavailability_reason: 'test' })
       user1 = User.create!({
                              username: 'some-user1',
@@ -222,7 +224,7 @@ RSpec.describe ReservationValidator, type: :validator do
                             date:
                           })
       Reservation.create!({
-                            parking_spot:,
+                            parking_spot: motorcycle_parking_spot,
                             vehicle: motorcycle1,
                             user: user1,
                             date: date + 1.day
@@ -275,7 +277,7 @@ RSpec.describe ReservationValidator, type: :validator do
 
       # Should allow creating an overlapping motorcycle reservation
       Reservation.create!({
-                            parking_spot:,
+                            parking_spot: motorcycle_parking_spot,
                             vehicle: motorcycle2,
                             user: user2,
                             date: date + 1.day
@@ -283,7 +285,7 @@ RSpec.describe ReservationValidator, type: :validator do
 
       # Should reject third motorcycle on same spot
       reservation = Reservation.create({
-                                         parking_spot:,
+                                         parking_spot: motorcycle_parking_spot,
                                          vehicle: motorcycle3,
                                          user: user3,
                                          date: date + 1.day

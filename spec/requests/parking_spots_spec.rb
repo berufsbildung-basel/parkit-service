@@ -9,6 +9,10 @@ RSpec.describe 'Parking Spots', type: :request do
     ParkingSpot.create(number: 2)
   end
 
+  let!(:motorcycle_parking_spot) do
+    ParkingSpot.create(number: 3, allowed_vehicle_type: :motorcycle)
+  end
+
   describe 'POST /parking_spots' do
     it 'renders a successful response' do
       post api_v1_parking_spots_url, params: { number: 4 }
@@ -49,43 +53,46 @@ RSpec.describe 'Parking Spots', type: :request do
   end
 
   describe 'GET /parking_spots/availability' do
-    date = Date.today
-    date_string = date.to_s
+    let(:date) { Date.today }
+    let(:date_string) { date.to_s }
 
-    reservation_date = date + 3.days
-    reservation_date_string = reservation_date.to_s
+    let(:reservation_date) { date + 3.days }
+    let(:reservation_date_string) { reservation_date.to_s }
 
-    reservation_date_2 = date + 4.days
-    reservation_date_string_2 = reservation_date_2.to_s
+    let(:reservation_date_2) { date + 4.days }
+    let(:reservation_date_string_2) { reservation_date_2.to_s }
 
-    user = nil
-    vehicle_car = nil
+    let(:user) do
+      User.create!({
+                     username: Faker::Internet.username,
+                     email: Faker::Internet.email,
+                     first_name: Faker::Name.first_name,
+                     last_name: Faker::Name.last_name
+                   })
+    end
 
-    vehicle_car_2 = nil
-    vehicle_motorcycle_2 = nil
+    let(:vehicle_car) do
+      Vehicle.create!({
+                        license_plate_number: Faker::Vehicle.unique.license_plate,
+                        make: Faker::Vehicle.make,
+                        model: Faker::Vehicle.model,
+                        user:
+                      })
+    end
 
-    before(:each) do
-      user = User.create!({
-                            username: Faker::Internet.username,
-                            email: Faker::Internet.email,
-                            first_name: Faker::Name.first_name,
-                            last_name: Faker::Name.last_name
-                          })
-      vehicle_car = Vehicle.create!({
-                                      license_plate_number: Faker::Vehicle.unique.license_plate,
-                                      make: Faker::Vehicle.make,
-                                      model: Faker::Vehicle.model,
-                                      user:
-                                    })
+    let(:vehicle_motorcycle) do
+      Vehicle.create!({
+                        license_plate_number: Faker::Vehicle.unique.license_plate,
+                        make: Faker::Vehicle.make,
+                        model: Faker::Vehicle.model,
+                        user:,
+                        vehicle_type: 'motorcycle'
+                      })
+    end
 
-      vehicle_motorcycle = Vehicle.create!({
-                                             license_plate_number: Faker::Vehicle.unique.license_plate,
-                                             make: Faker::Vehicle.make,
-                                             model: Faker::Vehicle.model,
-                                             user:,
-                                             vehicle_type: 'motorcycle'
-                                           })
-
+    let!(:reservation_1) do
+      # Force creation of dependencies
+      vehicle_car
       Reservation.create!({
                             date: reservation_date,
                             vehicle: vehicle_car,
@@ -94,36 +101,50 @@ RSpec.describe 'Parking Spots', type: :request do
                             half_day: false,
                             am: false
                           })
+    end
 
+    let!(:reservation_2) do
+      # Force creation of dependencies
+      vehicle_motorcycle
       Reservation.create!({
                             date: reservation_date_2,
                             vehicle: vehicle_motorcycle,
-                            parking_spot:,
+                            parking_spot: motorcycle_parking_spot,
                             user:,
                             half_day: false,
                             am: false
                           })
-
-      user2 = User.create!({
-                             username: Faker::Internet.username,
-                             email: Faker::Internet.email,
-                             first_name: Faker::Name.first_name,
-                             last_name: Faker::Name.last_name
-                           })
-      vehicle_car_2 = Vehicle.create!({
-                                        license_plate_number: Faker::Vehicle.unique.license_plate,
-                                        make: Faker::Vehicle.make,
-                                        model: Faker::Vehicle.model,
-                                        user: user2,
-                                      })
-      vehicle_motorcycle_2 = Vehicle.create!({
-                                               license_plate_number: Faker::Vehicle.unique.license_plate,
-                                               make: Faker::Vehicle.make,
-                                               model: Faker::Vehicle.model,
-                                               user: user2,
-                                               vehicle_type: 'motorcycle'
-                                             })
     end
+
+    let(:user2) do
+      User.create!({
+                     username: Faker::Internet.username,
+                     email: Faker::Internet.email,
+                     first_name: Faker::Name.first_name,
+                     last_name: Faker::Name.last_name
+                   })
+    end
+
+    let(:vehicle_car_2) do
+      Vehicle.create!({
+                        license_plate_number: Faker::Vehicle.unique.license_plate,
+                        make: Faker::Vehicle.make,
+                        model: Faker::Vehicle.model,
+                        user: user2,
+                      })
+    end
+
+    let(:vehicle_motorcycle_2) do
+      Vehicle.create!({
+                        license_plate_number: Faker::Vehicle.unique.license_plate,
+                        make: Faker::Vehicle.make,
+                        model: Faker::Vehicle.model,
+                        user: user2,
+                        vehicle_type: 'motorcycle'
+                      })
+    end
+
+    # Setup is handled by let! blocks above
 
     it 'rejects request without any parameters' do
       get api_v1_parking_spots_availability_url
@@ -360,11 +381,11 @@ RSpec.describe 'Parking Spots', type: :request do
     end
 
     it 'deletes a parking spot' do
-      expect(ParkingSpot.all.size).to eq(1)
+      expect(ParkingSpot.all.size).to eq(2)
 
       delete api_v1_parking_spot_url(parking_spot.id)
 
-      expect(ParkingSpot.all.size).to eq(0)
+      expect(ParkingSpot.all.size).to eq(1)
     end
   end
 
@@ -474,17 +495,18 @@ RSpec.describe 'Parking Spots', type: :request do
 
       json = JSON.parse(response.body).deep_symbolize_keys
 
-      expect(json[:parking_spots].size).to eq(1)
+      expect(json[:parking_spots].size).to eq(2)
 
-      expect(json[:parking_spots][0][:id]).to eq(parking_spot.id)
-      expect(json[:parking_spots][0][:number]).to eq(parking_spot.number)
-      expect(json[:parking_spots][0][:charger_available]).to eq(parking_spot.charger_available?)
-      expect(json[:parking_spots][0][:unavailable]).to eq(parking_spot.unavailable?)
-      expect(json[:parking_spots][0][:unavailability_reason]).to be_nil
+      # Find the first parking spot in the response
+      spot = json[:parking_spots].find { |s| s[:id] == parking_spot.id }
+      expect(spot[:number]).to eq(parking_spot.number)
+      expect(spot[:charger_available]).to eq(parking_spot.charger_available?)
+      expect(spot[:unavailable]).to eq(parking_spot.unavailable?)
+      expect(spot[:unavailability_reason]).to be_nil
 
       # We accept within one second as the database persisted time has less precision than ruby time
-      expect(Time.zone.parse(json[:parking_spots][0][:created_at])).to be_within(1.second).of(parking_spot.created_at)
-      expect(Time.zone.parse(json[:parking_spots][0][:updated_at])).to be_within(1.second).of(parking_spot.updated_at)
+      expect(Time.zone.parse(spot[:created_at])).to be_within(1.second).of(parking_spot.created_at)
+      expect(Time.zone.parse(spot[:updated_at])).to be_within(1.second).of(parking_spot.updated_at)
     end
 
     it 'includes pagination' do
@@ -492,7 +514,7 @@ RSpec.describe 'Parking Spots', type: :request do
 
       json = JSON.parse(response.body).deep_symbolize_keys
 
-      expect(json[:total_count]).to eq(1)
+      expect(json[:total_count]).to eq(2)
       expect(json[:total_pages]).to eq(1)
       expect(json[:current_page]).to eq(1)
       expect(json[:limit_per_page]).to eq(25)

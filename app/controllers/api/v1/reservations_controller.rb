@@ -12,7 +12,8 @@ module Api
       def create
         return unless validate_request_parameters(reservation_params)
 
-        @reservation = Reservation.create(reservation_params)
+        @reservation = Reservation.new(reservation_params)
+        authorize @reservation
 
         return render_validation_errors(@reservation) unless @reservation.save
 
@@ -20,27 +21,31 @@ module Api
       end
 
       def destroy
+        skip_authorization
         # Reservations cannot be deleted
         render_json_error :method_not_allowed, :reservation_cannot_be_removed
       end
 
       def cancel
         @reservation = Reservation.find(params[:reservation_id])
+        authorize @reservation
         # TODO: set cancelled_by to logged in user
         @reservation.update(cancelled: true, cancelled_at: DateTime.now, cancelled_by: 'User')
         @reservation.save(validate: false)
       end
 
       def index
-        @reservations = Reservation.all.page(page_params[:page]).per(page_params[:page_size])
+        @reservations = policy_scope(Reservation).page(page_params[:page]).per(page_params[:page_size])
       end
 
       def show
         @reservation = Reservation.find(params[:id])
+        authorize @reservation
       end
 
       def update
         @reservation = Reservation.find(params[:id])
+        authorize @reservation
 
         return render_validation_errors(@reservation) unless @reservation.update(reservation_params)
 
