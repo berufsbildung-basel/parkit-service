@@ -115,6 +115,11 @@ RSpec.describe User, type: :model do
         updated_at
         provider
         uid
+        billing_type
+        cashctrl_person_id
+        cashctrl_private_account_id
+        prepaid_threshold
+        prepaid_topup_amount
       ]
 
       username = Faker::Internet.username

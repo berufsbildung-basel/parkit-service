@@ -10,8 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_27_085654) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_03_142706) do
+  create_schema "heroku_ext"
+
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
@@ -66,6 +69,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_27_085654) do
     t.datetime "updated_at", null: false
     t.string "provider"
     t.string "uid"
+    t.integer "billing_type", default: 0, null: false
+    t.integer "cashctrl_person_id"
+    t.integer "cashctrl_private_account_id"
+    t.decimal "prepaid_threshold", precision: 10, scale: 2
+    t.decimal "prepaid_topup_amount", precision: 10, scale: 2
+    t.index ["billing_type"], name: "index_users_on_billing_type"
+    t.index ["cashctrl_person_id"], name: "index_users_on_cashctrl_person_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["uid"], name: "index_users_on_uid"

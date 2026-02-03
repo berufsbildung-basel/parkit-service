@@ -10,6 +10,12 @@ class User < ApplicationRecord
   has_many :vehicles, dependent: :destroy
 
   enum role: %i[user led_matrix admin]
+  enum billing_type: { standard: 0, prepaid: 1, exempt: 2 }
+
+  scope :billable, -> { where(billing_type: %i[standard prepaid]) }
+  scope :standard_billing, -> { where(billing_type: :standard) }
+  scope :prepaid_billing, -> { where(billing_type: :prepaid) }
+  scope :exempt_billing, -> { where(billing_type: :exempt) }
   after_initialize :set_default_role, if: :new_record?
 
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
