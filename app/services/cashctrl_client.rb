@@ -28,6 +28,32 @@ class CashctrlClient
     execute(uri, request)
   end
 
+  # Person methods
+  def find_person_by_email(email)
+    result = get('/person/list.json', { query: email })
+    result['data']&.first
+  end
+
+  def create_person(first_name:, last_name:, email:)
+    result = post('/person/create.json', {
+                    firstName: first_name,
+                    lastName: last_name,
+                    addresses: [{ type: 'MAIN', email: email }].to_json
+                  })
+    result['insertId']
+  end
+
+  def find_or_create_person(user)
+    person = find_person_by_email(user.email)
+    return person['id'] if person
+
+    create_person(
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email
+    )
+  end
+
   private
 
   def execute(uri, request)
