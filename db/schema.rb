@@ -10,13 +10,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_03_142706) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_03_143306) do
   create_schema "heroku_ext"
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.integer "cashctrl_invoice_id"
+    t.integer "cashctrl_person_id", null: false
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "status", default: 0, null: false
+    t.string "cashctrl_status"
+    t.datetime "sent_at"
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cashctrl_invoice_id"], name: "index_invoices_on_cashctrl_invoice_id"
+    t.index ["status"], name: "index_invoices_on_status"
+    t.index ["user_id", "period_start"], name: "index_invoices_on_user_id_and_period_start", unique: true
+    t.index ["user_id"], name: "index_invoices_on_user_id"
+  end
 
   create_table "parking_spots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "number", null: false
@@ -95,6 +114,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_03_142706) do
     t.index ["user_id"], name: "index_vehicles_on_user_id"
   end
 
+  add_foreign_key "invoices", "users"
   add_foreign_key "reservations", "parking_spots"
   add_foreign_key "reservations", "users"
   add_foreign_key "reservations", "vehicles"
