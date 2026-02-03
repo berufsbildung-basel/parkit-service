@@ -16,6 +16,8 @@ require 'rspec/rails'
 
 require 'support/database_cleaner'
 require 'support/spec_test_helper'
+require 'webmock/rspec'
+WebMock.disable_net_connect!(allow_localhost: true)
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
 # spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
