@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_03_143810) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_03_144337) do
   create_schema "heroku_ext"
 
   # These are extensions that must be enabled in order to support this database
@@ -47,6 +47,20 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_03_143810) do
     t.index ["status"], name: "index_invoices_on_status"
     t.index ["user_id", "period_start"], name: "index_invoices_on_user_id_and_period_start", unique: true
     t.index ["user_id"], name: "index_invoices_on_user_id"
+  end
+
+  create_table "journal_entries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.integer "cashctrl_journal_id"
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "reservation_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cashctrl_journal_id"], name: "index_journal_entries_on_cashctrl_journal_id"
+    t.index ["user_id", "period_start"], name: "index_journal_entries_on_user_id_and_period_start", unique: true
+    t.index ["user_id"], name: "index_journal_entries_on_user_id"
   end
 
   create_table "parking_spots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -129,6 +143,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_03_143810) do
   add_foreign_key "invoice_line_items", "invoices"
   add_foreign_key "invoice_line_items", "reservations"
   add_foreign_key "invoices", "users"
+  add_foreign_key "journal_entries", "users"
   add_foreign_key "reservations", "parking_spots"
   add_foreign_key "reservations", "users"
   add_foreign_key "reservations", "vehicles"
