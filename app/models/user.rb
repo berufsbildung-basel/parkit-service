@@ -8,6 +8,8 @@ class User < ApplicationRecord
 
   has_many :reservations, dependent: :destroy
   has_many :vehicles, dependent: :destroy
+  has_many :invoices, dependent: :destroy
+  has_many :journal_entries, dependent: :destroy
 
   enum role: %i[user led_matrix admin]
   enum billing_type: { standard: 0, prepaid: 1, exempt: 2 }
