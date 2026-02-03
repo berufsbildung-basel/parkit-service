@@ -177,4 +177,45 @@ RSpec.describe CashctrlClient do
       expect(result).to eq(pdf_content)
     end
   end
+
+  describe '#create_journal_entry' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key',
+                                                                         revenue_account_id: 100
+                                                                       })
+    end
+
+    it 'creates journal entry with debit and credit' do
+      stub_request(:post, 'https://test-org.cashctrl.com/api/v1/journal/create.json')
+        .to_return(status: 200, body: '{"success": true, "insertId": 999}')
+
+      result = client.create_journal_entry(
+        debit_account_id: 200,
+        credit_account_id: 100,
+        amount: 150.50,
+        description: 'Parkgebühren Januar 2025'
+      )
+      expect(result).to eq(999)
+    end
+  end
+
+  describe '#get_account_balance' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'returns account balance' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/balance.json')
+        .with(query: { id: '200' })
+        .to_return(status: 200, body: '{"balance": 350.00}')
+
+      result = client.get_account_balance(200)
+      expect(result).to eq(350.00)
+    end
+  end
 end

@@ -94,6 +94,26 @@ class CashctrlClient
     end
   end
 
+  # Journal entry methods (for prepaid users)
+  def create_journal_entry(debit_account_id:, credit_account_id:, amount:, description:)
+    items = [
+      { accountId: debit_account_id, debit: amount },
+      { accountId: credit_account_id, credit: amount }
+    ]
+
+    result = post('/journal/create.json', {
+                    dateAdded: Date.today.to_s,
+                    items: items.to_json,
+                    notes: description
+                  })
+    result['insertId']
+  end
+
+  def get_account_balance(account_id)
+    result = get('/account/balance.json', { id: account_id.to_s })
+    result['balance']&.to_f || 0.0
+  end
+
   private
 
   def execute(uri, request)
