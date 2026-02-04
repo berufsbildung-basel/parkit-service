@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   root to: redirect(path: '/dashboard', status: 302)
 
+  resource :profile, only: [:show, :edit, :update], controller: 'profile'
+
   get '/dashboard', controller: 'dashboard', action: 'welcome'
   get '/billing', controller: 'billing', action: 'index'
 
