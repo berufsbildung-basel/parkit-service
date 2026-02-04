@@ -85,5 +85,54 @@ RSpec.describe 'Profile', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
+
+    context 'CashCtrl sync' do
+      let(:user_with_cashctrl) do
+        User.create!(
+          username: 'cashctrluser',
+          email: 'cashctrl@example.com',
+          first_name: 'Cash',
+          last_name: 'Ctrl',
+          cashctrl_person_id: 123
+        )
+      end
+
+      before do
+        sign_in user_with_cashctrl
+        allow(Rails.application.config).to receive(:cashctrl).and_return({
+          org: 'test-org',
+          api_key: 'test-key'
+        })
+      end
+
+      it 'syncs to CashCtrl when user has cashctrl_person_id' do
+        stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
+          .to_return(status: 200, body: '{"success": true}')
+
+        patch profile_path, params: {
+          user: {
+            address_line1: 'Musterstrasse 1',
+            postal_code: '4000',
+            city: 'Basel',
+            country_code: 'CH'
+          }
+        }
+
+        expect(stub).to have_been_requested
+      end
+
+      it 'does not fail when CashCtrl sync fails' do
+        stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
+          .to_return(status: 500, body: '{"error": "Server error"}')
+
+        patch profile_path, params: {
+          user: { first_name: 'Updated' }
+        }
+
+        expect(response).to redirect_to(profile_path)
+        user_with_cashctrl.reload
+        expect(user_with_cashctrl.first_name).to eq('Updated')
+      end
+    end
   end
 end
