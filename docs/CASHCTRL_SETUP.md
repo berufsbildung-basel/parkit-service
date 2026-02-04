@@ -57,7 +57,31 @@ curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/inventory/a
   -d "id=ARTICLE_ID" -d "nr=PARK-CAR-HD-WD" -d "name=Parking Car Half-Day (Weekday)" -d "salesPrice=10"
 ```
 
-## 3. Create Invoice Category
+## 3. Create Invoice Sequence Number
+
+Navigate to: **Settings > Sequence Numbers**
+
+Create a new sequence:
+- Name: `Parking Invoices`
+- Pattern: `PARK-$y-$nn`
+- Year Digits: 4
+- Infinite Number Digits: 3
+
+This generates invoice numbers like `PARK-2026-001`, `PARK-2026-002`, etc.
+
+Note the **Sequence Number ID** after creation.
+
+### API Command (alternative)
+
+```bash
+curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/sequencenumber/create.json" \
+  -d "name=Parking Invoices" \
+  -d 'pattern=PARK-$y-$nn' \
+  -d "yearDigits=4" \
+  -d "infiniteNumberDigits=3"
+```
+
+## 4. Create Invoice Category
 
 Navigate to: **Settings > Order Categories**
 
@@ -68,6 +92,7 @@ Create a new category:
 - Book Type: Debit
 - Due Days: 30
 - Account: Debtors account (usually 1100)
+- Sequence Number: Select "Parking Invoices" (from step 3)
 
 Add statuses:
 1. **Draft** (Gray) - isBook: false
@@ -80,6 +105,7 @@ Note the **Category ID** after creation.
 ### API Command (alternative)
 
 ```bash
+# Create category (note the sequenceNrId from step 3)
 curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/order/category/create.json" \
   -d "nameSingular=Parking Invoice" \
   -d "namePlural=Parking Invoices" \
@@ -87,19 +113,58 @@ curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/order/categ
   -d "bookType=DEBIT" \
   -d "dueDays=30" \
   -d "accountId=4" \
+  -d "sequenceNrId=SEQUENCE_ID" \
   -d 'status=[{"name":"Draft","icon":"GRAY","isBook":false},{"name":"Open","icon":"BLUE","isBook":true},{"name":"Paid","icon":"GREEN","isBook":true,"isClosed":true},{"name":"Cancelled","icon":"YELLOW","isBook":true,"isClosed":true}]'
 ```
 
-## 4. Configure Environment Variables
+## 5. Configure Environment Variables
 
-Set these in your `.env` or Heroku config:
+### Local Development (Figaro)
+
+Configure in `config/application.yml` with environment sections:
+
+```yaml
+# Shared across all environments
+CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKDAY: PARK-CAR-HD-WD
+# ... other artikel numbers
+
+development:
+  CASHCTRL_ORG: friendsofadobebaseldev
+  CASHCTRL_API_KEY: your-dev-api-key
+  CASHCTRL_INVOICE_CATEGORY_ID: "1000"
+  # ...
+
+production:
+  CASHCTRL_ORG: friendsofadobebasel
+  CASHCTRL_API_KEY: your-prod-api-key
+  # ...
+```
+
+### Heroku Deployment
+
+**Option 1: Figaro push command**
+```bash
+figaro heroku:set -e production -a your-heroku-app
+```
+
+**Option 2: Manual config vars**
+```bash
+heroku config:set CASHCTRL_ORG=friendsofadobebasel -a your-heroku-app
+heroku config:set CASHCTRL_API_KEY=your-prod-key -a your-heroku-app
+# ... set all other vars
+```
+
+**Option 3: Heroku Dashboard**
+Go to Settings > Config Vars and add each variable.
+
+### Required Variables
 
 ```bash
 # CashCtrl connection
 CASHCTRL_ORG=your-org-name
 CASHCTRL_API_KEY=your-api-key
 
-# Invoice category (from step 3)
+# Invoice category (from step 4)
 CASHCTRL_INVOICE_CATEGORY_ID=1000
 
 # Sales account for line items (from article category salesAccountId)
@@ -130,6 +195,7 @@ CASHCTRL_ARTIKEL_MOTORCYCLE_FULLDAY_WEEKEND=PARK-MC-FD-WE
 |---------|-------|
 | CASHCTRL_ORG | friendsofadobebaseldev |
 | CASHCTRL_INVOICE_CATEGORY_ID | 1000 |
+| CASHCTRL_INVOICE_SEQUENCE_NR_ID | 1000 |
 | CASHCTRL_SALES_ACCOUNT_ID | 176 |
 | CASHCTRL_TAX_ID | 1 |
 | CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKDAY | PARK-CAR-HD-WD |

@@ -38,11 +38,19 @@ class CashctrlClient
     result['data']&.first
   end
 
-  def create_person(first_name:, last_name:, email:)
+  def create_person(first_name:, last_name:, email:, address: nil, zip: nil, city: nil)
+    address_data = {
+      type: 'MAIN',
+      email: email,
+      address: address,
+      zip: zip,
+      city: city
+    }.compact
+
     result = post('/person/create.json', {
                     firstName: first_name,
                     lastName: last_name,
-                    addresses: [{ type: 'MAIN', email: email }].to_json
+                    addresses: [address_data].to_json
                   })
     result['insertId']
   end

@@ -116,8 +116,9 @@ RSpec.describe CashctrlClient do
       result = client.create_invoice(
         person_id: 123,
         due_days: 30,
+        date: Date.new(2025, 1, 15),
         items: [
-          { name: '15.01.2025 | Platz #1 | Ganztag', unit_price: 20.0 }
+          { artikel_nr: 'PARK-CAR-FD-WD', name: '15.01.2025 | Platz #1 | Ganztag', unit_price: 20.0 }
         ]
       )
       expect(result).to eq(789)
