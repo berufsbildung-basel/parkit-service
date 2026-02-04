@@ -31,6 +31,28 @@ Rails.application.routes.draw do
   resources :reservations
   resources :vehicles
 
+  # Admin routes for billing management
+  namespace :admin do
+    resource :billing, only: [:show], controller: 'billing' do
+      get :run
+      get :preview
+      post :execute
+    end
+
+    resources :invoices, only: %i[index show] do
+      collection do
+        post :refresh_all
+      end
+      member do
+        post :send_email
+        get :download_pdf
+        post :refresh_status
+      end
+    end
+
+    resources :journal_entries, only: [:index]
+  end
+
   namespace :api, defaults: { format: :json } do
     # devise_for :users
     namespace :v1 do
