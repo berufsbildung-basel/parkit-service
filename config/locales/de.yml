@@ -19,3 +19,7 @@ de:
       cashctrl_sync_failed: "Profil gespeichert, aber Synchronisierung mit Buchhaltung fehlgeschlagen."
     incomplete_address_warning: "Bitte vervollständigen Sie Ihre Rechnungsadresse."
     complete_profile: "Profil vervollständigen →"
+  nav:
+    profile: "Profil"
+    my_vehicles: "Meine Fahrzeuge"
+    my_billing: "Meine Rechnungen"
