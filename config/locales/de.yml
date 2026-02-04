@@ -1,0 +1,19 @@
+de:
+  profile:
+    show:
+      title: "Mein Profil"
+      address: "Adresse"
+      no_address: "Keine Adresse angegeben"
+      edit: "Profil bearbeiten"
+    edit:
+      title: "Profil bearbeiten"
+      address_section: "Rechnungsadresse"
+      address_line1: "Strasse und Hausnummer"
+      address_line1_placeholder: "z.B. Musterstrasse 1"
+      address_line2: "Zusatzangaben"
+      address_line2_placeholder: "Wohnung, c/o, etc. (optional)"
+      save: "Speichern"
+      cancel: "Abbrechen"
+    update:
+      success: "Profil erfolgreich aktualisiert."
+      cashctrl_sync_failed: "Profil gespeichert, aber Synchronisierung mit Buchhaltung fehlgeschlagen."

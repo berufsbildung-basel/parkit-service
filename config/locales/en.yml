@@ -31,6 +31,20 @@
 
 en:
   profile:
+    show:
+      title: "My Profile"
+      address: "Address"
+      no_address: "No address provided"
+      edit: "Edit Profile"
+    edit:
+      title: "Edit Profile"
+      address_section: "Billing Address"
+      address_line1: "Street and number"
+      address_line1_placeholder: "e.g. Musterstrasse 1"
+      address_line2: "Additional info"
+      address_line2_placeholder: "Apartment, c/o, etc. (optional)"
+      save: "Save"
+      cancel: "Cancel"
     update:
       success: "Profile updated successfully."
       cashctrl_sync_failed: "Profile saved, but billing system sync failed."
