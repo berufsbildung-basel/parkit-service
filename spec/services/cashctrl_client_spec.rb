@@ -219,4 +219,54 @@ RSpec.describe CashctrlClient do
       expect(result).to eq(350.00)
     end
   end
+
+  describe '#update_person' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'updates person with address' do
+      stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
+        .to_return(status: 200, body: '{"success": true}')
+
+      user = OpenStruct.new(
+        cashctrl_person_id: 123,
+        first_name: 'Max',
+        last_name: 'Muster',
+        full_address_line: 'Musterstrasse 1, Apt 3B',
+        postal_code: '4000',
+        city: 'Basel',
+        country_code: 'CH'
+      )
+
+      result = client.update_person(user)
+      expect(result['success']).to be true
+    end
+
+    it 'sends correct address payload' do
+      request_stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
+        .with(body: hash_including(
+          'id' => '123',
+          'firstName' => 'Max',
+          'lastName' => 'Muster'
+        ))
+        .to_return(status: 200, body: '{"success": true}')
+
+      user = OpenStruct.new(
+        cashctrl_person_id: 123,
+        first_name: 'Max',
+        last_name: 'Muster',
+        full_address_line: 'Musterstrasse 1',
+        postal_code: '4000',
+        city: 'Basel',
+        country_code: 'CH'
+      )
+
+      client.update_person(user)
+      expect(request_stub).to have_been_requested
+    end
+  end
 end

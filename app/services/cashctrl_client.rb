@@ -66,6 +66,23 @@ class CashctrlClient
     )
   end
 
+  def update_person(user)
+    address_data = {
+      type: 'MAIN',
+      address: user.full_address_line.presence,
+      zip: user.postal_code,
+      city: user.city,
+      country: user.country_code
+    }.compact
+
+    post('/person/update.json', {
+      id: user.cashctrl_person_id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      addresses: [address_data].to_json
+    })
+  end
+
   # Invoice methods
   def create_invoice(person_id:, due_days:, date:, items:)
     items_json = items.map do |item|
