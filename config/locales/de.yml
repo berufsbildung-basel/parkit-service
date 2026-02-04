@@ -17,3 +17,5 @@ de:
     update:
       success: "Profil erfolgreich aktualisiert."
       cashctrl_sync_failed: "Profil gespeichert, aber Synchronisierung mit Buchhaltung fehlgeschlagen."
+    incomplete_address_warning: "Bitte vervollständigen Sie Ihre Rechnungsadresse."
+    complete_profile: "Profil vervollständigen →"

@@ -48,6 +48,8 @@ en:
     update:
       success: "Profile updated successfully."
       cashctrl_sync_failed: "Profile saved, but billing system sync failed."
+    incomplete_address_warning: "Please complete your billing address for invoices."
+    complete_profile: "Complete profile →"
   pundit:
     reservation_policy:
       new?: "You are not authorized to create a reservation"
