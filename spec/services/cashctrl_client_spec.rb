@@ -220,6 +220,54 @@ RSpec.describe CashctrlClient do
     end
   end
 
+  describe '#find_or_create_person with address' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'includes address when creating new person' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/person/list.json')
+        .with(query: { query: 'new@example.com' })
+        .to_return(status: 200, body: '{"data": []}')
+
+      create_stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/create.json')
+        .to_return(status: 200, body: '{"success": true, "insertId": 999}')
+
+      user = OpenStruct.new(
+        email: 'new@example.com',
+        first_name: 'New',
+        last_name: 'User',
+        full_address_line: 'Teststrasse 1',
+        postal_code: '8000',
+        city: 'Zurich',
+        country_code: 'CH',
+        address_complete?: true
+      )
+
+      result = client.find_or_create_person(user)
+      expect(result).to eq(999)
+      expect(create_stub).to have_been_requested
+    end
+
+    it 'returns existing person id when found' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/person/list.json')
+        .with(query: { query: 'existing@example.com' })
+        .to_return(status: 200, body: '{"data": [{"id": 456}]}')
+
+      user = OpenStruct.new(
+        email: 'existing@example.com',
+        first_name: 'Existing',
+        last_name: 'User'
+      )
+
+      result = client.find_or_create_person(user)
+      expect(result).to eq(456)
+    end
+  end
+
   describe '#update_person' do
     before do
       allow(Rails.application.config).to receive(:cashctrl).and_return({

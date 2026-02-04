@@ -38,13 +38,14 @@ class CashctrlClient
     result['data']&.first
   end
 
-  def create_person(first_name:, last_name:, email:, address: nil, zip: nil, city: nil)
+  def create_person(first_name:, last_name:, email:, address: nil, zip: nil, city: nil, country: nil)
     address_data = {
       type: 'MAIN',
       email: email,
       address: address,
       zip: zip,
-      city: city
+      city: city,
+      country: country
     }.compact
 
     result = post('/person/create.json', {
@@ -62,7 +63,11 @@ class CashctrlClient
     create_person(
       first_name: user.first_name,
       last_name: user.last_name,
-      email: user.email
+      email: user.email,
+      address: user.respond_to?(:full_address_line) ? user.full_address_line : nil,
+      zip: user.respond_to?(:postal_code) ? user.postal_code : nil,
+      city: user.respond_to?(:city) ? user.city : nil,
+      country: user.respond_to?(:country_code) ? user.country_code : nil
     )
   end
 
