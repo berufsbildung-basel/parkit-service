@@ -1,0 +1,38 @@
+<h1>Invoices</h1>
+
+<p><%= link_to 'Back to Billing', admin_billing_path %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Billing Type</th>
+      <th>Period</th>
+      <th>Amount</th>
+      <th>Status</th>
+      <th>Sent</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @invoices.each do |invoice| %>
+      <tr>
+        <td><%= invoice.user.email %></td>
+        <td><%= invoice.user.billing_type %></td>
+        <td><%= invoice.period_start.strftime('%B %Y') %></td>
+        <td><%= number_to_currency(invoice.total_amount, unit: 'CHF ') %></td>
+        <td><%= invoice.status %></td>
+        <td><%= invoice.sent_at&.strftime('%d.%m.%Y') || '-' %></td>
+        <td>
+          <% unless invoice.sent? || invoice.paid? %>
+            <%= button_to 'Send', send_email_admin_invoice_path(invoice), method: :post, class: 'btn-small' %>
+          <% end %>
+          <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice), class: 'btn-small' %>
+          <%= button_to 'Refresh', refresh_status_admin_invoice_path(invoice), method: :post, class: 'btn-small' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @invoices if @invoices.respond_to?(:total_pages) %>

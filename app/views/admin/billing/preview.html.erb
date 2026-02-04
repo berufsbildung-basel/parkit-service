@@ -1,0 +1,47 @@
+<h1>Billing Preview - <%= @period[:start].strftime('%B %Y') %></h1>
+
+<h2>Standard Users (Invoices)</h2>
+<% if @preview[:standard].any? %>
+  <table>
+    <thead><tr><th>User</th><th>Reservations</th><th>Total</th></tr></thead>
+    <tbody>
+      <% @preview[:standard].each do |item| %>
+        <tr>
+          <td><%= item[:user].email %></td>
+          <td><%= item[:reservations] %></td>
+          <td><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No standard users to invoice.</p>
+<% end %>
+
+<h2>Prepaid Users (Journal Entries)</h2>
+<% if @preview[:prepaid].any? %>
+  <table>
+    <thead><tr><th>User</th><th>Reservations</th><th>Total</th></tr></thead>
+    <tbody>
+      <% @preview[:prepaid].each do |item| %>
+        <tr>
+          <td><%= item[:user].email %></td>
+          <td><%= item[:reservations] %></td>
+          <td><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No prepaid users to process.</p>
+<% end %>
+
+<h2>Exempt Users (Skipped)</h2>
+<% if @preview[:exempt].any? %>
+  <p><%= @preview[:exempt].count %> exempt users will be skipped.</p>
+<% else %>
+  <p>No exempt users.</p>
+<% end %>
+
+<%= button_to 'Run Billing', execute_admin_billing_path(period: @period[:start]), method: :post, class: 'btn btn-primary' %>
+<p><%= link_to 'Back', run_admin_billing_path %></p>

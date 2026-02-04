@@ -1,0 +1,18 @@
+<h1>Billing Dashboard</h1>
+
+<div class="stats">
+  <p>Open Invoice Amount: <%= number_to_currency(@stats[:total_open], unit: 'CHF ') %></p>
+  <p>
+    <% @stats[:invoices_by_status].each do |status, count| %>
+      <%= status.to_s.capitalize %>: <%= count %> |
+    <% end %>
+  </p>
+  <p>Journal Entries this month: <%= @stats[:journal_entries_this_month] %></p>
+</div>
+
+<div class="actions">
+  <%= link_to 'Run Billing', run_admin_billing_path, class: 'btn btn-primary' %>
+  <%= link_to 'View Invoices', admin_invoices_path, class: 'btn' %>
+  <%= link_to 'View Journal Entries', admin_journal_entries_path, class: 'btn' %>
+  <%= button_to 'Refresh All Statuses', refresh_all_admin_invoices_path, method: :post, class: 'btn' %>
+</div>

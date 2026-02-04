@@ -1,0 +1,28 @@
+<h1>Journal Entries (Prepaid Users)</h1>
+
+<p><%= link_to 'Back to Billing', admin_billing_path %></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>User</th>
+      <th>Period</th>
+      <th>Amount</th>
+      <th>Reservations</th>
+      <th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @journal_entries.each do |entry| %>
+      <tr>
+        <td><%= entry.user.email %></td>
+        <td><%= entry.period_start.strftime('%B %Y') %></td>
+        <td><%= number_to_currency(entry.total_amount, unit: 'CHF ') %></td>
+        <td><%= entry.reservation_count %></td>
+        <td><%= entry.created_at.strftime('%d.%m.%Y') %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= paginate @journal_entries if @journal_entries.respond_to?(:total_pages) %>
