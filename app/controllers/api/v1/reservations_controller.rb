@@ -56,16 +56,19 @@ module Api
 
       def validate_request_parameters(reservation_params)
         unless reservation_params[:parking_spot_id].present?
+          skip_authorization
           render_json_error :bad_request, :parking_spot_id_required
           return false
         end
 
         unless reservation_params[:user_id].present?
+          skip_authorization
           render_json_error :bad_request, :user_id_required
           return false
         end
 
         unless reservation_params[:vehicle_id].present?
+          skip_authorization
           render_json_error :bad_request, :vehicle_id_required
           return false
         end
