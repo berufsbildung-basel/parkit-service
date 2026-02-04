@@ -100,14 +100,14 @@ RSpec.describe 'Profile', type: :request do
       before do
         sign_in user_with_cashctrl
         allow(Rails.application.config).to receive(:cashctrl).and_return({
-          org: 'test-org',
-          api_key: 'test-key'
-        })
+                                                                           org: 'test-org',
+                                                                           api_key: 'test-key'
+                                                                         })
       end
 
       it 'syncs to CashCtrl when user has cashctrl_person_id' do
         stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
-          .to_return(status: 200, body: '{"success": true}')
+               .to_return(status: 200, body: '{"success": true}')
 
         patch profile_path, params: {
           user: {

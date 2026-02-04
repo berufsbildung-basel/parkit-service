@@ -3,12 +3,12 @@
 module ProfileHelper
   def country_options_for_select
     [
-      ['Switzerland', 'CH'],
-      ['Germany', 'DE'],
-      ['France', 'FR'],
-      ['Austria', 'AT'],
-      ['Italy', 'IT'],
-      ['Liechtenstein', 'LI']
+      %w[Switzerland CH],
+      %w[Germany DE],
+      %w[France FR],
+      %w[Austria AT],
+      %w[Italy IT],
+      %w[Liechtenstein LI]
     ]
   end
 end

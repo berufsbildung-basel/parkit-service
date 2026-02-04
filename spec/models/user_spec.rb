@@ -236,7 +236,7 @@ RSpec.describe User, type: :model do
         expect(user).not_to be_valid
         expect(user.errors[:postal_code]).to include("can't be blank")
         expect(user.errors[:city]).to include("can't be blank")
-        # Note: country_code has a default of 'CH' so it won't be blank
+        # NOTE: country_code has a default of 'CH' so it won't be blank
       end
 
       it 'is valid with complete address' do

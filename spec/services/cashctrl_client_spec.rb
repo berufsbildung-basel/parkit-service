@@ -234,7 +234,7 @@ RSpec.describe CashctrlClient do
         .to_return(status: 200, body: '{"data": []}')
 
       create_stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/create.json')
-        .to_return(status: 200, body: '{"success": true, "insertId": 999}')
+                    .to_return(status: 200, body: '{"success": true, "insertId": 999}')
 
       user = OpenStruct.new(
         email: 'new@example.com',
@@ -296,12 +296,12 @@ RSpec.describe CashctrlClient do
 
     it 'sends correct address payload' do
       request_stub = stub_request(:post, 'https://test-org.cashctrl.com/api/v1/person/update.json')
-        .with(body: hash_including(
-          'id' => '123',
-          'firstName' => 'Max',
-          'lastName' => 'Muster'
-        ))
-        .to_return(status: 200, body: '{"success": true}')
+                     .with(body: hash_including(
+                       'id' => '123',
+                       'firstName' => 'Max',
+                       'lastName' => 'Muster'
+                     ))
+                     .to_return(status: 200, body: '{"success": true}')
 
       user = OpenStruct.new(
         cashctrl_person_id: 123,

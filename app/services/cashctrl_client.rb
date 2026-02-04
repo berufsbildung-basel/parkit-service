@@ -41,11 +41,11 @@ class CashctrlClient
   def create_person(first_name:, last_name:, email:, address: nil, zip: nil, city: nil, country: nil)
     address_data = {
       type: 'MAIN',
-      email: email,
-      address: address,
-      zip: zip,
-      city: city,
-      country: country
+      email:,
+      address:,
+      zip:,
+      city:,
+      country:
     }.compact
 
     result = post('/person/create.json', {
@@ -81,11 +81,11 @@ class CashctrlClient
     }.compact
 
     post('/person/update.json', {
-      id: user.cashctrl_person_id,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      addresses: [address_data].to_json
-    })
+           id: user.cashctrl_person_id,
+           firstName: user.first_name,
+           lastName: user.last_name,
+           addresses: [address_data].to_json
+         })
   end
 
   # Invoice methods
