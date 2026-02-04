@@ -9,6 +9,9 @@ Rails.application.config.cashctrl = {
   sales_account_id: ENV.fetch('CASHCTRL_SALES_ACCOUNT_ID', nil)&.to_i,
   tax_id: ENV.fetch('CASHCTRL_TAX_ID', nil)&.to_i,
 
+  # Custom field ID for billing period (fieldId, not the numeric ID)
+  billing_period_field_id: ENV.fetch('CASHCTRL_BILLING_PERIOD_FIELD_ID', 'customField8'),
+
   # Artikel numbers for parking reservations (e.g., "PARK-CAR-FD-WD")
   artikel: {
     car_halfday_weekday: ENV.fetch('CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKDAY', nil),

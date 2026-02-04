@@ -98,7 +98,8 @@ class BillingRunner
       due_days: 30,
       items: billable_items.map do |i|
         { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
-      end
+      end,
+      custom_fields: billing_period_custom_fields(language)
     )
 
     # Calculate total from reservations (CashCtrl has the prices)
@@ -258,5 +259,19 @@ class BillingRunner
 
   def topup_line_item_description(language)
     TOPUP_DESCRIPTIONS[language] || TOPUP_DESCRIPTIONS['de']
+  end
+
+  def billing_period_custom_fields(language)
+    field_id = Rails.application.config.cashctrl[:billing_period_field_id]
+    return {} unless field_id.present?
+
+    { field_id => billing_period_label(language) }
+  end
+
+  def billing_period_label(language)
+    # Format: "January 2026" in user's language
+    I18n.with_locale(language) do
+      I18n.l(@period_start, format: '%B %Y')
+    end
   end
 end

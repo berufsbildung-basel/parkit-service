@@ -89,7 +89,7 @@ class CashctrlClient
   end
 
   # Invoice methods
-  def create_invoice(person_id:, due_days:, date:, items:)
+  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {})
     items_json = items.map do |item|
       {
         accountId: @sales_account_id,
@@ -101,13 +101,21 @@ class CashctrlClient
       }
     end
 
-    result = post('/order/create.json', {
-                    associateId: person_id,
-                    categoryId: @invoice_category_id,
-                    date: date.to_s,
-                    dueDays: due_days,
-                    items: items_json.to_json
-                  })
+    params = {
+      associateId: person_id,
+      categoryId: @invoice_category_id,
+      date: date.to_s,
+      dueDays: due_days,
+      items: items_json.to_json
+    }
+
+    # Add custom fields if provided
+    if custom_fields.any?
+      xml_values = custom_fields.map { |k, v| "<#{k}>#{v}</#{k}>" }.join
+      params[:custom] = "<values>#{xml_values}</values>"
+    end
+
+    result = post('/order/create.json', params)
     result['insertId']
   end
 

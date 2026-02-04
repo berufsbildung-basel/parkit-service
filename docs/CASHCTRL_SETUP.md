@@ -117,7 +117,42 @@ curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/order/categ
   -d 'status=[{"name":"Draft","icon":"GRAY","isBook":false},{"name":"Open","icon":"BLUE","isBook":true},{"name":"Paid","icon":"GREEN","isBook":true,"isClosed":true},{"name":"Cancelled","icon":"YELLOW","isBook":true,"isClosed":true}]'
 ```
 
-## 5. Configure Environment Variables
+## 5. Create Billing Period Custom Field
+
+Navigate to: **Settings > Custom Fields**
+
+Create a custom field for orders to display the billing period on invoices:
+- Module: Order
+- Data Type: Text
+- Row Label: `Billing Period`
+- Variable Name: `$invoicePeriod`
+
+This field is automatically populated when creating invoices and can be used in invoice text templates.
+
+### API Command (alternative)
+
+```bash
+curl -s -u "${API_KEY}:" -X POST "https://${ORG}.cashctrl.com/api/v1/customfield/create.json" \
+  -d "type=ORDER" \
+  -d "dataType=TEXT" \
+  -d "rowLabel=Billing Period" \
+  -d 'variableName=$invoicePeriod' \
+  -d "isMulti=false"
+```
+
+After creation, note the **fieldId** (e.g., `customField8`) from the response - this is needed for the environment variable.
+
+### Using in Invoice Templates
+
+In your invoice text templates (Settings > Text templates), you can reference the billing period:
+
+```
+Invoice for parking fees - $invoicePeriod
+```
+
+This will render as "Invoice for parking fees - January 2026" on the invoice.
+
+## 6. Configure Environment Variables
 
 ### Local Development (Figaro)
 
@@ -173,6 +208,9 @@ CASHCTRL_SALES_ACCOUNT_ID=176
 # Tax rate ID (1 = MwSt 7.7%, 2 = 3.7%, 3 = 2.5%)
 CASHCTRL_TAX_ID=1
 
+# Custom field ID for billing period (from step 5)
+CASHCTRL_BILLING_PERIOD_FIELD_ID=customField8
+
 # Optional: billing start date
 BILLING_START_DATE=2025-01-01
 
@@ -198,6 +236,7 @@ CASHCTRL_ARTIKEL_MOTORCYCLE_FULLDAY_WEEKEND=PARK-MC-FD-WE
 | CASHCTRL_INVOICE_SEQUENCE_NR_ID | 1000 |
 | CASHCTRL_SALES_ACCOUNT_ID | 176 |
 | CASHCTRL_TAX_ID | 1 |
+| CASHCTRL_BILLING_PERIOD_FIELD_ID | customField8 |
 | CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKDAY | PARK-CAR-HD-WD |
 | CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKEND | PARK-CAR-HD-WE |
 | CASHCTRL_ARTIKEL_CAR_FULLDAY_WEEKDAY | PARK-CAR-FD-WD |
@@ -215,6 +254,7 @@ CASHCTRL_ARTIKEL_MOTORCYCLE_FULLDAY_WEEKEND=PARK-MC-FD-WE
 | CASHCTRL_INVOICE_CATEGORY_ID | TBD |
 | CASHCTRL_SALES_ACCOUNT_ID | TBD |
 | CASHCTRL_TAX_ID | TBD |
+| CASHCTRL_BILLING_PERIOD_FIELD_ID | TBD |
 | ... | ... |
 
 ## Verification
