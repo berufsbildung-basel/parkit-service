@@ -1,0 +1,248 @@
+# frozen_string_literal: true
+
+class BillingRunner
+  JOURNAL_DESCRIPTIONS = {
+    'de' => 'Parkgebühren %B %Y',
+    'en' => 'Parking fees %B %Y',
+    'fr' => 'Frais de parking %B %Y',
+    'it' => 'Spese parcheggio %B %Y'
+  }.freeze
+
+  TOPUP_DESCRIPTIONS = {
+    'de' => 'Aufladung Parkkonto',
+    'en' => 'Parking account top-up',
+    'fr' => 'Rechargement compte parking',
+    'it' => 'Ricarica conto parcheggio'
+  }.freeze
+
+  def initialize(period_start, period_end)
+    @period_start = period_start
+    @period_end = period_end
+    @client = CashctrlClient.new
+    @results = {
+      standard: { created: 0, skipped: 0 },
+      prepaid: { journal_entries_created: 0, topup_invoices_created: 0, skipped: 0 },
+      exempt: { skipped: 0 },
+      errors: []
+    }
+  end
+
+  def run
+    validate_period!
+
+    process_standard_users
+    process_prepaid_users
+    process_exempt_users
+
+    @results
+  end
+
+  def preview
+    {
+      standard: preview_standard_users,
+      prepaid: preview_prepaid_users,
+      exempt: preview_exempt_users
+    }
+  end
+
+  private
+
+  def validate_period!
+    billing_start = Rails.application.config.cashctrl[:billing_start_date]
+    raise 'Period is before billing start date' if billing_start && @period_start < billing_start
+    raise 'Cannot bill current or future months' if @period_end >= Date.today.beginning_of_month
+  end
+
+  def users_with_reservations
+    User.joins(:reservations)
+        .where(reservations: { date: @period_start..@period_end })
+        .distinct
+  end
+
+  def user_reservations(user)
+    user.reservations.where(date: @period_start..@period_end)
+  end
+
+  def user_total(user)
+    user_reservations(user).where(cancelled: false).sum(:price)
+  end
+
+  # === Standard Users ===
+
+  def process_standard_users
+    users_with_reservations.standard_billing.find_each do |user|
+      process_standard_user(user)
+    rescue StandardError => e
+      @results[:errors] << { user_id: user.id, type: :standard, error: e.message }
+    end
+  end
+
+  def process_standard_user(user)
+    if Invoice.exists?(user: user, period_start: @period_start) || user_total(user) <= 0
+      @results[:standard][:skipped] += 1
+      return
+    end
+
+    person_id = ensure_cashctrl_person(user)
+    reservations = user_reservations(user)
+    language = user.preferred_language || 'de'
+
+    items = build_line_items(reservations, language)
+    total = items.sum { |i| i[:unit_price] }
+
+    cashctrl_invoice_id = @client.create_invoice(
+      person_id: person_id,
+      due_days: 30,
+      items: items.map { |i| { name: i[:description], unit_price: i[:unit_price] } }
+    )
+
+    invoice = Invoice.create!(
+      user: user,
+      cashctrl_person_id: person_id,
+      cashctrl_invoice_id: cashctrl_invoice_id,
+      period_start: @period_start,
+      period_end: @period_end,
+      total_amount: total,
+      status: :draft
+    )
+
+    create_local_line_items(invoice, items)
+    @results[:standard][:created] += 1
+  end
+
+  def preview_standard_users
+    users_with_reservations.standard_billing
+                           .where.not(id: Invoice.where(period_start: @period_start).pluck(:user_id))
+                           .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
+                           .select { |p| p[:total] > 0 }
+  end
+
+  # === Prepaid Users ===
+
+  def process_prepaid_users
+    users_with_reservations.prepaid_billing.find_each do |user|
+      process_prepaid_user(user)
+    rescue StandardError => e
+      @results[:errors] << { user_id: user.id, type: :prepaid, error: e.message }
+    end
+  end
+
+  def process_prepaid_user(user)
+    if JournalEntry.exists?(user: user, period_start: @period_start)
+      @results[:prepaid][:skipped] += 1
+      return
+    end
+
+    total = user_total(user)
+    return if total <= 0
+
+    # Create journal entry
+    revenue_account_id = Rails.application.config.cashctrl[:revenue_account_id]
+    description = journal_entry_description(user.preferred_language || 'de')
+
+    cashctrl_journal_id = @client.create_journal_entry(
+      debit_account_id: user.cashctrl_private_account_id,
+      credit_account_id: revenue_account_id,
+      amount: total,
+      description: description
+    )
+
+    JournalEntry.create!(
+      user: user,
+      cashctrl_journal_id: cashctrl_journal_id,
+      period_start: @period_start,
+      period_end: @period_end,
+      total_amount: total,
+      reservation_count: user_reservations(user).count
+    )
+
+    @results[:prepaid][:journal_entries_created] += 1
+
+    # Check if top-up needed
+    check_and_create_topup_invoice(user)
+  end
+
+  def check_and_create_topup_invoice(user)
+    return unless user.prepaid_threshold && user.prepaid_topup_amount
+
+    balance = @client.get_account_balance(user.cashctrl_private_account_id)
+    return if balance >= user.prepaid_threshold
+
+    person_id = ensure_cashctrl_person(user)
+    topup_description = topup_line_item_description(user.preferred_language || 'de')
+
+    cashctrl_invoice_id = @client.create_invoice(
+      person_id: person_id,
+      due_days: 30,
+      items: [{ name: topup_description, unit_price: user.prepaid_topup_amount }]
+    )
+
+    Invoice.create!(
+      user: user,
+      cashctrl_person_id: person_id,
+      cashctrl_invoice_id: cashctrl_invoice_id,
+      period_start: @period_start,
+      period_end: @period_end,
+      total_amount: user.prepaid_topup_amount,
+      status: :draft
+    )
+
+    @results[:prepaid][:topup_invoices_created] += 1
+  end
+
+  def preview_prepaid_users
+    users_with_reservations.prepaid_billing
+                           .where.not(id: JournalEntry.where(period_start: @period_start).pluck(:user_id))
+                           .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
+                           .select { |p| p[:total] > 0 }
+  end
+
+  # === Exempt Users ===
+
+  def process_exempt_users
+    count = users_with_reservations.exempt_billing.count
+    @results[:exempt][:skipped] = count
+  end
+
+  def preview_exempt_users
+    users_with_reservations.exempt_billing
+                           .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
+  end
+
+  # === Helpers ===
+
+  def ensure_cashctrl_person(user)
+    return user.cashctrl_person_id if user.cashctrl_person_id
+
+    person_id = @client.find_or_create_person(user)
+    user.update!(cashctrl_person_id: person_id)
+    person_id
+  end
+
+  def build_line_items(reservations, language)
+    reservations.map do |reservation|
+      builder = InvoiceLineItemBuilder.new(reservation, language)
+      { reservation: reservation, description: builder.build_description, unit_price: builder.unit_price }
+    end
+  end
+
+  def create_local_line_items(invoice, items)
+    items.each do |item|
+      InvoiceLineItem.create!(
+        invoice: invoice,
+        reservation: item[:reservation],
+        description: item[:description],
+        unit_price: item[:unit_price]
+      )
+    end
+  end
+
+  def journal_entry_description(language)
+    template = JOURNAL_DESCRIPTIONS[language] || JOURNAL_DESCRIPTIONS['de']
+    @period_start.strftime(template)
+  end
+
+  def topup_line_item_description(language)
+    TOPUP_DESCRIPTIONS[language] || TOPUP_DESCRIPTIONS['de']
+  end
+end
