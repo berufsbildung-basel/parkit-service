@@ -88,13 +88,18 @@ class BillingRunner
     language = user.preferred_language || 'de'
 
     items = build_line_items(reservations, language)
-    total = items.sum { |i| i[:unit_price] }
+
+    # Only include non-cancelled items with valid artikel_id
+    billable_items = items.select { |i| i[:artikel_id].present? }
 
     cashctrl_invoice_id = @client.create_invoice(
       person_id: person_id,
       due_days: 30,
-      items: items.map { |i| { name: i[:description], unit_price: i[:unit_price] } }
+      items: billable_items.map { |i| { artikel_id: i[:artikel_id], quantity: 1 } }
     )
+
+    # Calculate total from reservations (CashCtrl has the prices)
+    total = reservations.where(cancelled: false).sum(:price)
 
     invoice = Invoice.create!(
       user: user,
@@ -171,7 +176,7 @@ class BillingRunner
     person_id = ensure_cashctrl_person(user)
     topup_description = topup_line_item_description(user.preferred_language || 'de')
 
-    cashctrl_invoice_id = @client.create_invoice(
+    cashctrl_invoice_id = @client.create_custom_invoice(
       person_id: person_id,
       due_days: 30,
       items: [{ name: topup_description, unit_price: user.prepaid_topup_amount }]
@@ -222,7 +227,12 @@ class BillingRunner
   def build_line_items(reservations, language)
     reservations.map do |reservation|
       builder = InvoiceLineItemBuilder.new(reservation, language)
-      { reservation: reservation, description: builder.build_description, unit_price: builder.unit_price }
+      {
+        reservation: reservation,
+        description: builder.build_description,
+        unit_price: builder.unit_price,
+        artikel_id: builder.artikel_id
+      }
     end
   end
 

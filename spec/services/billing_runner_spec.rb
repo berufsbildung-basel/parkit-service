@@ -15,7 +15,17 @@ RSpec.describe BillingRunner do
     allow(CashctrlClient).to receive(:new).and_return(cashctrl_client)
     allow(Rails.application.config).to receive(:cashctrl).and_return({
                                                                        billing_start_date: 1.year.ago.to_date,
-                                                                       revenue_account_id: 100
+                                                                       invoice_category_id: 1,
+                                                                       artikel: {
+                                                                         car_halfday_weekday: 3,
+                                                                         car_halfday_weekend: 4,
+                                                                         car_fullday_weekday: 5,
+                                                                         car_fullday_weekend: 6,
+                                                                         motorcycle_halfday_weekday: 7,
+                                                                         motorcycle_halfday_weekend: 8,
+                                                                         motorcycle_fullday_weekday: 9,
+                                                                         motorcycle_fullday_weekend: 10
+                                                                       }
                                                                      })
   end
 
@@ -136,7 +146,7 @@ RSpec.describe BillingRunner do
 
     it 'creates top-up invoice when balance below threshold' do
       allow(cashctrl_client).to receive(:get_account_balance).and_return(50.0)
-      allow(cashctrl_client).to receive(:create_invoice).and_return(888)
+      allow(cashctrl_client).to receive(:create_custom_invoice).and_return(888)
 
       runner = described_class.new(period_start, period_end)
       result = runner.run

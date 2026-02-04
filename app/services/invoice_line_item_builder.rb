@@ -35,7 +35,26 @@ class InvoiceLineItemBuilder
     @reservation.cancelled? ? 0.0 : @reservation.price
   end
 
+  def artikel_id
+    return nil if @reservation.cancelled?
+
+    config = Rails.application.config.cashctrl[:artikel]
+    key = artikel_key
+    config[key]
+  end
+
+  def weekend?
+    @reservation.date.saturday? || @reservation.date.sunday?
+  end
+
   private
+
+  def artikel_key
+    vehicle = @reservation.vehicle.motorcycle? ? 'motorcycle' : 'car'
+    duration = @reservation.half_day? ? 'halfday' : 'fullday'
+    day_type = weekend? ? 'weekend' : 'weekday'
+    "#{vehicle}_#{duration}_#{day_type}".to_sym
+  end
 
   def time_slot_description
     if @reservation.half_day?

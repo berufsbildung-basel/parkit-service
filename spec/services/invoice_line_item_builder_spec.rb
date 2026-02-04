@@ -129,4 +129,73 @@ RSpec.describe InvoiceLineItemBuilder do
       expect(builder.unit_price).to eq(0.0)
     end
   end
+
+  describe '#artikel_id' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         artikel: {
+                                                                           car_halfday_weekday: 3,
+                                                                           car_halfday_weekend: 4,
+                                                                           car_fullday_weekday: 5,
+                                                                           car_fullday_weekend: 6,
+                                                                           motorcycle_halfday_weekday: 7,
+                                                                           motorcycle_halfday_weekend: 8,
+                                                                           motorcycle_fullday_weekday: 9,
+                                                                           motorcycle_fullday_weekend: 10
+                                                                         }
+                                                                       })
+    end
+
+    it 'returns car fullday weekday artikel for weekday full day car reservation' do
+      # Use a known weekday (Wednesday)
+      weekday = Date.parse('2025-01-15') # Wednesday
+      reservation = Reservation.new(
+        user: user, vehicle: vehicle, parking_spot: parking_spot,
+        date: weekday, half_day: false
+      )
+      allow(reservation).to receive(:date).and_return(weekday)
+
+      builder = described_class.new(reservation, 'de')
+      expect(builder.artikel_id).to eq(5)
+    end
+
+    it 'returns car fullday weekend artikel for weekend full day car reservation' do
+      # Use a known Saturday
+      saturday = Date.parse('2025-01-18') # Saturday
+      reservation = Reservation.new(
+        user: user, vehicle: vehicle, parking_spot: parking_spot,
+        date: saturday, half_day: false
+      )
+      allow(reservation).to receive(:date).and_return(saturday)
+
+      builder = described_class.new(reservation, 'de')
+      expect(builder.artikel_id).to eq(6)
+    end
+
+    it 'returns motorcycle halfday weekday artikel for motorcycle half day' do
+      motorcycle = Vehicle.create!(user: user, license_plate_number: 'ZH 789', make: 'Yamaha', model: 'MT-07',
+                                   vehicle_type: :motorcycle)
+      motorcycle_spot = ParkingSpot.create!(number: 100, allowed_vehicle_type: :motorcycle)
+
+      weekday = Date.parse('2025-01-15')
+      reservation = Reservation.new(
+        user: user, vehicle: motorcycle, parking_spot: motorcycle_spot,
+        date: weekday, half_day: true
+      )
+      allow(reservation).to receive(:date).and_return(weekday)
+
+      builder = described_class.new(reservation, 'de')
+      expect(builder.artikel_id).to eq(7)
+    end
+
+    it 'returns nil for cancelled reservations' do
+      reservation = Reservation.new(
+        user: user, vehicle: vehicle, parking_spot: parking_spot,
+        date: test_date, half_day: false, cancelled: true
+      )
+
+      builder = described_class.new(reservation, 'de')
+      expect(builder.artikel_id).to be_nil
+    end
+  end
 end

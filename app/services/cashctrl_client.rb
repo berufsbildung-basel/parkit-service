@@ -10,7 +10,8 @@ class CashctrlClient
     config = Rails.application.config.cashctrl
     @org = config[:org]
     @api_key = config[:api_key]
-    @revenue_account_id = config[:revenue_account_id]
+    @invoice_category_id = config[:invoice_category_id]
+    @artikel = config[:artikel]
     @base_url = "https://#{@org}.cashctrl.com/api/v1"
   end
 
@@ -56,12 +57,27 @@ class CashctrlClient
   end
 
   # Invoice methods
-  INVOICE_CATEGORY_ID = 1 # Adjust based on CashCtrl setup
-
   def create_invoice(person_id:, due_days:, items:)
     items_json = items.map do |item|
       {
-        accountId: @revenue_account_id,
+        articleId: item[:artikel_id],
+        quantity: item[:quantity] || 1
+      }
+    end
+
+    result = post('/order/create.json', {
+                    associateId: person_id,
+                    categoryId: @invoice_category_id,
+                    dueDays: due_days,
+                    items: items_json.to_json
+                  })
+    result['insertId']
+  end
+
+  # Create invoice with custom line items (for top-up invoices)
+  def create_custom_invoice(person_id:, due_days:, items:)
+    items_json = items.map do |item|
+      {
         name: item[:name],
         unitPrice: item[:unit_price],
         quantity: item[:quantity] || 1
@@ -70,7 +86,7 @@ class CashctrlClient
 
     result = post('/order/create.json', {
                     associateId: person_id,
-                    categoryId: INVOICE_CATEGORY_ID,
+                    categoryId: @invoice_category_id,
                     dueDays: due_days,
                     items: items_json.to_json
                   })
