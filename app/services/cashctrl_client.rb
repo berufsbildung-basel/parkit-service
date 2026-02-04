@@ -10,6 +10,7 @@ class CashctrlClient
     config = Rails.application.config.cashctrl
     @org = config[:org]
     @api_key = config[:api_key]
+    @revenue_account_id = config[:revenue_account_id]
     @base_url = "https://#{@org}.cashctrl.com/api/v1"
   end
 
@@ -60,7 +61,7 @@ class CashctrlClient
   def create_invoice(person_id:, due_days:, items:)
     items_json = items.map do |item|
       {
-        accountId: 1, # Revenue account
+        accountId: @revenue_account_id,
         name: item[:name],
         unitPrice: item[:unit_price],
         quantity: item[:quantity] || 1
