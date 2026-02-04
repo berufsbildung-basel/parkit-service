@@ -35,7 +35,7 @@ class InvoiceLineItemBuilder
     @reservation.cancelled? ? 0.0 : @reservation.price
   end
 
-  def artikel_id
+  def artikel_nr
     return nil if @reservation.cancelled?
 
     config = Rails.application.config.cashctrl[:artikel]

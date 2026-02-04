@@ -11,6 +11,8 @@ class CashctrlClient
     @org = config[:org]
     @api_key = config[:api_key]
     @invoice_category_id = config[:invoice_category_id]
+    @sales_account_id = config[:sales_account_id]
+    @tax_id = config[:tax_id]
     @artikel = config[:artikel]
     @base_url = "https://#{@org}.cashctrl.com/api/v1"
   end
@@ -57,27 +59,12 @@ class CashctrlClient
   end
 
   # Invoice methods
-  def create_invoice(person_id:, due_days:, items:)
+  def create_invoice(person_id:, due_days:, date:, items:)
     items_json = items.map do |item|
       {
-        articleId: item[:artikel_id],
-        quantity: item[:quantity] || 1
-      }
-    end
-
-    result = post('/order/create.json', {
-                    associateId: person_id,
-                    categoryId: @invoice_category_id,
-                    dueDays: due_days,
-                    items: items_json.to_json
-                  })
-    result['insertId']
-  end
-
-  # Create invoice with custom line items (for top-up invoices)
-  def create_custom_invoice(person_id:, due_days:, items:)
-    items_json = items.map do |item|
-      {
+        accountId: @sales_account_id,
+        taxId: @tax_id,
+        articleNr: item[:artikel_nr],
         name: item[:name],
         unitPrice: item[:unit_price],
         quantity: item[:quantity] || 1
@@ -87,6 +74,29 @@ class CashctrlClient
     result = post('/order/create.json', {
                     associateId: person_id,
                     categoryId: @invoice_category_id,
+                    date: date.to_s,
+                    dueDays: due_days,
+                    items: items_json.to_json
+                  })
+    result['insertId']
+  end
+
+  # Create invoice with custom line items (for top-up invoices)
+  def create_custom_invoice(person_id:, due_days:, date:, items:)
+    items_json = items.map do |item|
+      {
+        accountId: @sales_account_id,
+        taxId: @tax_id,
+        name: item[:name],
+        unitPrice: item[:unit_price],
+        quantity: item[:quantity] || 1
+      }
+    end
+
+    result = post('/order/create.json', {
+                    associateId: person_id,
+                    categoryId: @invoice_category_id,
+                    date: date.to_s,
                     dueDays: due_days,
                     items: items_json.to_json
                   })

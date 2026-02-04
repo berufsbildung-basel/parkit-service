@@ -16,15 +16,17 @@ RSpec.describe BillingRunner do
     allow(Rails.application.config).to receive(:cashctrl).and_return({
                                                                        billing_start_date: 1.year.ago.to_date,
                                                                        invoice_category_id: 1,
+                                                                       sales_account_id: 176,
+                                                                       tax_id: 1,
                                                                        artikel: {
-                                                                         car_halfday_weekday: 3,
-                                                                         car_halfday_weekend: 4,
-                                                                         car_fullday_weekday: 5,
-                                                                         car_fullday_weekend: 6,
-                                                                         motorcycle_halfday_weekday: 7,
-                                                                         motorcycle_halfday_weekend: 8,
-                                                                         motorcycle_fullday_weekday: 9,
-                                                                         motorcycle_fullday_weekend: 10
+                                                                         car_halfday_weekday: 'PARK-CAR-HD-WD',
+                                                                         car_halfday_weekend: 'PARK-CAR-HD-WE',
+                                                                         car_fullday_weekday: 'PARK-CAR-FD-WD',
+                                                                         car_fullday_weekend: 'PARK-CAR-FD-WE',
+                                                                         motorcycle_halfday_weekday: 'PARK-MC-HD-WD',
+                                                                         motorcycle_halfday_weekend: 'PARK-MC-HD-WE',
+                                                                         motorcycle_fullday_weekday: 'PARK-MC-FD-WD',
+                                                                         motorcycle_fullday_weekend: 'PARK-MC-FD-WE'
                                                                        }
                                                                      })
   end

@@ -89,13 +89,16 @@ class BillingRunner
 
     items = build_line_items(reservations, language)
 
-    # Only include non-cancelled items with valid artikel_id
-    billable_items = items.select { |i| i[:artikel_id].present? }
+    # Only include non-cancelled items with valid artikel_nr
+    billable_items = items.select { |i| i[:artikel_nr].present? }
 
     cashctrl_invoice_id = @client.create_invoice(
       person_id: person_id,
+      date: Date.today,
       due_days: 30,
-      items: billable_items.map { |i| { artikel_id: i[:artikel_id], quantity: 1 } }
+      items: billable_items.map do |i|
+        { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
+      end
     )
 
     # Calculate total from reservations (CashCtrl has the prices)
@@ -178,6 +181,7 @@ class BillingRunner
 
     cashctrl_invoice_id = @client.create_custom_invoice(
       person_id: person_id,
+      date: Date.today,
       due_days: 30,
       items: [{ name: topup_description, unit_price: user.prepaid_topup_amount }]
     )
@@ -231,7 +235,7 @@ class BillingRunner
         reservation: reservation,
         description: builder.build_description,
         unit_price: builder.unit_price,
-        artikel_id: builder.artikel_id
+        artikel_nr: builder.artikel_nr
       }
     end
   end

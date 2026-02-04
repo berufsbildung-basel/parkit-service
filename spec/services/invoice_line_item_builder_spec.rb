@@ -130,18 +130,18 @@ RSpec.describe InvoiceLineItemBuilder do
     end
   end
 
-  describe '#artikel_id' do
+  describe '#artikel_nr' do
     before do
       allow(Rails.application.config).to receive(:cashctrl).and_return({
                                                                          artikel: {
-                                                                           car_halfday_weekday: 3,
-                                                                           car_halfday_weekend: 4,
-                                                                           car_fullday_weekday: 5,
-                                                                           car_fullday_weekend: 6,
-                                                                           motorcycle_halfday_weekday: 7,
-                                                                           motorcycle_halfday_weekend: 8,
-                                                                           motorcycle_fullday_weekday: 9,
-                                                                           motorcycle_fullday_weekend: 10
+                                                                           car_halfday_weekday: 'PARK-CAR-HD-WD',
+                                                                           car_halfday_weekend: 'PARK-CAR-HD-WE',
+                                                                           car_fullday_weekday: 'PARK-CAR-FD-WD',
+                                                                           car_fullday_weekend: 'PARK-CAR-FD-WE',
+                                                                           motorcycle_halfday_weekday: 'PARK-MC-HD-WD',
+                                                                           motorcycle_halfday_weekend: 'PARK-MC-HD-WE',
+                                                                           motorcycle_fullday_weekday: 'PARK-MC-FD-WD',
+                                                                           motorcycle_fullday_weekend: 'PARK-MC-FD-WE'
                                                                          }
                                                                        })
     end
@@ -156,7 +156,7 @@ RSpec.describe InvoiceLineItemBuilder do
       allow(reservation).to receive(:date).and_return(weekday)
 
       builder = described_class.new(reservation, 'de')
-      expect(builder.artikel_id).to eq(5)
+      expect(builder.artikel_nr).to eq('PARK-CAR-FD-WD')
     end
 
     it 'returns car fullday weekend artikel for weekend full day car reservation' do
@@ -169,7 +169,7 @@ RSpec.describe InvoiceLineItemBuilder do
       allow(reservation).to receive(:date).and_return(saturday)
 
       builder = described_class.new(reservation, 'de')
-      expect(builder.artikel_id).to eq(6)
+      expect(builder.artikel_nr).to eq('PARK-CAR-FD-WE')
     end
 
     it 'returns motorcycle halfday weekday artikel for motorcycle half day' do
@@ -185,7 +185,7 @@ RSpec.describe InvoiceLineItemBuilder do
       allow(reservation).to receive(:date).and_return(weekday)
 
       builder = described_class.new(reservation, 'de')
-      expect(builder.artikel_id).to eq(7)
+      expect(builder.artikel_nr).to eq('PARK-MC-HD-WD')
     end
 
     it 'returns nil for cancelled reservations' do
@@ -195,7 +195,7 @@ RSpec.describe InvoiceLineItemBuilder do
       )
 
       builder = described_class.new(reservation, 'de')
-      expect(builder.artikel_id).to be_nil
+      expect(builder.artikel_nr).to be_nil
     end
   end
 end
