@@ -135,4 +135,53 @@ RSpec.describe 'Profile', type: :request do
       end
     end
   end
+
+  describe 'full profile flow' do
+    let(:flow_user) do
+      User.create!(
+        username: 'flowuser',
+        email: 'flow@example.com',
+        first_name: 'Flow',
+        last_name: 'User'
+      )
+    end
+
+    before { sign_in flow_user }
+
+    it 'allows user to complete their profile' do
+      # Initially no address
+      expect(flow_user.address_complete?).to be false
+
+      # Visit profile
+      get profile_path
+      expect(response.body).to include('No address provided')
+
+      # Edit profile
+      get edit_profile_path
+      expect(response).to have_http_status(:success)
+
+      # Submit address
+      patch profile_path, params: {
+        user: {
+          address_line1: 'Bahnhofstrasse 10',
+          postal_code: '8001',
+          city: 'Zürich',
+          country_code: 'CH'
+        }
+      }
+
+      expect(response).to redirect_to(profile_path)
+
+      # Verify saved
+      flow_user.reload
+      expect(flow_user.address_complete?).to be true
+      expect(flow_user.full_address_line).to eq('Bahnhofstrasse 10')
+
+      # Profile shows address
+      get profile_path
+      expect(response.body).to include('Bahnhofstrasse 10')
+      expect(response.body).to include('8001')
+      expect(response.body).to include('Zürich')
+    end
+  end
 end
