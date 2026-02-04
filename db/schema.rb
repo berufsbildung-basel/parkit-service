@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_03_144337) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_04_081130) do
   create_schema "heroku_ext"
 
   # These are extensions that must be enabled in order to support this database
@@ -119,6 +119,11 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_03_144337) do
     t.integer "cashctrl_private_account_id"
     t.decimal "prepaid_threshold", precision: 10, scale: 2
     t.decimal "prepaid_topup_amount", precision: 10, scale: 2
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "postal_code"
+    t.string "city"
+    t.string "country_code", default: "CH"
     t.index ["billing_type"], name: "index_users_on_billing_type"
     t.index ["cashctrl_person_id"], name: "index_users_on_cashctrl_person_id"
     t.index ["email"], name: "index_users_on_email", unique: true

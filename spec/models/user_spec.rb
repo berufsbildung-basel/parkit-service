@@ -120,6 +120,11 @@ RSpec.describe User, type: :model do
         cashctrl_private_account_id
         prepaid_threshold
         prepaid_topup_amount
+        address_line1
+        address_line2
+        postal_code
+        city
+        country_code
       ]
 
       username = Faker::Internet.username
@@ -158,6 +163,102 @@ RSpec.describe User, type: :model do
       expect(user.preferred_language).to eql('en')
       expect(user.created_at.respond_to?(:strftime)).to eql(true)
       expect(user.updated_at.respond_to?(:strftime)).to eql(true)
+    end
+  end
+
+  describe 'address fields' do
+    let(:user) do
+      User.create!(
+        username: 'testuser',
+        email: 'test@example.com',
+        first_name: 'Test',
+        last_name: 'User'
+      )
+    end
+
+    describe '#address_complete?' do
+      it 'returns false when no address fields are set' do
+        expect(user.address_complete?).to be false
+      end
+
+      it 'returns false when only some address fields are set' do
+        user.update(address_line1: 'Musterstrasse 1')
+        expect(user.address_complete?).to be false
+      end
+
+      it 'returns true when all required address fields are set' do
+        user.update(
+          address_line1: 'Musterstrasse 1',
+          postal_code: '4000',
+          city: 'Basel',
+          country_code: 'CH'
+        )
+        expect(user.address_complete?).to be true
+      end
+
+      it 'returns true even without address_line2' do
+        user.update(
+          address_line1: 'Musterstrasse 1',
+          postal_code: '4000',
+          city: 'Basel',
+          country_code: 'CH'
+        )
+        expect(user.address_complete?).to be true
+      end
+    end
+
+    describe '#full_address_line' do
+      it 'returns address_line1 when no line2' do
+        user.update(address_line1: 'Musterstrasse 1')
+        expect(user.full_address_line).to eq('Musterstrasse 1')
+      end
+
+      it 'concatenates line1 and line2 with comma' do
+        user.update(
+          address_line1: 'Musterstrasse 1',
+          address_line2: 'Apt 3B'
+        )
+        expect(user.full_address_line).to eq('Musterstrasse 1, Apt 3B')
+      end
+
+      it 'returns empty string when no address' do
+        expect(user.full_address_line).to eq('')
+      end
+    end
+
+    describe 'address validation' do
+      it 'allows saving with no address fields' do
+        expect(user).to be_valid
+      end
+
+      it 'requires all fields when any address field is present' do
+        user.address_line1 = 'Musterstrasse 1'
+        expect(user).not_to be_valid
+        expect(user.errors[:postal_code]).to include("can't be blank")
+        expect(user.errors[:city]).to include("can't be blank")
+        # Note: country_code has a default of 'CH' so it won't be blank
+      end
+
+      it 'is valid with complete address' do
+        user.assign_attributes(
+          address_line1: 'Musterstrasse 1',
+          postal_code: '4000',
+          city: 'Basel',
+          country_code: 'CH'
+        )
+        expect(user).to be_valid
+      end
+
+      it 'allows address_line2 to be blank' do
+        user.assign_attributes(
+          address_line1: 'Musterstrasse 1',
+          postal_code: '4000',
+          city: 'Basel',
+          country_code: 'CH',
+          address_line2: nil
+        )
+        expect(user).to be_valid
+      end
     end
   end
 end

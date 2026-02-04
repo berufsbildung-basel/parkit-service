@@ -25,6 +25,11 @@ class User < ApplicationRecord
 
   validates_inclusion_of :role, in: roles.keys
 
+  # Address validation - require all fields if any are present
+  validates :address_line1, :postal_code, :city, :country_code,
+            presence: true,
+            if: :any_address_field_present?
+
   def role=(value)
     super
   rescue ArgumentError
@@ -70,5 +75,19 @@ class User < ApplicationRecord
         user.email = data['email']
       end
     end
+  end
+
+  def address_complete?
+    address_line1.present? && postal_code.present? && city.present? && country_code.present?
+  end
+
+  def full_address_line
+    [address_line1, address_line2].compact_blank.join(', ')
+  end
+
+  private
+
+  def any_address_field_present?
+    address_line1.present? || address_line2.present? || postal_code.present? || city.present?
   end
 end
