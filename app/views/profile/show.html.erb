@@ -33,6 +33,11 @@
           <% end %>
         </dd>
       </div>
+
+      <div class="spectrum-Table-row">
+        <dt class="spectrum-Table-headCell"><%= t('.preferred_language') %></dt>
+        <dd class="spectrum-Table-cell"><%= @user.preferred_language&.upcase || 'EN' %></dd>
+      </div>
     </dl>
 
     <%= link_to t('.edit'), edit_profile_path,

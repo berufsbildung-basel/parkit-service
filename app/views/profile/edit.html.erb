@@ -61,6 +61,12 @@
         <%= f.select :country_code, country_options_for_select,
             {}, class: 'spectrum-Picker-input' %>
       </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :preferred_language, t('.preferred_language'), class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <%= f.select :preferred_language, language_options_for_select,
+            {}, class: 'spectrum-Picker-input' %>
+      </div>
     </fieldset>
 
     <div class="spectrum-ButtonGroup">

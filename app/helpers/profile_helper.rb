@@ -11,4 +11,13 @@ module ProfileHelper
       %w[Liechtenstein LI]
     ]
   end
+
+  def language_options_for_select
+    [
+      %w[English en],
+      %w[Deutsch de],
+      ['Français', 'fr'],
+      %w[Italiano it]
+    ]
+  end
 end

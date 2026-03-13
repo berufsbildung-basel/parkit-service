@@ -35,9 +35,11 @@ en:
       title: "My Profile"
       address: "Address"
       no_address: "No address provided"
+      preferred_language: "Invoice language"
       edit: "Edit Profile"
     edit:
       title: "Edit Profile"
+      preferred_language: "Invoice language"
       address_section: "Billing Address"
       address_line1: "Street and number"
       address_line1_placeholder: "e.g. Musterstrasse 1"
