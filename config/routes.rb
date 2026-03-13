@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       resources :reservations
     end
     get 'billing', controller: 'user_billing', action: 'index'
+    resources :invoice_downloads, only: [:show], controller: 'user_invoice_downloads'
   end
 
   resources :parking_spots do
