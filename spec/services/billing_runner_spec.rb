@@ -9,7 +9,18 @@ RSpec.describe BillingRunner do
   # Use a date in the past for billing (last month)
   let(:period_start) { 1.month.ago.beginning_of_month.to_date }
   let(:period_end) { 1.month.ago.end_of_month.to_date }
-  let(:reservation_date) { period_start + 10.days } # Mid-month in past
+  let(:reservation_date) do
+    # Pick a weekday mid-month so price is non-zero
+    d = period_start + 10.days
+    d += 1 until d.on_weekday?
+    d
+  end
+  # Weekday date for initial reservation creation (price is set on create)
+  let(:creation_weekday) do
+    d = Date.tomorrow
+    d += 1 until d.on_weekday?
+    d
+  end
 
   before do
     allow(CashctrlClient).to receive(:new).and_return(cashctrl_client)
@@ -46,7 +57,7 @@ RSpec.describe BillingRunner do
         user: standard_user,
         vehicle: standard_vehicle,
         parking_spot: parking_spot,
-        date: Date.tomorrow,
+        date: creation_weekday,
         half_day: false
       )
       reservation.save!
@@ -118,7 +129,7 @@ RSpec.describe BillingRunner do
         user: prepaid_user,
         vehicle: prepaid_vehicle,
         parking_spot: parking_spot,
-        date: Date.tomorrow,
+        date: creation_weekday,
         half_day: false
       )
       reservation.save!
@@ -173,7 +184,7 @@ RSpec.describe BillingRunner do
         user: exempt_user,
         vehicle: exempt_vehicle,
         parking_spot: parking_spot,
-        date: Date.tomorrow,
+        date: creation_weekday,
         half_day: false
       )
       reservation.save!
