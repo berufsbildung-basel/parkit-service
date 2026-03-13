@@ -6,9 +6,22 @@ module Admin
 
     def index
       @invoices = Invoice.includes(:user)
-                         .order(created_at: :desc)
-                         .page(params[:page])
-                         .per(25)
+
+      if params[:period].present?
+        @invoices = @invoices.where(period_start: params[:period].to_date)
+      end
+
+      if params[:status].present?
+        @invoices = @invoices.where(status: params[:status])
+      end
+
+      if params[:q].present?
+        @invoices = @invoices.joins(:user).where('users.email ILIKE ?', "%#{params[:q]}%")
+      end
+
+      @invoices = @invoices.order(created_at: :desc)
+                           .page(params[:page])
+                           .per(25)
     end
 
     def show; end
