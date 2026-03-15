@@ -45,6 +45,51 @@
     %>
   </div>
 </section>
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <header class="spectrum-CSSComponent-sectionHeading" id="user-invoices">
+      <h2 class="spectrum-Heading spectrum-Heading--sizeM">
+        <a class="spectrum-BigSubtleLink" href="#user-invoices">Invoices</a>
+      </h2>
+      <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
+    </header>
+    <% if @user.invoices.any? %>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">Period</th>
+            <th class="spectrum-Table-headCell">Amount</th>
+            <th class="spectrum-Table-headCell">Status</th>
+            <th class="spectrum-Table-headCell">Sent</th>
+            <th class="spectrum-Table-headCell">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @user.invoices.order(period_start: :desc).each do |invoice| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= invoice.period_start.strftime('%B %Y') %></td>
+              <td class="spectrum-Table-cell"><%= number_to_currency(invoice.total_amount, unit: 'CHF ') %></td>
+              <td class="spectrum-Table-cell"><%= invoice.status.capitalize %></td>
+              <td class="spectrum-Table-cell"><%= invoice.sent_at&.strftime('%d.%m.%Y') || '-' %></td>
+              <td class="spectrum-Table-cell">
+                <div class="spectrum-ButtonGroup">
+                  <% if invoice.cashctrl_invoice_id.present? %>
+                    <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice),
+                        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+                  <% end %>
+                  <%= link_to 'Details', admin_invoice_path(invoice),
+                      class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No invoices yet.</p>
+    <% end %>
+  </div>
+</section>
 <% if @user.prepaid? && @user.cashctrl_private_account_id.present? && current_user.admin? %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
