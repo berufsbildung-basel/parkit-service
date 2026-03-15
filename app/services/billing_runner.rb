@@ -22,7 +22,7 @@ class BillingRunner
     @client = CashctrlClient.new
     @results = {
       standard: { created: 0, skipped: 0 },
-      prepaid: { journal_entries_created: 0, topup_invoices_created: 0, skipped: 0 },
+      prepaid: { created: 0, skipped: 0 },
       exempt: { skipped: 0 },
       errors: []
     }
@@ -125,6 +125,7 @@ class BillingRunner
   def preview_standard_users
     users_with_reservations.standard_billing
                            .where.not(id: Invoice.where(period_start: @period_start).pluck(:user_id))
+                           .order(:email)
                            .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
                            .select { |p| p[:total] > 0 }
   end
@@ -140,74 +141,71 @@ class BillingRunner
   end
 
   def process_prepaid_user(user)
-    if JournalEntry.exists?(user: user, period_start: @period_start)
+    if Invoice.exists?(user: user, period_start: @period_start)
       @results[:prepaid][:skipped] += 1
       return
     end
 
-    total = user_total(user)
-    return if total <= 0
-
-    # Create journal entry
-    revenue_account_id = Rails.application.config.cashctrl[:revenue_account_id]
-    description = journal_entry_description(user.preferred_language || 'de')
-
-    cashctrl_journal_id = @client.create_journal_entry(
-      debit_account_id: user.cashctrl_private_account_id,
-      credit_account_id: revenue_account_id,
-      amount: total,
-      description: description
-    )
-
-    JournalEntry.create!(
-      user: user,
-      cashctrl_journal_id: cashctrl_journal_id,
-      period_start: @period_start,
-      period_end: @period_end,
-      total_amount: total,
-      reservation_count: user_reservations(user).count
-    )
-
-    @results[:prepaid][:journal_entries_created] += 1
-
-    # Check if top-up needed
-    check_and_create_topup_invoice(user)
-  end
-
-  def check_and_create_topup_invoice(user)
-    return unless user.prepaid_threshold && user.prepaid_topup_amount
-
-    balance = @client.get_account_balance(user.cashctrl_private_account_id)
-    return if balance >= user.prepaid_threshold
-
     person_id = ensure_cashctrl_person(user)
-    topup_description = topup_line_item_description(user.preferred_language || 'de')
+    reservations = user_reservations(user)
+    language = user.preferred_language || 'de'
 
-    cashctrl_invoice_id = @client.create_custom_invoice(
+    # Fetch opening balance from CashCtrl (negative = user owes, positive = credit)
+    balance = @client.get_account_balance(user.cashctrl_private_account_id)
+    opening_amount = -balance # Invert: CashCtrl negative becomes positive on invoice
+
+    # Build booking line items
+    items = build_line_items(reservations, language)
+    billable_items = items.select { |i| i[:artikel_nr].present? }
+
+    # Skip if no balance and no bookings
+    booking_total = reservations.where(cancelled: false).sum(:price)
+    return if opening_amount == 0 && booking_total <= 0
+
+    # Build CashCtrl invoice: opening balance line + booking lines
+    balance_label = language == 'de' ? "Vortrag per #{@period_start.strftime('%d.%m.%Y')}" :
+                                       "Balance carried forward #{@period_start.strftime('%d.%m.%Y')}"
+    cashctrl_items = [
+      { name: balance_label, unit_price: opening_amount, quantity: 1 }
+    ] + billable_items.map do |i|
+      { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
+    end
+
+    cashctrl_invoice_id = @client.create_invoice(
       person_id: person_id,
       date: Date.today,
       due_days: 30,
-      items: [{ name: topup_description, unit_price: user.prepaid_topup_amount }]
+      items: cashctrl_items,
+      custom_fields: billing_period_custom_fields(language)
     )
 
-    Invoice.create!(
+    total = opening_amount + booking_total
+    invoice = Invoice.create!(
       user: user,
       cashctrl_person_id: person_id,
       cashctrl_invoice_id: cashctrl_invoice_id,
       period_start: @period_start,
       period_end: @period_end,
-      total_amount: user.prepaid_topup_amount,
+      total_amount: total,
       status: :draft
     )
 
-    @results[:prepaid][:topup_invoices_created] += 1
+    # Opening balance line (no reservation)
+    InvoiceLineItem.create!(
+      invoice: invoice,
+      description: balance_label,
+      unit_price: opening_amount
+    )
+    create_local_line_items(invoice, items)
+
+    @results[:prepaid][:created] += 1
   end
 
   def preview_prepaid_users
     users_with_reservations.prepaid_billing
-                           .where.not(id: JournalEntry.where(period_start: @period_start).pluck(:user_id))
+                           .where.not(id: Invoice.where(period_start: @period_start).pluck(:user_id))
+                           .order(:email)
                            .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
-                           .select { |p| p[:total] > 0 }
   end
 
   # === Exempt Users ===
@@ -219,6 +217,7 @@ class BillingRunner
 
   def preview_exempt_users
     users_with_reservations.exempt_billing
+                           .order(:email)
                            .map { |u| { user: u, total: user_total(u), reservations: user_reservations(u).count } }
   end
 
@@ -297,10 +296,10 @@ class BillingRunner
   def finalize_billing_period!
     @billing_period.update!(
       status: @results[:errors].empty? ? :completed : :partially_failed,
-      invoices_created: @results[:standard][:created],
-      invoices_skipped: @results[:standard][:skipped],
-      journal_entries_created: @results[:prepaid][:journal_entries_created],
-      topup_invoices_created: @results[:prepaid][:topup_invoices_created],
+      invoices_created: @results[:standard][:created] + @results[:prepaid][:created],
+      invoices_skipped: @results[:standard][:skipped] + @results[:prepaid][:skipped],
+      journal_entries_created: 0,
+      topup_invoices_created: 0,
       exempt_skipped: @results[:exempt][:skipped],
       errors_log: @results[:errors],
       executed_at: Time.current

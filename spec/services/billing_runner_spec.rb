@@ -149,37 +149,35 @@ RSpec.describe BillingRunner do
       reservation.update_column(:date, reservation_date)
 
       allow(cashctrl_client).to receive(:find_or_create_person).and_return(789)
-      allow(cashctrl_client).to receive(:create_journal_entry).and_return(999)
-      allow(cashctrl_client).to receive(:get_account_balance).and_return(350.0) # Above threshold
+      allow(cashctrl_client).to receive(:create_invoice).and_return(888)
+      allow(cashctrl_client).to receive(:get_account_balance).and_return(-130.0) # User owes 130
     end
 
-    it 'creates journal entry for prepaid user' do
+    it 'creates statement invoice for prepaid user' do
       runner = described_class.new(period_start, period_end)
       result = runner.run
 
-      expect(result[:prepaid][:journal_entries_created]).to eq(1)
-      expect(JournalEntry.count).to eq(1)
-    end
-
-    it 'does not create top-up invoice when balance above threshold' do
-      allow(cashctrl_client).to receive(:get_account_balance).and_return(350.0)
-
-      runner = described_class.new(period_start, period_end)
-      result = runner.run
-
-      expect(result[:prepaid][:topup_invoices_created]).to eq(0)
-    end
-
-    it 'creates top-up invoice when balance below threshold' do
-      allow(cashctrl_client).to receive(:get_account_balance).and_return(50.0)
-      allow(cashctrl_client).to receive(:create_custom_invoice).and_return(888)
-
-      runner = described_class.new(period_start, period_end)
-      result = runner.run
-
-      expect(result[:prepaid][:topup_invoices_created]).to eq(1)
+      expect(result[:prepaid][:created]).to eq(1)
       expect(Invoice.count).to eq(1)
-      expect(Invoice.last.total_amount).to eq(500) # prepaid_topup_amount
+    end
+
+    it 'includes opening balance line item' do
+      runner = described_class.new(period_start, period_end)
+      runner.run
+
+      invoice = Invoice.last
+      balance_line = invoice.line_items.find { |li| li.reservation_id.nil? }
+      expect(balance_line).to be_present
+      expect(balance_line.unit_price).to eq(130.0) # Inverted from -130
+    end
+
+    it 'sets total as balance plus bookings' do
+      runner = described_class.new(period_start, period_end)
+      runner.run
+
+      invoice = Invoice.last
+      # 130 (balance) + 20 (reservation price on weekday) = 150
+      expect(invoice.total_amount).to eq(130.0 + invoice.line_items.where.not(reservation_id: nil).sum(:unit_price))
     end
   end
 
