@@ -179,6 +179,43 @@ RSpec.describe BillingRunner do
       # 130 (balance) + 20 (reservation price on weekday) = 150
       expect(invoice.total_amount).to eq(130.0 + invoice.line_items.where.not(reservation_id: nil).sum(:unit_price))
     end
+
+    it 'handles positive balance (user has credit)' do
+      allow(cashctrl_client).to receive(:get_account_balance).and_return(500.0)
+
+      runner = described_class.new(period_start, period_end)
+      runner.run
+
+      invoice = Invoice.last
+      balance_line = invoice.line_items.find { |li| li.reservation_id.nil? }
+      expect(balance_line.unit_price).to eq(-500.0) # Credit shown as negative
+    end
+
+    it 'skips already invoiced prepaid users' do
+      Invoice.create!(
+        user: prepaid_user,
+        cashctrl_person_id: 789,
+        period_start: period_start,
+        period_end: period_end
+      )
+
+      runner = described_class.new(period_start, period_end)
+      result = runner.run
+
+      expect(result[:prepaid][:skipped]).to eq(1)
+      expect(result[:prepaid][:created]).to eq(0)
+    end
+
+    it 'records error when balance API fails' do
+      allow(cashctrl_client).to receive(:get_account_balance).and_raise(StandardError.new('API timeout'))
+
+      runner = described_class.new(period_start, period_end)
+      result = runner.run
+
+      expect(result[:errors].size).to eq(1)
+      expect(result[:errors].first[:error]).to include('API timeout')
+      expect(Invoice.count).to eq(0)
+    end
   end
 
   describe 'exempt users' do
