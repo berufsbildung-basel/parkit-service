@@ -145,15 +145,15 @@ class BillingRunner
     items = build_line_items(reservations, language)
     billable_items = items.select { |i| i[:artikel_nr].present? }
 
-    # Skip if no balance and no bookings
+    # Skip if no bookings
     booking_total = reservations.where(cancelled: false).sum(:price)
-    return if opening_amount == 0 && booking_total <= 0
+    return if booking_total <= 0
 
-    # Build CashCtrl invoice: opening balance line + booking lines
-    balance_label = language == 'de' ? "Vortrag per #{@period_start.strftime('%d.%m.%Y')}" :
-                                       "Balance carried forward #{@period_start.strftime('%d.%m.%Y')}"
+    # Build CashCtrl invoice: balance info (TEXT, no accounting) + booking lines
+    balance_label = language == 'de' ? "Kontostand per #{@period_start.strftime('%d.%m.%Y')}: CHF #{'%.2f' % balance}" :
+                                       "Account balance as of #{@period_start.strftime('%d.%m.%Y')}: CHF #{'%.2f' % balance}"
     cashctrl_items = [
-      { name: balance_label, unit_price: opening_amount, quantity: 1 }
+      { type: 'TEXT', name: balance_label }
     ] + billable_items.map do |i|
       { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
     end
@@ -167,22 +167,21 @@ class BillingRunner
       account_id: cashctrl_account_id
     )
 
-    total = opening_amount + booking_total
     invoice = Invoice.create!(
       user: user,
       cashctrl_person_id: person_id,
       cashctrl_invoice_id: cashctrl_invoice_id,
       period_start: @period_start,
       period_end: @period_end,
-      total_amount: total,
+      total_amount: booking_total,
       status: :draft
     )
 
-    # Opening balance line (no reservation)
+    # Balance info line (no reservation, no price - informational only)
     InvoiceLineItem.create!(
       invoice: invoice,
       description: balance_label,
-      unit_price: opening_amount
+      unit_price: 0
     )
     create_local_line_items(invoice, items)
 
