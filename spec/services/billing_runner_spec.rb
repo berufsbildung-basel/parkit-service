@@ -162,26 +162,27 @@ RSpec.describe BillingRunner do
       expect(Invoice.count).to eq(1)
     end
 
-    it 'includes opening balance line item' do
+    it 'includes balance info as TEXT line item (no price)' do
       runner = described_class.new(period_start, period_end)
       runner.run
 
       invoice = Invoice.last
       balance_line = invoice.line_items.find { |li| li.reservation_id.nil? }
       expect(balance_line).to be_present
-      expect(balance_line.unit_price).to eq(130.0) # Inverted from -130
+      expect(balance_line.unit_price).to eq(0) # Informational only
+      expect(balance_line.description).to include('-130.00')
     end
 
-    it 'sets total as balance plus bookings' do
+    it 'sets total to booking charges only (not balance)' do
       runner = described_class.new(period_start, period_end)
       runner.run
 
       invoice = Invoice.last
-      # 130 (balance) + 20 (reservation price on weekday) = 150
-      expect(invoice.total_amount).to eq(130.0 + invoice.line_items.where.not(reservation_id: nil).sum(:unit_price))
+      booking_total = invoice.line_items.where.not(reservation_id: nil).sum(:unit_price)
+      expect(invoice.total_amount).to eq(booking_total)
     end
 
-    it 'handles positive balance (user has credit)' do
+    it 'shows balance info regardless of sign' do
       allow(cashctrl_client).to receive(:get_account_balance).and_return(500.0)
 
       runner = described_class.new(period_start, period_end)
@@ -189,7 +190,8 @@ RSpec.describe BillingRunner do
 
       invoice = Invoice.last
       balance_line = invoice.line_items.find { |li| li.reservation_id.nil? }
-      expect(balance_line.unit_price).to eq(-500.0) # Credit shown as negative
+      expect(balance_line.description).to include('500.00')
+      expect(balance_line.unit_price).to eq(0)
     end
 
     it 'skips already invoiced prepaid users' do
