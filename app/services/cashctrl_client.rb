@@ -32,6 +32,13 @@ class CashctrlClient
     execute(uri, request)
   end
 
+  def ping
+    result = get('/fiscalperiod/list.json')
+    result['success'] != false
+  rescue StandardError
+    false
+  end
+
   # Person methods
   def find_person_by_email(email)
     result = get('/person/list.json', { query: email })
@@ -150,12 +157,15 @@ class CashctrlClient
   end
 
   def get_invoice_pdf(invoice_id)
-    uri = URI("#{@base_url}/order/document.json?id=#{invoice_id}")
+    uri = URI("#{@base_url}/order/document/read.pdf?id=#{invoice_id}")
     request = Net::HTTP::Get.new(uri)
     request.basic_auth(@api_key, '')
 
     Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
-      http.request(request).body
+      response = http.request(request)
+      raise "PDF download failed: #{response.code}" unless response.code == '200'
+
+      response.body
     end
   end
 
@@ -175,8 +185,14 @@ class CashctrlClient
   end
 
   def get_account_balance(account_id)
-    result = get('/account/balance.json', { id: account_id.to_s })
-    result['balance']&.to_f || 0.0
+    uri = URI("#{@base_url}/account/balance?id=#{account_id}")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(@api_key, '')
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    raise "Balance lookup failed: #{response.code}" unless response.code == '200'
+
+    response.body.to_f
   end
 
   private

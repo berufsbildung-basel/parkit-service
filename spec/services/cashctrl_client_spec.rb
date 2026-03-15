@@ -170,7 +170,7 @@ RSpec.describe CashctrlClient do
 
     it 'returns PDF binary data' do
       pdf_content = '%PDF-1.4 test'
-      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/document.json')
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/document/read.pdf')
         .with(query: { id: '789' })
         .to_return(status: 200, body: pdf_content, headers: { 'Content-Type' => 'application/pdf' })
 
@@ -211,9 +211,9 @@ RSpec.describe CashctrlClient do
     end
 
     it 'returns account balance' do
-      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/balance.json')
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/balance')
         .with(query: { id: '200' })
-        .to_return(status: 200, body: '{"balance": 350.00}')
+        .to_return(status: 200, body: '350.00')
 
       result = client.get_account_balance(200)
       expect(result).to eq(350.00)
