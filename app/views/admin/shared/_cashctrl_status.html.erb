@@ -1,0 +1,21 @@
+<% if @cashctrl_status.present? %>
+  <%
+    case @cashctrl_status
+    when :connected
+      bg = '#2d9d78'
+      label = "CashCtrl connected"
+    when :not_configured
+      bg = '#e68619'
+      label = "CashCtrl not configured"
+    when :error
+      bg = '#e34850'
+      label = "CashCtrl connection failed"
+    end
+    label += " (#{@cashctrl_org})" if @cashctrl_org.present?
+  %>
+  <p style="margin: 0 0 1.5rem 0;">
+    <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 13px; background-color: <%= bg %>; color: white;">
+      &#9679; <%= label %>
+    </span>
+  </p>
+<% end %>
