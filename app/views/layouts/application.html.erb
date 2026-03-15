@@ -53,5 +53,10 @@
     </div>
   </div>
 </div>
+<% if ENV['APP_VERSION'].present? %>
+  <div style="position: fixed; bottom: 4px; right: 8px; font-size: 11px; color: #999;">
+    <%= ENV['APP_VERSION'] %>
+  </div>
+<% end %>
 </body>
 </html>
