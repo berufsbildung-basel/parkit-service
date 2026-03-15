@@ -54,6 +54,7 @@ Rails.application.routes.draw do
     end
 
     resources :journal_entries, only: [:index]
+    resources :billing_periods, only: [:show]
   end
 
   namespace :api, defaults: { format: :json } do

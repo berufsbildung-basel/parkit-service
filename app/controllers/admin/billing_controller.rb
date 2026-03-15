@@ -3,10 +3,9 @@
 module Admin
   class BillingController < BaseController
     def show
+      @billing_periods = BillingPeriod.order(period_start: :desc)
       @stats = {
-        total_open: Invoice.open.sum(:total_amount),
-        invoices_by_status: Invoice.group(:status).count,
-        journal_entries_this_month: JournalEntry.where(period_start: Date.today.beginning_of_month).count
+        total_open: Invoice.open.sum(:total_amount)
       }
     end
 
@@ -23,7 +22,7 @@ module Admin
 
     def execute
       period = parse_period(params[:period])
-      runner = BillingRunner.new(period[:start], period[:end])
+      runner = BillingRunner.new(period[:start], period[:end], executed_by: current_user)
       @result = runner.run
 
       redirect_to admin_billing_path, notice: billing_notice(@result)
@@ -36,10 +35,14 @@ module Admin
       start_month = billing_start.beginning_of_month
       end_month = 1.month.ago.beginning_of_month
 
+      completed_months = BillingPeriod.completed.pluck(:period_start)
+
       months = []
       current = end_month
       while current >= start_month
-        months << { start: current, end: current.end_of_month, label: current.strftime('%B %Y') }
+        unless completed_months.include?(current)
+          months << { start: current, end: current.end_of_month, label: current.strftime('%B %Y') }
+        end
         current -= 1.month
       end
       months
