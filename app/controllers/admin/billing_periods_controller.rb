@@ -12,13 +12,21 @@ module Admin
 
     def reset
       billing_period = BillingPeriod.find(params[:id])
-      invoice_count = Invoice.for_period(billing_period.period_start).count
+      invoices = Invoice.for_period(billing_period.period_start)
 
-      Invoice.for_period(billing_period.period_start).destroy_all
+      # Delete from CashCtrl first
+      cashctrl_ids = invoices.where.not(cashctrl_invoice_id: nil).pluck(:cashctrl_invoice_id)
+      CashctrlClient.new.delete_invoices(cashctrl_ids) if cashctrl_ids.any?
+
+      invoice_count = invoices.count
+      invoices.destroy_all
       billing_period.destroy!
 
       redirect_to admin_billing_path,
-                  notice: "Period #{billing_period.period_start.strftime('%B %Y')} reset (#{invoice_count} invoices deleted locally). Remember to also delete them in CashCtrl."
+                  notice: "Period #{billing_period.period_start.strftime('%B %Y')} reset (#{invoice_count} invoices deleted locally and in CashCtrl)."
+    rescue StandardError => e
+      redirect_to admin_billing_path,
+                  alert: "Failed to reset period: #{e.message}"
     end
 
     private

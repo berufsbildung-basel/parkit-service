@@ -55,10 +55,15 @@ module Admin
     end
 
     def reset
-      period_start = @invoice.period_start
+      if @invoice.cashctrl_invoice_id.present?
+        CashctrlClient.new.delete_invoices([@invoice.cashctrl_invoice_id])
+      end
       @invoice.destroy!
       redirect_back fallback_location: admin_invoices_path,
-                    notice: "Invoice for #{@invoice.user.email} deleted. Remember to also delete it in CashCtrl."
+                    notice: "Invoice for #{@invoice.user.email} deleted (locally and in CashCtrl)."
+    rescue StandardError => e
+      redirect_back fallback_location: admin_invoices_path,
+                    alert: "Failed to delete from CashCtrl: #{e.message}. Local invoice kept."
     end
 
     private

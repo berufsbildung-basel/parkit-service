@@ -115,7 +115,7 @@
                       class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
                   <%= button_to 'Reset', reset_admin_invoice_path(invoice), method: :post,
                       class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS',
-                      data: { confirm: "Delete local invoice for #{invoice.user.email}? You must also delete it in CashCtrl." } %>
+                      data: { confirm: "Delete invoice for #{invoice.user.email}? This will also delete it in CashCtrl." } %>
                 </div>
               </td>
             </tr>
@@ -129,7 +129,7 @@
           class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
       <%= button_to 'Reset Entire Period', reset_admin_billing_period_path(@billing_period), method: :post,
           class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeM',
-          data: { confirm: "Delete ALL local invoices for #{@billing_period.period_start.strftime('%B %Y')}? You must also delete them in CashCtrl." } %>
+          data: { confirm: "Delete ALL invoices for #{@billing_period.period_start.strftime('%B %Y')}? This will also delete them in CashCtrl." } %>
     </div>
   </div>
 </section>

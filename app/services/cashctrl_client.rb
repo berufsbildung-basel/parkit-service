@@ -131,6 +131,12 @@ class CashctrlClient
     get('/order/read.json', { id: invoice_id.to_s })
   end
 
+  def delete_invoices(invoice_ids)
+    return if invoice_ids.empty?
+
+    post('/order/delete.json', { ids: invoice_ids.join(',') })
+  end
+
   def send_invoice_email(invoice_id)
     post('/order/send-email.json', { id: invoice_id })
   end
