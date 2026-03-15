@@ -136,9 +136,9 @@ class BillingRunner
     reservations = user_reservations(user)
     language = user.preferred_language || 'de'
 
-    # Resolve CashCtrl account and fetch balance
+    # Resolve CashCtrl account and fetch balance (reuse resolved ID to avoid double lookup)
     cashctrl_account_id = @client.resolve_account_id(user.cashctrl_private_account_id)
-    balance = @client.get_account_balance(user.cashctrl_private_account_id)
+    balance = @client.get_account_balance(user.cashctrl_private_account_id, internal_id: cashctrl_account_id)
     opening_amount = -balance # Invert: CashCtrl negative becomes positive on invoice
 
     # Build booking line items

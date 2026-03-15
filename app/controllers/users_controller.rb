@@ -18,10 +18,13 @@ class UsersController < AuthorizableController
     @reservations = @user.reservations.active_in_the_future
 
     if @user.prepaid? && @user.cashctrl_private_account_id.present?
-      @prepaid_balance = CashctrlClient.new.get_account_balance(@user.cashctrl_private_account_id)
+      begin
+        @prepaid_balance = CashctrlClient.new.get_account_balance(@user.cashctrl_private_account_id)
+      rescue StandardError => e
+        Rails.logger.warn("Failed to fetch prepaid balance for user #{@user.id}: #{e.message}")
+        @prepaid_balance = nil
+      end
     end
-  rescue StandardError => e
-    @prepaid_balance = nil
   end
 
   def update

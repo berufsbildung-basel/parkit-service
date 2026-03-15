@@ -4,6 +4,15 @@ require 'net/http'
 require 'json'
 
 class CashctrlClient
+  # CashCtrl custom status IDs for the Parking Invoice category.
+  # These are category-specific and configured in CashCtrl admin.
+  STATUS_IDS = {
+    draft: 7,
+    sent: 16,   # "Open" in CashCtrl UI
+    paid: 17,
+    cancelled: 18
+  }.freeze
+
   attr_reader :base_url
 
   def initialize
@@ -162,8 +171,8 @@ class CashctrlClient
     account['id']
   end
 
-  def get_account_balance(account_number)
-    internal_id = resolve_account_id(account_number)
+  def get_account_balance(account_number, internal_id: nil)
+    internal_id ||= resolve_account_id(account_number)
 
     uri = URI("#{@base_url}/account/balance?id=#{internal_id}")
     request = Net::HTTP::Get.new(uri)
@@ -184,6 +193,17 @@ class CashctrlClient
       http.request(request)
     end
 
-    JSON.parse(response.body)
+    unless response.code.start_with?('2')
+      raise "CashCtrl API error: HTTP #{response.code} for #{request.method} #{uri.path} - #{response.body}"
+    end
+
+    result = JSON.parse(response.body)
+
+    if result['success'] == false
+      errors = result['errors']&.map { |e| e['message'] || e.to_s }&.join(', ') || 'unknown error'
+      raise "CashCtrl API error: #{errors} (#{request.method} #{uri.path})"
+    end
+
+    result
   end
 end

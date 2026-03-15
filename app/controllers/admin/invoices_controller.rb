@@ -84,12 +84,8 @@ module Admin
       client = CashctrlClient.new
       data = client.get_invoice(invoice.cashctrl_invoice_id)
 
-      new_status = case data['statusId']
-                   when 7 then :draft
-                   when 16 then :sent
-                   when 17 then :paid
-                   else invoice.status
-                   end
+      status_map = CashctrlClient::STATUS_IDS.invert
+      new_status = status_map.fetch(data['statusId'], invoice.status)
 
       invoice.update!(
         status: new_status,

@@ -4,11 +4,6 @@
 class InvoiceStatusSyncJob < ApplicationJob
   queue_as :default
 
-  # CashCtrl status IDs
-  CASHCTRL_STATUS_SENT = 1
-  CASHCTRL_STATUS_PAID = 2
-  CASHCTRL_STATUS_CANCELLED = 3
-
   def perform
     client = CashctrlClient.new
 
@@ -24,13 +19,17 @@ class InvoiceStatusSyncJob < ApplicationJob
     status_id = response['statusId']
 
     case status_id
-    when CASHCTRL_STATUS_PAID
+    when CashctrlClient::STATUS_IDS[:paid]
       invoice.update!(
         status: :paid,
+        cashctrl_status: status_id.to_s,
         paid_at: parse_date(response['datePayment'])
       )
-    when CASHCTRL_STATUS_CANCELLED
-      invoice.update!(status: :cancelled)
+    when CashctrlClient::STATUS_IDS[:cancelled]
+      invoice.update!(
+        status: :cancelled,
+        cashctrl_status: status_id.to_s
+      )
     end
   rescue StandardError => e
     Rails.logger.error("Failed to sync invoice #{invoice.id}: #{e.message}")

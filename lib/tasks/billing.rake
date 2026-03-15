@@ -25,7 +25,7 @@ namespace :billing do
 
     puts "\nResults:"
     puts "  Standard: #{results[:standard][:created]} invoices created, #{results[:standard][:skipped]} skipped"
-    puts "  Prepaid: #{results[:prepaid][:journal_entries_created]} journal entries, #{results[:prepaid][:topup_invoices_created]} top-up invoices"
+    puts "  Prepaid: #{results[:prepaid][:created]} invoices created, #{results[:prepaid][:skipped]} skipped"
     puts "  Exempt: #{results[:exempt][:skipped]} skipped"
 
     if results[:errors].any?

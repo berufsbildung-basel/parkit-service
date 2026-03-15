@@ -55,7 +55,7 @@ RSpec.describe InvoiceStatusSyncJob, type: :job do
     context 'when invoice is paid in CashCtrl' do
       before do
         allow(client).to receive(:get_invoice).with(1001).and_return({
-                                                                       'statusId' => 2, # paid
+                                                                       'statusId' => CashctrlClient::STATUS_IDS[:paid],
                                                                        'datePayment' => '2025-01-15'
                                                                      })
       end
@@ -85,7 +85,7 @@ RSpec.describe InvoiceStatusSyncJob, type: :job do
     context 'when invoice is still sent in CashCtrl' do
       before do
         allow(client).to receive(:get_invoice).with(1001).and_return({
-                                                                       'statusId' => 1 # sent
+                                                                       'statusId' => CashctrlClient::STATUS_IDS[:sent]
                                                                      })
       end
 
@@ -101,7 +101,7 @@ RSpec.describe InvoiceStatusSyncJob, type: :job do
     context 'when invoice is cancelled in CashCtrl' do
       before do
         allow(client).to receive(:get_invoice).with(1001).and_return({
-                                                                       'statusId' => 3 # cancelled
+                                                                       'statusId' => CashctrlClient::STATUS_IDS[:cancelled]
                                                                      })
       end
 
