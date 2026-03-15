@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :vehicles, dependent: :destroy
   has_many :invoices, dependent: :destroy
   has_many :journal_entries, dependent: :destroy
+  has_many :executed_billing_periods, class_name: 'BillingPeriod', foreign_key: :executed_by_id, dependent: :nullify
 
   enum role: %i[user led_matrix admin]
   enum billing_type: { standard: 0, prepaid: 1, exempt: 2 }

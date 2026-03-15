@@ -10,13 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_04_081130) do
-  create_schema "heroku_ext"
-
+ActiveRecord::Schema[7.1].define(version: 2026_03_15_073600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "billing_periods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "invoices_created", default: 0, null: false
+    t.integer "invoices_skipped", default: 0, null: false
+    t.integer "journal_entries_created", default: 0, null: false
+    t.integer "topup_invoices_created", default: 0, null: false
+    t.integer "exempt_skipped", default: 0, null: false
+    t.jsonb "errors_log", default: [], null: false
+    t.uuid "executed_by_id"
+    t.datetime "executed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["executed_by_id"], name: "index_billing_periods_on_executed_by_id"
+    t.index ["period_start"], name: "index_billing_periods_on_period_start", unique: true
+    t.index ["status"], name: "index_billing_periods_on_status"
+  end
 
   create_table "invoice_line_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "invoice_id", null: false
@@ -109,7 +126,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_04_081130) do
     t.boolean "disabled", default: false, null: false
     t.string "first_name"
     t.string "last_name"
-    t.string "preferred_language", default: "en", null: false
+    t.string "preferred_language", default: "de", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "provider"
@@ -145,6 +162,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_04_081130) do
     t.index ["user_id"], name: "index_vehicles_on_user_id"
   end
 
+  add_foreign_key "billing_periods", "users", column: "executed_by_id"
   add_foreign_key "invoice_line_items", "invoices"
   add_foreign_key "invoice_line_items", "reservations"
   add_foreign_key "invoices", "users"
