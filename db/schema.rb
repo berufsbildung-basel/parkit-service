@@ -10,10 +10,75 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_06_27_085654) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_15_091008) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "billing_periods", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "invoices_created", default: 0, null: false
+    t.integer "invoices_skipped", default: 0, null: false
+    t.integer "journal_entries_created", default: 0, null: false
+    t.integer "topup_invoices_created", default: 0, null: false
+    t.integer "exempt_skipped", default: 0, null: false
+    t.jsonb "errors_log", default: [], null: false
+    t.uuid "executed_by_id"
+    t.datetime "executed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["executed_by_id"], name: "index_billing_periods_on_executed_by_id"
+    t.index ["period_start"], name: "index_billing_periods_on_period_start", unique: true
+    t.index ["status"], name: "index_billing_periods_on_status"
+  end
+
+  create_table "invoice_line_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "invoice_id", null: false
+    t.uuid "reservation_id"
+    t.string "description", null: false
+    t.integer "quantity", default: 1, null: false
+    t.decimal "unit_price", precision: 10, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invoice_id"], name: "index_invoice_line_items_on_invoice_id"
+    t.index ["reservation_id"], name: "index_invoice_line_items_on_reservation_id"
+  end
+
+  create_table "invoices", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.integer "cashctrl_invoice_id"
+    t.integer "cashctrl_person_id", null: false
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "status", default: 0, null: false
+    t.string "cashctrl_status"
+    t.datetime "sent_at"
+    t.datetime "paid_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cashctrl_invoice_id"], name: "index_invoices_on_cashctrl_invoice_id"
+    t.index ["status"], name: "index_invoices_on_status"
+    t.index ["user_id", "period_start"], name: "index_invoices_on_user_id_and_period_start", unique: true
+    t.index ["user_id"], name: "index_invoices_on_user_id"
+  end
+
+  create_table "journal_entries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.integer "cashctrl_journal_id"
+    t.date "period_start", null: false
+    t.date "period_end", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "reservation_count", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cashctrl_journal_id"], name: "index_journal_entries_on_cashctrl_journal_id"
+    t.index ["user_id", "period_start"], name: "index_journal_entries_on_user_id_and_period_start", unique: true
+    t.index ["user_id"], name: "index_journal_entries_on_user_id"
+  end
 
   create_table "parking_spots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.integer "number", null: false
@@ -61,11 +126,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_27_085654) do
     t.boolean "disabled", default: false, null: false
     t.string "first_name"
     t.string "last_name"
-    t.string "preferred_language", default: "en", null: false
+    t.string "preferred_language", default: "de", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "provider"
     t.string "uid"
+    t.integer "billing_type", default: 0, null: false
+    t.integer "cashctrl_person_id"
+    t.integer "cashctrl_private_account_id"
+    t.decimal "prepaid_threshold", precision: 10, scale: 2
+    t.decimal "prepaid_topup_amount", precision: 10, scale: 2
+    t.string "address_line1"
+    t.string "address_line2"
+    t.string "postal_code"
+    t.string "city"
+    t.string "country_code", default: "CH"
+    t.index ["billing_type"], name: "index_users_on_billing_type"
+    t.index ["cashctrl_person_id"], name: "index_users_on_cashctrl_person_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider"], name: "index_users_on_provider"
     t.index ["uid"], name: "index_users_on_uid"
@@ -85,6 +162,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_06_27_085654) do
     t.index ["user_id"], name: "index_vehicles_on_user_id"
   end
 
+  add_foreign_key "billing_periods", "users", column: "executed_by_id"
+  add_foreign_key "invoice_line_items", "invoices"
+  add_foreign_key "invoice_line_items", "reservations"
+  add_foreign_key "invoices", "users"
+  add_foreign_key "journal_entries", "users"
   add_foreign_key "reservations", "parking_spots"
   add_foreign_key "reservations", "users"
   add_foreign_key "reservations", "vehicles"

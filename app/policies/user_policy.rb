@@ -29,6 +29,10 @@ class UserPolicy < ApplicationPolicy
     edit?
   end
 
+  def create_topup_invoice?
+    user.admin?
+  end
+
   def welcome?
     true
   end

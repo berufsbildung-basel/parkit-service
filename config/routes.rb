@@ -8,6 +8,8 @@ Rails.application.routes.draw do
 
   root to: redirect(path: '/dashboard', status: 302)
 
+  resource :profile, only: [:show, :edit, :update], controller: 'profile'
+
   get '/dashboard', controller: 'dashboard', action: 'welcome'
   get '/billing', controller: 'billing', action: 'index'
 
@@ -19,6 +21,10 @@ Rails.application.routes.draw do
       resources :reservations
     end
     get 'billing', controller: 'user_billing', action: 'index'
+    resources :invoice_downloads, only: [:show], controller: 'user_invoice_downloads'
+    member do
+      post :create_topup_invoice
+    end
   end
 
   resources :parking_spots do
@@ -30,6 +36,33 @@ Rails.application.routes.draw do
 
   resources :reservations
   resources :vehicles
+
+  # Admin routes for billing management
+  namespace :admin do
+    resource :billing, only: [:show], controller: 'billing' do
+      get :run
+      get :preview
+      post :execute
+    end
+
+    resources :invoices, only: %i[index show] do
+      collection do
+        post :refresh_all
+      end
+      member do
+        post :send_email
+        get :download_pdf
+        post :refresh_status
+        post :reset
+      end
+    end
+
+    resources :billing_periods, only: [:show] do
+      member do
+        post :reset
+      end
+    end
+  end
 
   namespace :api, defaults: { format: :json } do
     # devise_for :users

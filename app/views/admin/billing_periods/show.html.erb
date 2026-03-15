@@ -1,0 +1,139 @@
+<% content_for :title, "Billing Period - #{@billing_period.period_start.strftime('%B %Y')}" %>
+
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Billing Period - <%= @billing_period.period_start.strftime('%B %Y') %></h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
+
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <%
+      bg = case @billing_period.status
+           when 'completed' then '#2d9d78'
+           when 'partially_failed' then '#e68619'
+           when 'in_progress' then '#4b9cf5'
+           else '#b1b1b1'
+           end
+    %>
+    <p>
+      <span style="display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 13px; background-color: <%= bg %>; color: white;">
+        &#9679; <%= @billing_period.status.humanize %>
+      </span>
+    </p>
+
+    <table class="spectrum-Table spectrum-Table--sizeM" style="max-width: 400px;">
+      <tbody class="spectrum-Table-body">
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Invoices Created</strong></td>
+          <td class="spectrum-Table-cell"><%= @billing_period.invoices_created %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Invoices Skipped</strong></td>
+          <td class="spectrum-Table-cell"><%= @billing_period.invoices_skipped %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Exempt Skipped</strong></td>
+          <td class="spectrum-Table-cell"><%= @billing_period.exempt_skipped %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Executed By</strong></td>
+          <td class="spectrum-Table-cell"><%= @billing_period.executed_by&.email || '-' %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Executed At</strong></td>
+          <td class="spectrum-Table-cell"><%= @billing_period.executed_at&.strftime('%d.%m.%Y %H:%M') || '-' %></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <% if @billing_period.errors_log.any? %>
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Errors</h3>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">User</th>
+            <th class="spectrum-Table-headCell">Type</th>
+            <th class="spectrum-Table-headCell">Error</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @billing_period.errors_log.each do |err| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= User.find_by(id: err['user_id'])&.email || err['user_id'] %></td>
+              <td class="spectrum-Table-cell"><%= err['type'] %></td>
+              <td class="spectrum-Table-cell"><%= err['error'] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <% if @skipped_users.any? %>
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Skipped Users</h3>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">User</th>
+            <th class="spectrum-Table-headCell">Reason</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @skipped_users.each do |entry| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= entry[:user].email %></td>
+              <td class="spectrum-Table-cell"><%= entry[:reason] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <% if @invoices.any? %>
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Invoices</h3>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">User</th>
+            <th class="spectrum-Table-headCell">Amount</th>
+            <th class="spectrum-Table-headCell">Status</th>
+            <th class="spectrum-Table-headCell">Sent</th>
+            <th class="spectrum-Table-headCell">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @invoices.each do |invoice| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= link_to invoice.user.email, admin_invoice_path(invoice), class: 'spectrum-Link' %></td>
+              <td class="spectrum-Table-cell"><%= number_to_currency(invoice.total_amount, unit: 'CHF ') %></td>
+              <td class="spectrum-Table-cell"><%= invoice.status.capitalize %></td>
+              <td class="spectrum-Table-cell"><%= invoice.sent_at&.strftime('%d.%m.%Y') || '-' %></td>
+              <td class="spectrum-Table-cell">
+                <div class="spectrum-ButtonGroup">
+                  <% unless invoice.sent? || invoice.paid? %>
+                    <%= button_to 'Send', send_email_admin_invoice_path(invoice), method: :post,
+                        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeS' %>
+                  <% end %>
+                  <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice),
+                      class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+                  <% if invoice.draft? %>
+                    <%= button_to 'Reset', reset_admin_invoice_path(invoice), method: :post,
+                        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS',
+                        data: { confirm: "Delete invoice for #{invoice.user.email}? This will also delete it in CashCtrl." } %>
+                  <% end %>
+                </div>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
+    <div class="spectrum-ButtonGroup" style="margin-top: 1.5rem;">
+      <%= link_to 'Back to Billing', admin_billing_path,
+          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+      <% if @invoices.all?(&:draft?) %>
+        <%= button_to 'Reset Entire Period', reset_admin_billing_period_path(@billing_period), method: :post,
+            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeM',
+            data: { confirm: "Delete ALL invoices for #{@billing_period.period_start.strftime('%B %Y')}? This will also delete them in CashCtrl." } %>
+      <% end %>
+    </div>
+  </div>
+</section>

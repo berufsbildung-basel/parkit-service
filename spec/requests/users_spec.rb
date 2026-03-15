@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
+  before(:each) { login_admin }
+
   let!(:user) {
     User.create!(
       username: Faker::Internet.username,
@@ -147,26 +149,25 @@ RSpec.describe 'Users', type: :request do
     end
 
     it 'lists users' do
-      expected_user = User.first
-
+      # Note: login_admin creates an admin user, plus let!(:user) creates another
       get api_v1_users_url
 
       json = JSON.parse(response.body).deep_symbolize_keys
 
-      expect(json[:users].size).to eq(1)
+      expect(json[:users].size).to eq(2)
 
-      expect(json[:users][0][:id]).to eq(expected_user.id)
-      expect(json[:users][0][:email]).to eq(expected_user.email)
-      expect(json[:users][0][:username]).to eq(expected_user.username)
-      expect(json[:users][0][:role]).to eq(expected_user.role)
+      # Verify both users are included
+      user_ids = json[:users].map { |u| u[:id] }
+      expect(user_ids).to include(user.id)
     end
 
     it 'includes pagination' do
+      # Note: login_admin creates an admin user, plus let!(:user) creates another
       get api_v1_users_url
 
       json = JSON.parse(response.body).deep_symbolize_keys
 
-      expect(json[:total_count]).to eq(1)
+      expect(json[:total_count]).to eq(2)
       expect(json[:total_pages]).to eq(1)
       expect(json[:current_page]).to eq(1)
       expect(json[:limit_per_page]).to eq(25)

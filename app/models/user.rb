@@ -8,14 +8,27 @@ class User < ApplicationRecord
 
   has_many :reservations, dependent: :destroy
   has_many :vehicles, dependent: :destroy
+  has_many :invoices, dependent: :destroy
+  has_many :executed_billing_periods, class_name: 'BillingPeriod', foreign_key: :executed_by_id, dependent: :nullify
 
   enum role: %i[user led_matrix admin]
+  enum billing_type: { standard: 0, prepaid: 1, exempt: 2 }
+
+  scope :billable, -> { where(billing_type: %i[standard prepaid]) }
+  scope :standard_billing, -> { where(billing_type: :standard) }
+  scope :prepaid_billing, -> { where(billing_type: :prepaid) }
+  scope :exempt_billing, -> { where(billing_type: :exempt) }
   after_initialize :set_default_role, if: :new_record?
 
   validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }, uniqueness: true
   validates :username, presence: true, uniqueness: true
 
   validates_inclusion_of :role, in: roles.keys
+
+  # Address validation - require all fields if any are present
+  validates :address_line1, :postal_code, :city, :country_code,
+            presence: true,
+            if: :any_address_field_present?
 
   def role=(value)
     super
@@ -62,5 +75,19 @@ class User < ApplicationRecord
         user.email = data['email']
       end
     end
+  end
+
+  def address_complete?
+    address_line1.present? && postal_code.present? && city.present? && country_code.present?
+  end
+
+  def full_address_line
+    [address_line1, address_line2].compact_blank.join(', ')
+  end
+
+  private
+
+  def any_address_field_present?
+    address_line1.present? || address_line2.present? || postal_code.present? || city.present?
   end
 end

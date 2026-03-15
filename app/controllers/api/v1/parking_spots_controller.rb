@@ -11,6 +11,7 @@ module Api
 
       # Returns available parking spots for a given date, user and vehicle
       def check_availability
+        skip_authorization
         check = AvailabilityCheckRequest.new(check_availability_params)
 
         return render_validation_errors(check) unless check.valid?
@@ -24,13 +25,16 @@ module Api
       end
 
       def create
-        @parking_spot = ParkingSpot.create!(parking_spot_params)
+        @parking_spot = ParkingSpot.new(parking_spot_params)
+        authorize @parking_spot
+        @parking_spot.save!
 
         render @parking_spot, status: :created
       end
 
       def destroy
         @parking_spot = ParkingSpot.find(params[:id])
+        authorize @parking_spot
 
         @parking_spot.destroy!
 
@@ -39,32 +43,37 @@ module Api
 
       def set_unavailable
         @parking_spot = ParkingSpot.find(params[:parking_spot_id])
+        authorize @parking_spot, :update?
         @parking_spot.unavailable = true
         @parking_spot.update!(unavailable_params)
       end
 
       def set_available
         @parking_spot = ParkingSpot.find(params[:parking_spot_id])
+        authorize @parking_spot, :update?
         @parking_spot.unavailable = false
         @parking_spot.unavailability_reason = nil
         @parking_spot.save!
       end
 
       def index
-        @parking_spots = ParkingSpot.all.page(page_params[:page]).per(page_params[:page_size])
+        @parking_spots = policy_scope(ParkingSpot).page(page_params[:page]).per(page_params[:page_size])
       end
 
       def show
         @parking_spot = ParkingSpot.find(params[:id])
+        authorize @parking_spot
       end
 
       # List parking spots and any reservations + vehicles on today's date
       def today
+        skip_authorization
         @parking_spots = ParkingSpot.with_reservations_on_date(Date.today)
       end
 
       def update
         @parking_spot = ParkingSpot.find(params[:id])
+        authorize @parking_spot
 
         @parking_spot.update!(parking_spot_params)
 

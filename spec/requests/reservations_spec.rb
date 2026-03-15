@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Reservations Requests', type: :request do
+  before(:each) { login_admin }
+
   let!(:parking_spot) do
     ParkingSpot.create({ number: 2 })
   end
@@ -43,7 +45,7 @@ RSpec.describe 'Reservations Requests', type: :request do
                     })
   end
 
-  reservation_date = Date.today
+  let(:reservation_date) { Date.today }
 
   describe 'POST /reservations' do
     it 'rejects request without parking_spot_id' do

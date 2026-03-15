@@ -1,0 +1,90 @@
+<% content_for :title, t('.title') %>
+
+<header class="spectrum-CSSComponent-sectionHeading">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM"><%= t('.title') %></h2>
+  <hr class="spectrum-Divider spectrum-Divider--large">
+</header>
+
+<section class="spectrum-CSSComponent-description">
+  <%= form_with model: @user, url: profile_path, method: :patch, class: 'spectrum-Form' do |f| %>
+    <% if @user.errors.any? %>
+      <div class="spectrum-Toast spectrum-Toast--negative">
+        <div class="spectrum-Toast-body">
+          <div class="spectrum-Toast-content">
+            <ul>
+              <% @user.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="spectrum-Form-item">
+      <%= f.label :first_name, class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+      <div class="spectrum-Textfield">
+        <%= f.text_field :first_name, class: 'spectrum-Textfield-input', required: true %>
+      </div>
+    </div>
+
+    <div class="spectrum-Form-item">
+      <%= f.label :last_name, class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+      <div class="spectrum-Textfield">
+        <%= f.text_field :last_name, class: 'spectrum-Textfield-input', required: true %>
+      </div>
+    </div>
+
+    <fieldset class="spectrum-Fieldset">
+      <legend class="spectrum-Fieldset-legend"><%= t('.address_section') %></legend>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :address_line1, t('.address_line1'), class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <div class="spectrum-Textfield">
+          <%= f.text_field :address_line1, class: 'spectrum-Textfield-input',
+              placeholder: t('.address_line1_placeholder') %>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :address_line2, t('.address_line2'), class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <div class="spectrum-Textfield">
+          <%= f.text_field :address_line2, class: 'spectrum-Textfield-input',
+              placeholder: t('.address_line2_placeholder') %>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :postal_code, class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <div class="spectrum-Textfield">
+          <%= f.text_field :postal_code, class: 'spectrum-Textfield-input' %>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :city, class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <div class="spectrum-Textfield">
+          <%= f.text_field :city, class: 'spectrum-Textfield-input' %>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <%= f.label :country_code, class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+        <div class="spectrum-Textfield spectrum-Textfield--sizeM">
+          <%= f.select :country_code, country_options_for_select, {}, class: 'spectrum-Textfield-input' %>
+        </div>
+      </div>
+
+      <%# TODO: Re-enable once CashCtrl supports multi-language invoices %>
+      <%# <div class="spectrum-Form-item"> %>
+      <%#   f.label :preferred_language, t('.preferred_language'), class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeM' %>
+      <%#   f.select :preferred_language, language_options_for_select, {}, class: 'spectrum-Picker-input' %>
+      <%# </div> %>
+    </fieldset>
+
+    <div class="spectrum-ButtonGroup">
+      <%= f.submit t('.save'), class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
+      <%= link_to t('.cancel'), profile_path, class: 'spectrum-Button spectrum-Button--secondary spectrum-Button--sizeM' %>
+    </div>
+  <% end %>
+</section>

@@ -1,0 +1,47 @@
+<% content_for :title, t('.title') %>
+
+<header class="spectrum-CSSComponent-sectionHeading">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM"><%= t('.title') %></h2>
+  <hr class="spectrum-Divider spectrum-Divider--large">
+</header>
+
+<section class="spectrum-CSSComponent-description">
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <dl class="spectrum-Table spectrum-Table--sizeM">
+      <div class="spectrum-Table-row">
+        <dt class="spectrum-Table-headCell"><%= User.human_attribute_name(:name) %></dt>
+        <dd class="spectrum-Table-cell"><%= @user.first_name %> <%= @user.last_name %></dd>
+      </div>
+
+      <div class="spectrum-Table-row">
+        <dt class="spectrum-Table-headCell"><%= User.human_attribute_name(:email) %></dt>
+        <dd class="spectrum-Table-cell"><%= @user.email %></dd>
+      </div>
+
+      <div class="spectrum-Table-row">
+        <dt class="spectrum-Table-headCell"><%= t('.address') %></dt>
+        <dd class="spectrum-Table-cell">
+          <% if @user.address_complete? %>
+            <%= @user.address_line1 %><br>
+            <% if @user.address_line2.present? %>
+              <%= @user.address_line2 %><br>
+            <% end %>
+            <%= @user.postal_code %> <%= @user.city %><br>
+            <%= @user.country_code %>
+          <% else %>
+            <em class="spectrum-Body--secondary"><%= t('.no_address') %></em>
+          <% end %>
+        </dd>
+      </div>
+
+      <%# TODO: Re-enable once CashCtrl supports multi-language invoices %>
+      <%# <div class="spectrum-Table-row"> %>
+      <%#   <dt class="spectrum-Table-headCell">t('.preferred_language')</dt> %>
+      <%#   <dd class="spectrum-Table-cell">@user.preferred_language&.upcase || 'EN'</dd> %>
+      <%# </div> %>
+    </dl>
+
+    <%= link_to t('.edit'), edit_profile_path,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
+  </div>
+</section>

@@ -1,0 +1,209 @@
+# frozen_string_literal: true
+
+require 'net/http'
+require 'json'
+
+class CashctrlClient
+  # CashCtrl custom status IDs for the Parking Invoice category.
+  # These are category-specific and configured in CashCtrl admin.
+  STATUS_IDS = {
+    draft: 7,
+    sent: 16,   # "Open" in CashCtrl UI
+    paid: 17,
+    cancelled: 18
+  }.freeze
+
+  attr_reader :base_url
+
+  def initialize
+    config = Rails.application.config.cashctrl
+    @org = config[:org]
+    @api_key = config[:api_key]
+    @invoice_category_id = config[:invoice_category_id]
+    @sales_account_id = config[:sales_account_id]
+    @tax_id = config[:tax_id]
+    @artikel = config[:artikel]
+    @base_url = "https://#{@org}.cashctrl.com/api/v1"
+  end
+
+  def get(path, params = {})
+    uri = URI("#{@base_url}#{path}")
+    uri.query = URI.encode_www_form(params) if params.any?
+
+    request = Net::HTTP::Get.new(uri)
+    execute(uri, request)
+  end
+
+  def post(path, body = {})
+    uri = URI("#{@base_url}#{path}")
+    request = Net::HTTP::Post.new(uri)
+    request.set_form_data(body)
+    execute(uri, request)
+  end
+
+  def ping
+    result = get('/fiscalperiod/list.json')
+    result['success'] != false
+  rescue StandardError
+    false
+  end
+
+  # Person methods
+  def find_person_by_email(email)
+    result = get('/person/list.json', { query: email })
+    result['data']&.first
+  end
+
+  def create_person(first_name:, last_name:, email:, address: nil, zip: nil, city: nil, country: nil)
+    address_data = {
+      type: 'MAIN',
+      email:,
+      address:,
+      zip:,
+      city:,
+      country:
+    }.compact
+
+    result = post('/person/create.json', {
+                    firstName: first_name,
+                    lastName: last_name,
+                    addresses: [address_data].to_json
+                  })
+    result['insertId']
+  end
+
+  def find_or_create_person(user)
+    person = find_person_by_email(user.email)
+    return person['id'] if person
+
+    create_person(
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+      address: user.respond_to?(:full_address_line) ? user.full_address_line : nil,
+      zip: user.respond_to?(:postal_code) ? user.postal_code : nil,
+      city: user.respond_to?(:city) ? user.city : nil,
+      country: user.respond_to?(:country_code) ? user.country_code : nil
+    )
+  end
+
+  def update_person(user)
+    address_data = {
+      type: 'MAIN',
+      address: user.full_address_line.presence,
+      zip: user.postal_code,
+      city: user.city,
+      country: user.country_code
+    }.compact
+
+    post('/person/update.json', {
+           id: user.cashctrl_person_id,
+           firstName: user.first_name,
+           lastName: user.last_name,
+           addresses: [address_data].to_json
+         })
+  end
+
+  # Invoice methods
+  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {}, account_id: nil)
+    items_json = items.map do |item|
+      {
+        accountId: @sales_account_id,
+        taxId: @tax_id,
+        articleNr: item[:artikel_nr],
+        name: item[:name],
+        unitPrice: item[:unit_price],
+        quantity: item[:quantity] || 1
+      }
+    end
+
+    params = {
+      associateId: person_id,
+      categoryId: @invoice_category_id,
+      date: date.to_s,
+      dueDays: due_days,
+      items: items_json.to_json
+    }
+    params[:accountId] = account_id if account_id
+
+    # Add custom fields if provided
+    if custom_fields.any?
+      xml_values = custom_fields.map { |k, v| "<#{k}>#{v}</#{k}>" }.join
+      params[:custom] = "<values>#{xml_values}</values>"
+    end
+
+    result = post('/order/create.json', params)
+    result['insertId']
+  end
+
+  def get_invoice(invoice_id)
+    get('/order/read.json', { id: invoice_id.to_s })
+  end
+
+  def delete_invoices(invoice_ids)
+    return if invoice_ids.empty?
+
+    post('/order/delete.json', { ids: invoice_ids.join(',') })
+  end
+
+  def send_invoice_email(invoice_id)
+    post('/order/send-email.json', { id: invoice_id })
+  end
+
+  def get_invoice_pdf(invoice_id)
+    uri = URI("#{@base_url}/order/document/read.pdf?id=#{invoice_id}")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(@api_key, '')
+
+    Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      response = http.request(request)
+      raise "PDF download failed: #{response.code}" unless response.code == '200'
+
+      response.body
+    end
+  end
+
+  def resolve_account_id(account_number)
+    result = get('/account/list.json', { query: account_number.to_s })
+    account = result['data']&.find { |a| a['number'] == account_number.to_s }
+    raise "Account number #{account_number} not found in CashCtrl" unless account
+
+    account['id']
+  end
+
+  def get_account_balance(account_number, internal_id: nil)
+    internal_id ||= resolve_account_id(account_number)
+
+    uri = URI("#{@base_url}/account/balance?id=#{internal_id}")
+    request = Net::HTTP::Get.new(uri)
+    request.basic_auth(@api_key, '')
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    raise "Balance lookup failed: #{response.code}" unless response.code == '200'
+
+    response.body.to_f
+  end
+
+  private
+
+  def execute(uri, request)
+    request.basic_auth(@api_key, '')
+
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) do |http|
+      http.request(request)
+    end
+
+    unless response.code.start_with?('2')
+      raise "CashCtrl API error: HTTP #{response.code} for #{request.method} #{uri.path} - #{response.body}"
+    end
+
+    result = JSON.parse(response.body)
+
+    if result['success'] == false
+      errors = result['errors']&.map { |e| e['message'] || e.to_s }&.join(', ') || 'unknown error'
+      raise "CashCtrl API error: #{errors} (#{request.method} #{uri.path})"
+    end
+
+    result
+  end
+end

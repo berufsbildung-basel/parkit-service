@@ -12,6 +12,14 @@ class ParkingSpot < ApplicationRecord
 
   validates :allowed_vehicle_type, presence: true, inclusion: { in: allowed_vehicle_types.keys }
 
+  # Check if parking spot allows a given vehicle type
+  # Cars can only park in car spots, motorcycles can park in any spot
+  def allows_vehicle_type?(vehicle_type)
+    return true if vehicle_type.to_s == 'motorcycle'
+
+    allowed_vehicle_type == vehicle_type.to_s
+  end
+
   def self.status_for_user_next_days(_user, num_days)
     result = {}
 
@@ -33,8 +41,12 @@ class ParkingSpot < ApplicationRecord
 
   # Returns available parking spots for a given date, vehicle and full-/half-day filter.
   # The vehicle owner is considered in the check.
+  # Filters by vehicle type: cars can only use car spots, motorcycles can use car or motorcycle spots.
   scope :available_on_date_and_time_for_vehicle_type, lambda { |date, vehicle, half_day, am|
     available.select do |parking_spot|
+      # Check vehicle type compatibility
+      next false unless parking_spot.allows_vehicle_type?(vehicle.vehicle_type)
+
       start_time = Reservation.calculate_start_time(date, half_day, am)
       end_time = Reservation.calculate_end_time(date, half_day, am)
 

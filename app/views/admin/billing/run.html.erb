@@ -1,0 +1,26 @@
+<% content_for :title, 'Run Billing' %>
+
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Run Billing</h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
+
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <%= render 'admin/shared/cashctrl_status' %>
+    <%= form_tag preview_admin_billing_path, method: :get, class: 'spectrum-Form' do %>
+      <div class="spectrum-Form-item">
+        <label for="period" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">Select Month</label>
+        <div class="spectrum-Textfield spectrum-Textfield--sizeM">
+          <%= select_tag :period,
+              options_for_select(@available_months.map { |m| [m[:label], m[:start].to_s] }),
+              class: 'spectrum-Textfield-input' %>
+        </div>
+      </div>
+      <div class="spectrum-ButtonGroup" style="margin-top: 1rem;">
+        <%= submit_tag 'Preview',
+            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
+        <%= link_to 'Back to Dashboard', admin_billing_path,
+            class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+      </div>
+    <% end %>
+  </div>
+</section>

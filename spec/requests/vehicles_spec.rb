@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Vehicles Requests', type: :request do
+  before(:each) { login_admin }
+
   let!(:user) do
     User.create!({
                    username: Faker::Internet.username,

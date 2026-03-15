@@ -1,0 +1,10 @@
+<% unless current_user.address_complete? %>
+  <div class="spectrum-Toast spectrum-Toast--info" style="margin-bottom: 1rem; display: flex;">
+    <div class="spectrum-Toast-body">
+      <div class="spectrum-Toast-content">
+        <%= t('profile.incomplete_address_warning') %>
+        <%= link_to t('profile.complete_profile'), edit_profile_path, class: 'spectrum-Link' %>
+      </div>
+    </div>
+  </div>
+<% end %>

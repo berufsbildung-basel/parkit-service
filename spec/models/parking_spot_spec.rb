@@ -54,6 +54,7 @@ RSpec.describe ParkingSpot, type: :model do
         unavailable
         unavailability_reason
         allowed_vehicle_type
+        archived
         created_at
         updated_at
       ]

@@ -1,0 +1,67 @@
+<% content_for :title, 'Billing Dashboard' %>
+
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Billing Dashboard</h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
+
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <%= render 'admin/shared/cashctrl_status' %>
+
+    <p><strong>Open Invoice Amount:</strong> <%= number_to_currency(@stats[:total_open], unit: 'CHF ') %></p>
+
+    <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Billing Periods</h3>
+    <% if @billing_periods.any? %>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">Period</th>
+            <th class="spectrum-Table-headCell">Status</th>
+            <th class="spectrum-Table-headCell">Invoices</th>
+            <th class="spectrum-Table-headCell">Skipped</th>
+            <th class="spectrum-Table-headCell">Errors</th>
+            <th class="spectrum-Table-headCell">Executed By</th>
+            <th class="spectrum-Table-headCell">Executed At</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @billing_periods.each do |bp| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell">
+                <%= link_to bp.period_start.strftime('%B %Y'), admin_billing_period_path(bp), class: 'spectrum-Link' %>
+              </td>
+              <td class="spectrum-Table-cell">
+                <%
+                  bg = case bp.status
+                       when 'completed' then '#2d9d78'
+                       when 'partially_failed' then '#e68619'
+                       when 'in_progress' then '#4b9cf5'
+                       else '#b1b1b1'
+                       end
+                %>
+                <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; background-color: <%= bg %>; color: white;">
+                  <%= bp.status.humanize %>
+                </span>
+              </td>
+              <td class="spectrum-Table-cell"><%= bp.invoices_created %></td>
+              <td class="spectrum-Table-cell"><%= bp.invoices_skipped %></td>
+              <td class="spectrum-Table-cell"><%= bp.errors_log.size %></td>
+              <td class="spectrum-Table-cell"><%= bp.executed_by&.email || '-' %></td>
+              <td class="spectrum-Table-cell"><%= bp.executed_at&.strftime('%d.%m.%Y %H:%M') || '-' %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <p>No billing periods yet. Use "Run Billing" to create your first one.</p>
+    <% end %>
+  </div>
+
+  <div class="spectrum-ButtonGroup" style="margin-top: 1.5rem;">
+    <%= link_to 'Run Billing', run_admin_billing_path,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
+    <%= link_to 'View All Invoices', admin_invoices_path,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+    <%= button_to 'Refresh All Statuses', refresh_all_admin_invoices_path, method: :post,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+  </div>
+</section>
