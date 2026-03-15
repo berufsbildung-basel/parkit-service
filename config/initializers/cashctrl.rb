@@ -12,6 +12,12 @@ Rails.application.config.cashctrl = {
   # Custom field ID for billing period (fieldId, not the numeric ID)
   billing_period_field_id: ENV.fetch('CASHCTRL_BILLING_PERIOD_FIELD_ID', nil),
 
+  # Invoice category status IDs (differ per CashCtrl tenant)
+  status_id_draft: ENV.fetch('CASHCTRL_STATUS_ID_DRAFT', nil)&.to_i,
+  status_id_sent: ENV.fetch('CASHCTRL_STATUS_ID_SENT', nil)&.to_i,
+  status_id_paid: ENV.fetch('CASHCTRL_STATUS_ID_PAID', nil)&.to_i,
+  status_id_cancelled: ENV.fetch('CASHCTRL_STATUS_ID_CANCELLED', nil)&.to_i,
+
   # Artikel numbers for parking reservations (e.g., "PARK-CAR-FD-WD")
   artikel: {
     car_halfday_weekday: ENV.fetch('CASHCTRL_ARTIKEL_CAR_HALFDAY_WEEKDAY', nil),

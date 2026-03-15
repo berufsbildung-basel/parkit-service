@@ -5,13 +5,16 @@ require 'json'
 
 class CashctrlClient
   # CashCtrl custom status IDs for the Parking Invoice category.
-  # These are category-specific and configured in CashCtrl admin.
-  STATUS_IDS = {
-    draft: 7,
-    sent: 16,   # "Open" in CashCtrl UI
-    paid: 17,
-    cancelled: 18
-  }.freeze
+  # These are category-specific and differ per tenant - configured via env vars.
+  def self.status_ids
+    config = Rails.application.config.cashctrl
+    {
+      draft: config[:status_id_draft],
+      sent: config[:status_id_sent],
+      paid: config[:status_id_paid],
+      cancelled: config[:status_id_cancelled]
+    }
+  end
 
   attr_reader :base_url
 
