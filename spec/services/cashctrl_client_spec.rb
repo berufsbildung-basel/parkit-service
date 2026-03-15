@@ -210,13 +210,17 @@ RSpec.describe CashctrlClient do
                                                                        })
     end
 
-    it 'returns account balance' do
-      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/balance')
-        .with(query: { id: '200' })
-        .to_return(status: 200, body: '350.00')
+    it 'resolves account number and returns balance' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/list.json')
+        .with(query: { query: '2001' })
+        .to_return(status: 200, body: '{"data":[{"id":186,"number":"2001","name":"Test"}]}')
 
-      result = client.get_account_balance(200)
-      expect(result).to eq(350.00)
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/account/balance')
+        .with(query: { id: '186' })
+        .to_return(status: 200, body: '-130.00')
+
+      result = client.get_account_balance(2001)
+      expect(result).to eq(-130.00)
     end
   end
 

@@ -184,8 +184,18 @@ class CashctrlClient
     result['insertId']
   end
 
-  def get_account_balance(account_id)
-    uri = URI("#{@base_url}/account/balance?id=#{account_id}")
+  def resolve_account_id(account_number)
+    result = get('/account/list.json', { query: account_number.to_s })
+    account = result['data']&.find { |a| a['number'] == account_number.to_s }
+    raise "Account number #{account_number} not found in CashCtrl" unless account
+
+    account['id']
+  end
+
+  def get_account_balance(account_number)
+    internal_id = resolve_account_id(account_number)
+
+    uri = URI("#{@base_url}/account/balance?id=#{internal_id}")
     request = Net::HTTP::Get.new(uri)
     request.basic_auth(@api_key, '')
 
