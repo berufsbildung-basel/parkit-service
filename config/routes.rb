@@ -22,6 +22,9 @@ Rails.application.routes.draw do
     end
     get 'billing', controller: 'user_billing', action: 'index'
     resources :invoice_downloads, only: [:show], controller: 'user_invoice_downloads'
+    member do
+      post :create_topup_invoice
+    end
   end
 
   resources :parking_spots do

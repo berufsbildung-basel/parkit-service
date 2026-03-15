@@ -2,6 +2,12 @@
   content_for :title, 'My Billing'
 %>
 <section class="spectrum-CSSComponent-description">
+  <% if @prepaid_balance.present? %>
+    <div style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 4px; background-color: <%= @prepaid_balance >= 0 ? '#e6f4ea' : '#fce8e6' %>;">
+      <strong>Prepaid Account Balance:</strong> CHF <%= '%.2f' % @prepaid_balance %>
+    </div>
+  <% end %>
+
   <h3 class="spectrum-Heading spectrum-Heading--sizeS">Invoices</h3>
   <% if @invoices.any? %>
     <table class="spectrum-Table spectrum-Table--sizeM">

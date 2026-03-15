@@ -8,5 +8,11 @@ class UserBillingController < AuthorizableController
       reservation.date.end_of_month
     end
     @invoices = @user.invoices.order(period_start: :desc)
+
+    if @user.prepaid? && @user.cashctrl_private_account_id.present?
+      @prepaid_balance = CashctrlClient.new.get_account_balance(@user.cashctrl_private_account_id)
+    end
+  rescue StandardError
+    @prepaid_balance = nil
   end
 end

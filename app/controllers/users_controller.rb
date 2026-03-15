@@ -16,6 +16,12 @@ class UsersController < AuthorizableController
     @user = User.find(params[:id])
     authorize @user
     @reservations = @user.reservations.active_in_the_future
+
+    if @user.prepaid? && @user.cashctrl_private_account_id.present?
+      @prepaid_balance = CashctrlClient.new.get_account_balance(@user.cashctrl_private_account_id)
+    end
+  rescue StandardError => e
+    @prepaid_balance = nil
   end
 
   def update
@@ -35,6 +41,33 @@ class UsersController < AuthorizableController
     end
   end
 
+  def create_topup_invoice
+    @user = User.find(params[:id])
+    authorize @user
+
+    amount = params[:topup_amount].to_f
+    if amount <= 0
+      redirect_to user_path(@user), alert: 'Top-up amount must be greater than 0.'
+      return
+    end
+
+    client = CashctrlClient.new
+    person_id = client.find_or_create_person(@user)
+    account_id = client.resolve_account_id(@user.cashctrl_private_account_id)
+
+    cashctrl_invoice_id = client.create_invoice(
+      person_id: person_id,
+      date: Date.today,
+      due_days: 30,
+      items: [{ name: 'Aufladung Parkkonto / Parking account top-up', unit_price: amount, quantity: 1 }],
+      account_id: account_id
+    )
+
+    redirect_to user_path(@user), notice: "Top-up invoice for CHF #{amount} created (CashCtrl ##{cashctrl_invoice_id})."
+  rescue StandardError => e
+    redirect_to user_path(@user), alert: "Failed to create top-up invoice: #{e.message}"
+  end
+
   private
 
   def user_params
@@ -45,9 +78,7 @@ class UsersController < AuthorizableController
         :role,
         :disabled,
         :billing_type,
-        :cashctrl_private_account_id,
-        :prepaid_threshold,
-        :prepaid_topup_amount
+        :cashctrl_private_account_id
       )
     else
       params.require(:user).permit([])

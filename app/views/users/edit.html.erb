@@ -81,36 +81,12 @@
 
         <div class="spectrum-Form-item" id="prepaid-fields" style="<%= 'display:none;' unless @user.prepaid? %>">
           <%= f.label :cashctrl_private_account_id,
-                      "CashCtrl Private Account ID",
+                      "CashCtrl Account Number",
                       class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
           %>
           <div class="spectrum-Form-itemField">
             <div class="spectrum-Textfield">
               <%= f.number_field :cashctrl_private_account_id, class: 'spectrum-Textfield-input' %>
-            </div>
-          </div>
-        </div>
-
-        <div class="spectrum-Form-item" id="prepaid-threshold" style="<%= 'display:none;' unless @user.prepaid? %>">
-          <%= f.label :prepaid_threshold,
-                      "Prepaid Threshold (CHF)",
-                      class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
-          %>
-          <div class="spectrum-Form-itemField">
-            <div class="spectrum-Textfield">
-              <%= f.number_field :prepaid_threshold, step: 0.01, class: 'spectrum-Textfield-input' %>
-            </div>
-          </div>
-        </div>
-
-        <div class="spectrum-Form-item" id="prepaid-topup" style="<%= 'display:none;' unless @user.prepaid? %>">
-          <%= f.label :prepaid_topup_amount,
-                      "Prepaid Top-up Amount (CHF)",
-                      class: 'spectrum-FieldLabel spectrum-FieldLabel--sizeL spectrum-Form-itemLabel spectrum-FieldLabel--left'
-          %>
-          <div class="spectrum-Form-itemField">
-            <div class="spectrum-Textfield">
-              <%= f.number_field :prepaid_topup_amount, step: 0.01, class: 'spectrum-Textfield-input' %>
             </div>
           </div>
         </div>
@@ -123,8 +99,6 @@
           document.querySelector('#user_billing_type').addEventListener('change', function() {
             var show = this.value === 'prepaid';
             document.getElementById('prepaid-fields').style.display = show ? '' : 'none';
-            document.getElementById('prepaid-threshold').style.display = show ? '' : 'none';
-            document.getElementById('prepaid-topup').style.display = show ? '' : 'none';
           });
         </script>
       <% end %>
