@@ -1,72 +1,96 @@
-<h1>Invoices</h1>
+<% content_for :title, 'Invoices' %>
 
-<p><%= link_to 'Back to Billing', admin_billing_path %></p>
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Invoices</h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
 
-<form method="get" action="<%= admin_invoices_path %>" style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
-  <div>
-    <label for="period"><strong>Period</strong></label><br>
-    <select name="period" id="period">
-      <option value="">All</option>
-      <% Invoice.distinct.pluck(:period_start).sort.reverse.each do |ps| %>
-        <option value="<%= ps %>" <%= 'selected' if params[:period] == ps.to_s %>><%= ps.strftime('%B %Y') %></option>
-      <% end %>
-    </select>
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <%= render 'admin/shared/cashctrl_status' %>
+
+    <form method="get" action="<%= admin_invoices_path %>" class="spectrum-Form" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: end; flex-wrap: wrap;">
+      <div class="spectrum-Form-item">
+        <label for="period" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">Period</label>
+        <div class="spectrum-Textfield spectrum-Textfield--sizeM">
+          <select name="period" id="period" class="spectrum-Textfield-input">
+            <option value="">All</option>
+            <% Invoice.distinct.pluck(:period_start).sort.reverse.each do |ps| %>
+              <option value="<%= ps %>" <%= 'selected' if params[:period] == ps.to_s %>><%= ps.strftime('%B %Y') %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <label for="status" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">Status</label>
+        <div class="spectrum-Textfield spectrum-Textfield--sizeM">
+          <select name="status" id="status" class="spectrum-Textfield-input">
+            <option value="">All</option>
+            <% Invoice.statuses.keys.each do |s| %>
+              <option value="<%= s %>" <%= 'selected' if params[:status] == s %>><%= s.capitalize %></option>
+            <% end %>
+          </select>
+        </div>
+      </div>
+
+      <div class="spectrum-Form-item">
+        <label for="q" class="spectrum-FieldLabel spectrum-FieldLabel--sizeM">User</label>
+        <div class="spectrum-Textfield spectrum-Textfield--sizeM">
+          <input type="text" name="q" id="q" value="<%= params[:q] %>" placeholder="Search by email" class="spectrum-Textfield-input">
+        </div>
+      </div>
+
+      <div class="spectrum-ButtonGroup">
+        <button type="submit" class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM">Filter</button>
+        <% if params[:period].present? || params[:status].present? || params[:q].present? %>
+          <%= link_to 'Clear', admin_invoices_path,
+              class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+        <% end %>
+      </div>
+    </form>
+
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+        <tr>
+          <th class="spectrum-Table-headCell">User</th>
+          <th class="spectrum-Table-headCell">Billing Type</th>
+          <th class="spectrum-Table-headCell">Period</th>
+          <th class="spectrum-Table-headCell">Amount</th>
+          <th class="spectrum-Table-headCell">Status</th>
+          <th class="spectrum-Table-headCell">Sent</th>
+          <th class="spectrum-Table-headCell">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+        <% @invoices.each do |invoice| %>
+          <tr class="spectrum-Table-row">
+            <td class="spectrum-Table-cell"><%= link_to invoice.user.email, admin_invoice_path(invoice), class: 'spectrum-Link' %></td>
+            <td class="spectrum-Table-cell"><%= invoice.user.billing_type.capitalize %></td>
+            <td class="spectrum-Table-cell"><%= invoice.period_start.strftime('%B %Y') %></td>
+            <td class="spectrum-Table-cell"><%= number_to_currency(invoice.total_amount, unit: 'CHF ') %></td>
+            <td class="spectrum-Table-cell"><%= invoice.status.capitalize %></td>
+            <td class="spectrum-Table-cell"><%= invoice.sent_at&.strftime('%d.%m.%Y') || '-' %></td>
+            <td class="spectrum-Table-cell">
+              <div class="spectrum-ButtonGroup">
+                <% unless invoice.sent? || invoice.paid? %>
+                  <%= button_to 'Send', send_email_admin_invoice_path(invoice), method: :post,
+                      class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeS' %>
+                <% end %>
+                <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice),
+                    class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+                <%= button_to 'Refresh', refresh_status_admin_invoice_path(invoice), method: :post,
+                    class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+              </div>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <%= paginate @invoices if @invoices.respond_to?(:total_pages) %>
+
+    <div style="margin-top: 1.5rem;">
+      <%= link_to 'Back to Billing', admin_billing_path,
+          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+    </div>
   </div>
-
-  <div>
-    <label for="status"><strong>Status</strong></label><br>
-    <select name="status" id="status">
-      <option value="">All</option>
-      <% Invoice.statuses.keys.each do |s| %>
-        <option value="<%= s %>" <%= 'selected' if params[:status] == s %>><%= s.capitalize %></option>
-      <% end %>
-    </select>
-  </div>
-
-  <div>
-    <label for="q"><strong>User</strong></label><br>
-    <input type="text" name="q" id="q" value="<%= params[:q] %>" placeholder="Search by email">
-  </div>
-
-  <div>
-    <button type="submit">Filter</button>
-    <% if params[:period].present? || params[:status].present? || params[:q].present? %>
-      <%= link_to 'Clear', admin_invoices_path %>
-    <% end %>
-  </div>
-</form>
-
-<table>
-  <thead>
-    <tr>
-      <th>User</th>
-      <th>Billing Type</th>
-      <th>Period</th>
-      <th>Amount</th>
-      <th>Status</th>
-      <th>Sent</th>
-      <th>Actions</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @invoices.each do |invoice| %>
-      <tr>
-        <td><%= invoice.user.email %></td>
-        <td><%= invoice.user.billing_type %></td>
-        <td><%= invoice.period_start.strftime('%B %Y') %></td>
-        <td><%= number_to_currency(invoice.total_amount, unit: 'CHF ') %></td>
-        <td><%= invoice.status %></td>
-        <td><%= invoice.sent_at&.strftime('%d.%m.%Y') || '-' %></td>
-        <td>
-          <% unless invoice.sent? || invoice.paid? %>
-            <%= button_to 'Send', send_email_admin_invoice_path(invoice), method: :post, class: 'btn-small' %>
-          <% end %>
-          <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice), class: 'btn-small' %>
-          <%= button_to 'Refresh', refresh_status_admin_invoice_path(invoice), method: :post, class: 'btn-small' %>
-        </td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
-
-<%= paginate @invoices if @invoices.respond_to?(:total_pages) %>
+</section>

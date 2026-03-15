@@ -88,3 +88,13 @@ code[class*="language-"], pre[class*="language-"] {
 table.reservations-table tr.cancelled td {
   color: var(--spectrum-global-color-gray-400)
 }
+
+/* Style native selects to match spectrum-Textfield.
+   Spectrum CSS Picker requires JS + custom markup for dropdowns,
+   so we style native <select> to match the textfield border/radius. */
+.spectrum-Textfield select.spectrum-Textfield-input {
+  appearance: auto;
+  cursor: pointer;
+  border: 1px solid #b1b1b1 !important;
+  border-radius: 4px;
+}

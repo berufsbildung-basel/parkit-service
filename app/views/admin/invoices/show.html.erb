@@ -1,44 +1,64 @@
-<h1>Invoice Details</h1>
+<% content_for :title, 'Invoice Details' %>
 
-<p><%= link_to 'Back to Invoices', admin_invoices_path %></p>
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Invoice Details</h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
 
-<dl>
-  <dt>User</dt>
-  <dd><%= @invoice.user.email %></dd>
+  <div class="spectrum-Body spectrum-Body--sizeM">
+    <table class="spectrum-Table spectrum-Table--sizeM" style="max-width: 500px;">
+      <tbody class="spectrum-Table-body">
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>User</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.user.email %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Period</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.period_start.strftime('%B %Y') %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Total Amount</strong></td>
+          <td class="spectrum-Table-cell"><%= number_to_currency(@invoice.total_amount, unit: 'CHF ') %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Status</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.status.capitalize %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Sent At</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.sent_at&.strftime('%d.%m.%Y %H:%M') || '-' %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>Paid At</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.paid_at&.strftime('%d.%m.%Y %H:%M') || '-' %></td>
+        </tr>
+        <tr class="spectrum-Table-row">
+          <td class="spectrum-Table-cell"><strong>CashCtrl Invoice ID</strong></td>
+          <td class="spectrum-Table-cell"><%= @invoice.cashctrl_invoice_id || '-' %></td>
+        </tr>
+      </tbody>
+    </table>
 
-  <dt>Period</dt>
-  <dd><%= @invoice.period_start.strftime('%B %Y') %></dd>
+    <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Line Items</h3>
+    <table class="spectrum-Table spectrum-Table--sizeM">
+      <thead class="spectrum-Table-head">
+        <tr>
+          <th class="spectrum-Table-headCell">Description</th>
+          <th class="spectrum-Table-headCell">Unit Price</th>
+        </tr>
+      </thead>
+      <tbody class="spectrum-Table-body">
+        <% @invoice.line_items.each do |item| %>
+          <tr class="spectrum-Table-row">
+            <td class="spectrum-Table-cell"><%= item.description %></td>
+            <td class="spectrum-Table-cell"><%= number_to_currency(item.unit_price, unit: 'CHF ') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
 
-  <dt>Total Amount</dt>
-  <dd><%= number_to_currency(@invoice.total_amount, unit: 'CHF ') %></dd>
-
-  <dt>Status</dt>
-  <dd><%= @invoice.status %></dd>
-
-  <dt>Sent At</dt>
-  <dd><%= @invoice.sent_at&.strftime('%d.%m.%Y %H:%M') || '-' %></dd>
-
-  <dt>Paid At</dt>
-  <dd><%= @invoice.paid_at&.strftime('%d.%m.%Y %H:%M') || '-' %></dd>
-
-  <dt>CashCtrl Invoice ID</dt>
-  <dd><%= @invoice.cashctrl_invoice_id || '-' %></dd>
-</dl>
-
-<h2>Line Items</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Description</th>
-      <th>Unit Price</th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @invoice.line_items.each do |item| %>
-      <tr>
-        <td><%= item.description %></td>
-        <td><%= number_to_currency(item.unit_price, unit: 'CHF ') %></td>
-      </tr>
-    <% end %>
-  </tbody>
-</table>
+    <div style="margin-top: 1.5rem;">
+      <%= link_to 'Back to Invoices', admin_invoices_path,
+          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+    </div>
+  </div>
+</section>
