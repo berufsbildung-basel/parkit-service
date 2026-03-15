@@ -127,28 +127,6 @@ class CashctrlClient
     result['insertId']
   end
 
-  # Create invoice with custom line items (for top-up invoices)
-  def create_custom_invoice(person_id:, due_days:, date:, items:)
-    items_json = items.map do |item|
-      {
-        accountId: @sales_account_id,
-        taxId: @tax_id,
-        name: item[:name],
-        unitPrice: item[:unit_price],
-        quantity: item[:quantity] || 1
-      }
-    end
-
-    result = post('/order/create.json', {
-                    associateId: person_id,
-                    categoryId: @invoice_category_id,
-                    date: date.to_s,
-                    dueDays: due_days,
-                    items: items_json.to_json
-                  })
-    result['insertId']
-  end
-
   def get_invoice(invoice_id)
     get('/order/read.json', { id: invoice_id.to_s })
   end
@@ -168,21 +146,6 @@ class CashctrlClient
 
       response.body
     end
-  end
-
-  # Journal entry methods (for prepaid users)
-  def create_journal_entry(debit_account_id:, credit_account_id:, amount:, description:)
-    items = [
-      { accountId: debit_account_id, debit: amount },
-      { accountId: credit_account_id, credit: amount }
-    ]
-
-    result = post('/journal/create.json', {
-                    dateAdded: Date.today.to_s,
-                    items: items.to_json,
-                    notes: description
-                  })
-    result['insertId']
   end
 
   def resolve_account_id(account_number)

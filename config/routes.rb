@@ -50,11 +50,15 @@ Rails.application.routes.draw do
         post :send_email
         get :download_pdf
         post :refresh_status
+        post :reset
       end
     end
 
-    resources :journal_entries, only: [:index]
-    resources :billing_periods, only: [:show]
+    resources :billing_periods, only: [:show] do
+      member do
+        post :reset
+      end
+    end
   end
 
   namespace :api, defaults: { format: :json } do

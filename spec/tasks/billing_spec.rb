@@ -23,7 +23,7 @@ RSpec.describe 'billing rake tasks' do
 
       mock_results = {
         standard: { created: 0, skipped: 0 },
-        prepaid: { journal_entries_created: 0, topup_invoices_created: 0, skipped: 0 },
+        prepaid: { created: 0, skipped: 0 },
         exempt: { skipped: 0 },
         errors: []
       }

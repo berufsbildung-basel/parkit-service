@@ -1,20 +1,6 @@
 # frozen_string_literal: true
 
 class BillingRunner
-  JOURNAL_DESCRIPTIONS = {
-    'de' => 'Parkgebühren %B %Y',
-    'en' => 'Parking fees %B %Y',
-    'fr' => 'Frais de parking %B %Y',
-    'it' => 'Spese parcheggio %B %Y'
-  }.freeze
-
-  TOPUP_DESCRIPTIONS = {
-    'de' => 'Aufladung Parkkonto',
-    'en' => 'Parking account top-up',
-    'fr' => 'Rechargement compte parking',
-    'it' => 'Ricarica conto parcheggio'
-  }.freeze
-
   def initialize(period_start, period_end, executed_by: nil)
     @period_start = period_start
     @period_end = period_end
@@ -254,15 +240,6 @@ class BillingRunner
         unit_price: item[:unit_price]
       )
     end
-  end
-
-  def journal_entry_description(language)
-    template = JOURNAL_DESCRIPTIONS[language] || JOURNAL_DESCRIPTIONS['de']
-    @period_start.strftime(template)
-  end
-
-  def topup_line_item_description(language)
-    TOPUP_DESCRIPTIONS[language] || TOPUP_DESCRIPTIONS['de']
   end
 
   def billing_period_custom_fields(language)

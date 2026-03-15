@@ -129,7 +129,7 @@
           class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
       <%= button_to 'Reset Entire Period', reset_admin_billing_period_path(@billing_period), method: :post,
           class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeM',
-          data: { confirm: "Delete ALL local invoices and journal entries for #{@billing_period.period_start.strftime('%B %Y')}? You must also delete them in CashCtrl." } %>
+          data: { confirm: "Delete ALL local invoices for #{@billing_period.period_start.strftime('%B %Y')}? You must also delete them in CashCtrl." } %>
     </div>
   </div>
 </section>

@@ -246,7 +246,6 @@ RSpec.describe BillingRunner do
 
       expect(result[:exempt][:skipped]).to eq(1)
       expect(Invoice.count).to eq(0)
-      expect(JournalEntry.count).to eq(0)
     end
   end
 
