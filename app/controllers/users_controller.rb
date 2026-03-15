@@ -43,7 +43,11 @@ class UsersController < AuthorizableController
         :password,
         :password_confirmation,
         :role,
-        :disabled
+        :disabled,
+        :billing_type,
+        :cashctrl_private_account_id,
+        :prepaid_threshold,
+        :prepaid_topup_amount
       )
     else
       params.require(:user).permit([])
