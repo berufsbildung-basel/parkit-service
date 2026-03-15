@@ -84,7 +84,7 @@ module Admin
       client = CashctrlClient.new
       data = client.get_invoice(invoice.cashctrl_invoice_id)
 
-      status_map = CashctrlClient::STATUS_IDS.invert
+      status_map = CashctrlClient.status_ids.invert
       new_status = status_map.fetch(data['statusId'], invoice.status)
 
       invoice.update!(

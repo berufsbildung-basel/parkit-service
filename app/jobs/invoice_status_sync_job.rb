@@ -19,13 +19,13 @@ class InvoiceStatusSyncJob < ApplicationJob
     status_id = response['statusId']
 
     case status_id
-    when CashctrlClient::STATUS_IDS[:paid]
+    when CashctrlClient.status_ids[:paid]
       invoice.update!(
         status: :paid,
         cashctrl_status: status_id.to_s,
         paid_at: parse_date(response['datePayment'])
       )
-    when CashctrlClient::STATUS_IDS[:cancelled]
+    when CashctrlClient.status_ids[:cancelled]
       invoice.update!(
         status: :cancelled,
         cashctrl_status: status_id.to_s

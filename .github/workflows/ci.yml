@@ -28,11 +28,6 @@ jobs:
     env:
       RAILS_ENV: test
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/parkit_test
-      CASHCTRL_ORG: test-org
-      CASHCTRL_API_KEY: test-key
-      CASHCTRL_INVOICE_CATEGORY_ID: "1"
-      CASHCTRL_SALES_ACCOUNT_ID: "1"
-      CASHCTRL_TAX_ID: "1"
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +36,9 @@ jobs:
         with:
           ruby-version: 3.2.2
           bundler-cache: true
+
+      - name: Setup config
+        run: cp config/application.yml.ci config/application.yml
 
       - name: Setup database
         run: bundle exec rails db:schema:load
