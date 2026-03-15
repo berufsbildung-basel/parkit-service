@@ -1,47 +1,110 @@
-<h1>Billing Preview - <%= @period[:start].strftime('%B %Y') %></h1>
+<% content_for :title, "Billing Preview - #{@period[:start].strftime('%B %Y')}" %>
 
-<h2>Standard Users (Invoices)</h2>
-<% if @preview[:standard].any? %>
-  <table>
-    <thead><tr><th>User</th><th>Reservations</th><th>Total</th></tr></thead>
-    <tbody>
-      <% @preview[:standard].each do |item| %>
+<section class="spectrum-CSSComponent-description">
+  <h2 class="spectrum-Heading spectrum-Heading--sizeM">Billing Preview - <%= @period[:start].strftime('%B %Y') %></h2>
+  <hr class="spectrum-Divider spectrum-Divider--large" style="margin-bottom: 1.5rem;">
+
+  <%= render 'admin/shared/cashctrl_status' %>
+
+  <h3 class="spectrum-Heading spectrum-Heading--sizeS">Standard Users (Invoices)</h3>
+  <% if @preview[:standard].any? %>
+    <table class="spectrum-Table spectrum-Table--sizeM sortable-table">
+      <thead class="spectrum-Table-head">
         <tr>
-          <td><%= item[:user].email %></td>
-          <td><%= item[:reservations] %></td>
-          <td><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="string">User</th>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="number">Reservations</th>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="currency">Total</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>No standard users to invoice.</p>
-<% end %>
+      </thead>
+      <tbody class="spectrum-Table-body">
+        <% @preview[:standard].each do |item| %>
+          <tr class="spectrum-Table-row">
+            <td class="spectrum-Table-cell"><%= item[:user].email %></td>
+            <td class="spectrum-Table-cell"><%= item[:reservations] %></td>
+            <td class="spectrum-Table-cell"><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="spectrum-Body spectrum-Body--sizeM">No standard users to invoice.</p>
+  <% end %>
 
-<h2>Prepaid Users (Journal Entries)</h2>
-<% if @preview[:prepaid].any? %>
-  <table>
-    <thead><tr><th>User</th><th>Reservations</th><th>Total</th></tr></thead>
-    <tbody>
-      <% @preview[:prepaid].each do |item| %>
+  <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Prepaid Users (Statement Invoices)</h3>
+  <% if @preview[:prepaid].any? %>
+    <table class="spectrum-Table spectrum-Table--sizeM sortable-table">
+      <thead class="spectrum-Table-head">
         <tr>
-          <td><%= item[:user].email %></td>
-          <td><%= item[:reservations] %></td>
-          <td><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="string">User</th>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="number">Reservations</th>
+          <th class="spectrum-Table-headCell sortable-header" data-sort="currency">Total</th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>No prepaid users to process.</p>
-<% end %>
+      </thead>
+      <tbody class="spectrum-Table-body">
+        <% @preview[:prepaid].each do |item| %>
+          <tr class="spectrum-Table-row">
+            <td class="spectrum-Table-cell"><%= item[:user].email %></td>
+            <td class="spectrum-Table-cell"><%= item[:reservations] %></td>
+            <td class="spectrum-Table-cell"><%= number_to_currency(item[:total], unit: 'CHF ') %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% else %>
+    <p class="spectrum-Body spectrum-Body--sizeM">No prepaid users to process.</p>
+  <% end %>
 
-<h2>Exempt Users (Skipped)</h2>
-<% if @preview[:exempt].any? %>
-  <p><%= @preview[:exempt].count %> exempt users will be skipped.</p>
-<% else %>
-  <p>No exempt users.</p>
-<% end %>
+  <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Exempt Users (Skipped)</h3>
+  <% if @preview[:exempt].any? %>
+    <p class="spectrum-Body spectrum-Body--sizeM"><%= @preview[:exempt].count %> exempt users will be skipped.</p>
+  <% else %>
+    <p class="spectrum-Body spectrum-Body--sizeM">No exempt users.</p>
+  <% end %>
 
-<%= button_to 'Run Billing', execute_admin_billing_path(period: @period[:start]), method: :post, class: 'btn btn-primary' %>
-<p><%= link_to 'Back', run_admin_billing_path %></p>
+  <div class="spectrum-ButtonGroup" style="margin-top: 1.5rem;">
+    <%= button_to 'Run Billing', execute_admin_billing_path(period: @period[:start]), method: :post,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
+    <%= link_to 'Back', run_admin_billing_path,
+        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+  </div>
+</section>
+
+<script>
+document.querySelectorAll('.sortable-table').forEach(function(table) {
+  var headers = table.querySelectorAll('.sortable-header');
+  headers.forEach(function(header, colIndex) {
+    header.style.cursor = 'pointer';
+    header.addEventListener('click', function() {
+      var tbody = table.querySelector('tbody');
+      var rows = Array.from(tbody.querySelectorAll('tr'));
+      var sortType = header.dataset.sort;
+      var asc = header.dataset.direction !== 'asc';
+      header.dataset.direction = asc ? 'asc' : 'desc';
+
+      // Clear indicators on sibling headers
+      headers.forEach(function(h) { h.textContent = h.textContent.replace(/ [\u25B2\u25BC]/, ''); });
+      header.textContent = header.textContent + (asc ? ' \u25B2' : ' \u25BC');
+
+      rows.sort(function(a, b) {
+        var aVal = a.children[colIndex].textContent.trim();
+        var bVal = b.children[colIndex].textContent.trim();
+        if (sortType === 'number') {
+          aVal = parseInt(aVal) || 0;
+          bVal = parseInt(bVal) || 0;
+        } else if (sortType === 'currency') {
+          aVal = parseFloat(aVal.replace(/[^0-9.-]/g, '')) || 0;
+          bVal = parseFloat(bVal.replace(/[^0-9.-]/g, '')) || 0;
+        } else {
+          aVal = aVal.toLowerCase();
+          bVal = bVal.toLowerCase();
+        }
+        if (aVal < bVal) return asc ? -1 : 1;
+        if (aVal > bVal) return asc ? 1 : -1;
+        return 0;
+      });
+
+      rows.forEach(function(row) { tbody.appendChild(row); });
+    });
+  });
+});
+</script>

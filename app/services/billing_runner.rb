@@ -150,7 +150,8 @@ class BillingRunner
     reservations = user_reservations(user)
     language = user.preferred_language || 'de'
 
-    # Fetch opening balance from CashCtrl (negative = user owes, positive = credit)
+    # Resolve CashCtrl account and fetch balance
+    cashctrl_account_id = @client.resolve_account_id(user.cashctrl_private_account_id)
     balance = @client.get_account_balance(user.cashctrl_private_account_id)
     opening_amount = -balance # Invert: CashCtrl negative becomes positive on invoice
 
@@ -176,7 +177,8 @@ class BillingRunner
       date: Date.today,
       due_days: 30,
       items: cashctrl_items,
-      custom_fields: billing_period_custom_fields(language)
+      custom_fields: billing_period_custom_fields(language),
+      account_id: cashctrl_account_id
     )
 
     total = opening_amount + booking_total

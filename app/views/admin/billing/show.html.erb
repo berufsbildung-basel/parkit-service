@@ -17,8 +17,7 @@
             <th class="spectrum-Table-headCell">Period</th>
             <th class="spectrum-Table-headCell">Status</th>
             <th class="spectrum-Table-headCell">Invoices</th>
-            <th class="spectrum-Table-headCell">Journal Entries</th>
-            <th class="spectrum-Table-headCell">Top-ups</th>
+            <th class="spectrum-Table-headCell">Skipped</th>
             <th class="spectrum-Table-headCell">Errors</th>
             <th class="spectrum-Table-headCell">Executed By</th>
             <th class="spectrum-Table-headCell">Executed At</th>
@@ -44,8 +43,7 @@
                 </span>
               </td>
               <td class="spectrum-Table-cell"><%= bp.invoices_created %></td>
-              <td class="spectrum-Table-cell"><%= bp.journal_entries_created %></td>
-              <td class="spectrum-Table-cell"><%= bp.topup_invoices_created %></td>
+              <td class="spectrum-Table-cell"><%= bp.invoices_skipped %></td>
               <td class="spectrum-Table-cell"><%= bp.errors_log.size %></td>
               <td class="spectrum-Table-cell"><%= bp.executed_by&.email || '-' %></td>
               <td class="spectrum-Table-cell"><%= bp.executed_at&.strftime('%d.%m.%Y %H:%M') || '-' %></td>
@@ -62,8 +60,6 @@
     <%= link_to 'Run Billing', run_admin_billing_path,
         class: 'spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeM' %>
     <%= link_to 'View All Invoices', admin_invoices_path,
-        class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
-    <%= link_to 'View Journal Entries', admin_journal_entries_path,
         class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
     <%= button_to 'Refresh All Statuses', refresh_all_admin_invoices_path, method: :post,
         class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>

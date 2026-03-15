@@ -150,6 +150,7 @@ RSpec.describe BillingRunner do
 
       allow(cashctrl_client).to receive(:find_or_create_person).and_return(789)
       allow(cashctrl_client).to receive(:create_invoice).and_return(888)
+      allow(cashctrl_client).to receive(:resolve_account_id).and_return(186)
       allow(cashctrl_client).to receive(:get_account_balance).and_return(-130.0) # User owes 130
     end
 

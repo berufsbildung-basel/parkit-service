@@ -30,14 +30,6 @@
           <td class="spectrum-Table-cell"><%= @billing_period.invoices_skipped %></td>
         </tr>
         <tr class="spectrum-Table-row">
-          <td class="spectrum-Table-cell"><strong>Journal Entries</strong></td>
-          <td class="spectrum-Table-cell"><%= @billing_period.journal_entries_created %></td>
-        </tr>
-        <tr class="spectrum-Table-row">
-          <td class="spectrum-Table-cell"><strong>Top-up Invoices</strong></td>
-          <td class="spectrum-Table-cell"><%= @billing_period.topup_invoices_created %></td>
-        </tr>
-        <tr class="spectrum-Table-row">
           <td class="spectrum-Table-cell"><strong>Exempt Skipped</strong></td>
           <td class="spectrum-Table-cell"><%= @billing_period.exempt_skipped %></td>
         </tr>
@@ -74,6 +66,26 @@
       </table>
     <% end %>
 
+    <% if @skipped_users.any? %>
+      <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Skipped Users</h3>
+      <table class="spectrum-Table spectrum-Table--sizeM">
+        <thead class="spectrum-Table-head">
+          <tr>
+            <th class="spectrum-Table-headCell">User</th>
+            <th class="spectrum-Table-headCell">Reason</th>
+          </tr>
+        </thead>
+        <tbody class="spectrum-Table-body">
+          <% @skipped_users.each do |entry| %>
+            <tr class="spectrum-Table-row">
+              <td class="spectrum-Table-cell"><%= entry[:user].email %></td>
+              <td class="spectrum-Table-cell"><%= entry[:reason] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+
     <% if @invoices.any? %>
       <h3 class="spectrum-Heading spectrum-Heading--sizeS" style="margin-top: 1.5rem;">Invoices</h3>
       <table class="spectrum-Table spectrum-Table--sizeM">
@@ -101,6 +113,9 @@
                   <% end %>
                   <%= link_to 'PDF', download_pdf_admin_invoice_path(invoice),
                       class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS' %>
+                  <%= button_to 'Reset', reset_admin_invoice_path(invoice), method: :post,
+                      class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeS',
+                      data: { confirm: "Delete local invoice for #{invoice.user.email}? You must also delete it in CashCtrl." } %>
                 </div>
               </td>
             </tr>
@@ -109,9 +124,12 @@
       </table>
     <% end %>
 
-    <div style="margin-top: 1.5rem;">
+    <div class="spectrum-ButtonGroup" style="margin-top: 1.5rem;">
       <%= link_to 'Back to Billing', admin_billing_path,
           class: 'spectrum-Button spectrum-Button--fill spectrum-Button--secondary spectrum-Button--sizeM' %>
+      <%= button_to 'Reset Entire Period', reset_admin_billing_period_path(@billing_period), method: :post,
+          class: 'spectrum-Button spectrum-Button--fill spectrum-Button--negative spectrum-Button--sizeM',
+          data: { confirm: "Delete ALL local invoices and journal entries for #{@billing_period.period_start.strftime('%B %Y')}? You must also delete them in CashCtrl." } %>
     </div>
   </div>
 </section>
