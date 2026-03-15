@@ -264,8 +264,6 @@ class BillingRunner
       executed_by: @executed_by,
       invoices_created: 0,
       invoices_skipped: 0,
-      journal_entries_created: 0,
-      topup_invoices_created: 0,
       exempt_skipped: 0,
       errors_log: []
     )
@@ -277,8 +275,6 @@ class BillingRunner
       status: @results[:errors].empty? ? :completed : :partially_failed,
       invoices_created: @results[:standard][:created] + @results[:prepaid][:created],
       invoices_skipped: @results[:standard][:skipped] + @results[:prepaid][:skipped],
-      journal_entries_created: 0,
-      topup_invoices_created: 0,
       exempt_skipped: @results[:exempt][:skipped],
       errors_log: @results[:errors],
       executed_at: Time.current
