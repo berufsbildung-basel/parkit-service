@@ -15,9 +15,10 @@ class BillingRunner
     'it' => 'Ricarica conto parcheggio'
   }.freeze
 
-  def initialize(period_start, period_end)
+  def initialize(period_start, period_end, executed_by: nil)
     @period_start = period_start
     @period_end = period_end
+    @executed_by = executed_by
     @client = CashctrlClient.new
     @results = {
       standard: { created: 0, skipped: 0 },
@@ -29,11 +30,13 @@ class BillingRunner
 
   def run
     validate_period!
+    @billing_period = find_or_create_billing_period!
 
     process_standard_users
     process_prepaid_users
     process_exempt_users
 
+    finalize_billing_period!
     @results
   end
 
@@ -273,5 +276,34 @@ class BillingRunner
     I18n.with_locale(language) do
       I18n.l(@period_start, format: '%B %Y')
     end
+  end
+
+  def find_or_create_billing_period!
+    bp = BillingPeriod.find_or_initialize_by(period_start: @period_start)
+    bp.update!(
+      period_end: @period_end,
+      status: :in_progress,
+      executed_by: @executed_by,
+      invoices_created: 0,
+      invoices_skipped: 0,
+      journal_entries_created: 0,
+      topup_invoices_created: 0,
+      exempt_skipped: 0,
+      errors_log: []
+    )
+    bp
+  end
+
+  def finalize_billing_period!
+    @billing_period.update!(
+      status: @results[:errors].empty? ? :completed : :partially_failed,
+      invoices_created: @results[:standard][:created],
+      invoices_skipped: @results[:standard][:skipped],
+      journal_entries_created: @results[:prepaid][:journal_entries_created],
+      topup_invoices_created: @results[:prepaid][:topup_invoices_created],
+      exempt_skipped: @results[:exempt][:skipped],
+      errors_log: @results[:errors],
+      executed_at: Time.current
+    )
   end
 end

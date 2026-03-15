@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe BillingRunner do
   let(:parking_spot) { ParkingSpot.create!(number: 1) }
   let(:cashctrl_client) { instance_double(CashctrlClient) }
+  let(:admin) { User.create!(username: 'admin_user', email: 'admin@example.com', first_name: 'Admin', last_name: 'User', role: :admin) }
 
   # Use a date in the past for billing (last month)
   let(:period_start) { 1.month.ago.beginning_of_month.to_date }
@@ -104,6 +105,18 @@ RSpec.describe BillingRunner do
 
       expect(result[:standard][:skipped]).to eq(1)
       expect(result[:standard][:created]).to eq(0)
+    end
+
+    it 'creates a completed BillingPeriod record' do
+      runner = described_class.new(period_start, period_end, executed_by: admin)
+      runner.run
+
+      bp = BillingPeriod.find_by(period_start: period_start)
+      expect(bp).to be_present
+      expect(bp.status).to eq('completed')
+      expect(bp.invoices_created).to eq(1)
+      expect(bp.executed_by).to eq(admin)
+      expect(bp.executed_at).to be_present
     end
   end
 
