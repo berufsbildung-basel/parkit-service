@@ -2,7 +2,7 @@
 
 module Admin
   class InvoicesController < BaseController
-    before_action :set_invoice, only: %i[show send_email download_pdf refresh_status]
+    before_action :set_invoice, only: %i[show send_email download_pdf refresh_status reset]
 
     def index
       @invoices = Invoice.includes(:user)
@@ -52,6 +52,13 @@ module Admin
     def refresh_all
       Invoice.open.find_each { |invoice| sync_invoice_status(invoice) }
       redirect_to admin_invoices_path, notice: 'All statuses refreshed'
+    end
+
+    def reset
+      period_start = @invoice.period_start
+      @invoice.destroy!
+      redirect_back fallback_location: admin_invoices_path,
+                    notice: "Invoice for #{@invoice.user.email} deleted. Remember to also delete it in CashCtrl."
     end
 
     private
