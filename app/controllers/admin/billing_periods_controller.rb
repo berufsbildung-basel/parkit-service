@@ -22,9 +22,15 @@ module Admin
         return
       end
 
-      # Delete draft invoices from CashCtrl
+      # Delete draft invoices from CashCtrl (ignore errors if already deleted)
       cashctrl_ids = invoices.where.not(cashctrl_invoice_id: nil).pluck(:cashctrl_invoice_id)
-      CashctrlClient.new.delete_invoices(cashctrl_ids) if cashctrl_ids.any?
+      if cashctrl_ids.any?
+        begin
+          CashctrlClient.new.delete_invoices(cashctrl_ids)
+        rescue StandardError => e
+          Rails.logger.warn("CashCtrl delete failed (continuing with local reset): #{e.message}")
+        end
+      end
 
       invoice_count = invoices.count
       invoices.destroy_all
