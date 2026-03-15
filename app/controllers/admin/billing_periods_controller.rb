@@ -14,7 +14,15 @@ module Admin
       billing_period = BillingPeriod.find(params[:id])
       invoices = Invoice.for_period(billing_period.period_start)
 
-      # Delete from CashCtrl first
+      non_draft = invoices.where.not(status: :draft)
+      if non_draft.any?
+        emails = non_draft.includes(:user).map { |i| i.user.email }.join(', ')
+        redirect_to admin_billing_period_path(billing_period),
+                    alert: "Cannot reset period - #{non_draft.count} invoice(s) are not in draft status (#{emails})."
+        return
+      end
+
+      # Delete draft invoices from CashCtrl
       cashctrl_ids = invoices.where.not(cashctrl_invoice_id: nil).pluck(:cashctrl_invoice_id)
       CashctrlClient.new.delete_invoices(cashctrl_ids) if cashctrl_ids.any?
 
@@ -23,7 +31,7 @@ module Admin
       billing_period.destroy!
 
       redirect_to admin_billing_path,
-                  notice: "Period #{billing_period.period_start.strftime('%B %Y')} reset (#{invoice_count} invoices deleted locally and in CashCtrl)."
+                  notice: "Period #{billing_period.period_start.strftime('%B %Y')} reset (#{invoice_count} invoices deleted)."
     rescue StandardError => e
       redirect_to admin_billing_path,
                   alert: "Failed to reset period: #{e.message}"

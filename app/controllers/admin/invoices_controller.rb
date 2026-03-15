@@ -55,6 +55,12 @@ module Admin
     end
 
     def reset
+      unless @invoice.draft?
+        redirect_back fallback_location: admin_invoices_path,
+                      alert: "Cannot reset invoice - status is #{@invoice.status}. Only draft invoices can be reset."
+        return
+      end
+
       if @invoice.cashctrl_invoice_id.present?
         CashctrlClient.new.delete_invoices([@invoice.cashctrl_invoice_id])
       end
