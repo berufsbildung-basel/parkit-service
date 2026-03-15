@@ -160,7 +160,7 @@ RSpec.describe User, type: :model do
       expect(user.disabled).to eql(false)
       expect(user.first_name).to eql(first_name)
       expect(user.last_name).to eql(last_name)
-      expect(user.preferred_language).to eql('en')
+      expect(user.preferred_language).to eql('de')
       expect(user.created_at.respond_to?(:strftime)).to eql(true)
       expect(user.updated_at.respond_to?(:strftime)).to eql(true)
     end

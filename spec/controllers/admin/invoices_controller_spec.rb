@@ -15,7 +15,10 @@ RSpec.describe 'Admin::Invoices', type: :request do
     )
   end
 
-  before { sign_in admin }
+  before do
+    sign_in admin
+    allow_any_instance_of(CashctrlClient).to receive(:ping).and_return(true)
+  end
 
   describe 'GET /admin/invoices' do
     let(:user_a) do
