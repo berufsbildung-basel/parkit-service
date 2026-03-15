@@ -62,14 +62,15 @@ module Admin
       end
 
       if @invoice.cashctrl_invoice_id.present?
-        CashctrlClient.new.delete_invoices([@invoice.cashctrl_invoice_id])
+        begin
+          CashctrlClient.new.delete_invoices([@invoice.cashctrl_invoice_id])
+        rescue StandardError => e
+          Rails.logger.warn("CashCtrl delete failed (continuing with local reset): #{e.message}")
+        end
       end
       @invoice.destroy!
       redirect_back fallback_location: admin_invoices_path,
-                    notice: "Invoice for #{@invoice.user.email} deleted (locally and in CashCtrl)."
-    rescue StandardError => e
-      redirect_back fallback_location: admin_invoices_path,
-                    alert: "Failed to delete from CashCtrl: #{e.message}. Local invoice kept."
+                    notice: "Invoice for #{@invoice.user.email} deleted."
     end
 
     private
@@ -84,7 +85,7 @@ module Admin
       client = CashctrlClient.new
       data = client.get_invoice(invoice.cashctrl_invoice_id)
 
-      status_map = CashctrlClient::STATUS_IDS.invert
+      status_map = CashctrlClient.status_ids.invert
       new_status = status_map.fetch(data['statusId'], invoice.status)
 
       invoice.update!(
