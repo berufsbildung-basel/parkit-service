@@ -80,6 +80,19 @@ jobs:
           git remote add heroku https://heroku:${{ secrets.HEROKU_API_KEY }}@git.heroku.com/parkit-bsl.git
           git push heroku HEAD:main
 
+      - name: Run migrations and restart
+        run: |
+          curl -s -X POST https://api.heroku.com/apps/parkit-bsl/dynos \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            -H "Authorization: Bearer ${{ secrets.HEROKU_API_KEY }}" \
+            -d '{"command": "rails db:migrate", "type": "run"}'
+          sleep 15
+          curl -s -X DELETE https://api.heroku.com/apps/parkit-bsl/dynos \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/vnd.heroku+json; version=3" \
+            -H "Authorization: Bearer ${{ secrets.HEROKU_API_KEY }}"
+
       - name: Set version on Heroku
         run: |
           curl -s -X PATCH https://api.heroku.com/apps/parkit-bsl/config-vars \
