@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_15_073600) do
+ActiveRecord::Schema[7.1].define(version: 2026_03_15_091008) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
@@ -37,7 +37,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_073600) do
 
   create_table "invoice_line_items", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "invoice_id", null: false
-    t.uuid "reservation_id", null: false
+    t.uuid "reservation_id"
     t.string "description", null: false
     t.integer "quantity", default: 1, null: false
     t.decimal "unit_price", precision: 10, scale: 2, null: false
