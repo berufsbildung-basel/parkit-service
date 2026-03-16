@@ -247,7 +247,7 @@ const createHiddenInput = (name, value) => {
   const input = document.createElement('input');
 
   input.setAttribute('type', 'hidden');
-  input.setAttribute('name', `reservations[]reservation[${name}]`);
+  input.setAttribute('name', `reservations[][reservation][${name}]`);
   input.setAttribute('value', value)
 
   return input;
