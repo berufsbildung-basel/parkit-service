@@ -3,7 +3,7 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '3.2.2'
+ruby '3.4.8'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem 'rails', '7.1.1'
@@ -52,7 +52,7 @@ gem 'jbuilder', '2.11.5'
 gem 'slack-ruby-client'
 
 # Write XLSX files
-gem 'write_xlsx', '1.10.2'
+gem 'write_xlsx', '~> 1.13'
 
 # group by date elements
 gem 'groupdate', '6.2.0'
