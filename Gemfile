@@ -27,14 +27,14 @@ gem 'turbo-rails'
 gem 'stimulus-rails'
 
 # Use the Devise gem for authentication
-gem 'devise', '4.8.1'
+gem 'devise', '4.9.4'
 
 # Use the gem as the OpenID connect client
 gem 'omniauth-okta', '2.0.0'
 gem 'omniauth-rails_csrf_protection', '1.0.1'
 
 # Use for configuration via yaml and env vars
-gem 'figaro', '1.2.0'
+gem 'figaro', '1.3.0'
 
 # Use the Pundit gem for authorization
 gem 'pundit', '2.2.0'
@@ -87,7 +87,7 @@ group :development, :test do
   gem 'debug', platforms: %i[mri mingw x64_mingw]
   gem 'faker'
   gem 'rails-controller-testing'
-  gem 'rspec-rails', '6.0.1'
+  gem 'rspec-rails', '6.1.5'
   gem 'rubocop', require: false
   gem 'simplecov', require: false
 end
