@@ -1,4 +1,19 @@
 de:
+  date:
+    month_names:
+      - ~
+      - Januar
+      - Februar
+      - "März"
+      - April
+      - Mai
+      - Juni
+      - Juli
+      - August
+      - September
+      - Oktober
+      - November
+      - Dezember
   profile:
     show:
       title: "Mein Profil"
