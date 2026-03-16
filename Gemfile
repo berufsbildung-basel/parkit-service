@@ -6,16 +6,16 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '3.4.8'
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem 'rails', '7.1.1'
+gem 'rails', '7.2.3'
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem 'sprockets-rails'
 
 # Use postgresql as the database for Active Record
-gem 'pg', '1.4.5'
+gem 'pg', '1.6.3'
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem 'puma', '~> 5.0'
+gem 'puma', '6.6.1'
 
 # Use JavaScript with ESM import maps [https://github.com/rails/importmap-rails]
 gem 'importmap-rails'
@@ -31,34 +31,34 @@ gem 'devise', '4.9.4'
 
 # Use the gem as the OpenID connect client
 gem 'omniauth-okta', '2.0.0'
-gem 'omniauth-rails_csrf_protection', '1.0.1'
+gem 'omniauth-rails_csrf_protection', '1.0.2'
 
 # Use for configuration via yaml and env vars
 gem 'figaro', '1.3.0'
 
 # Use the Pundit gem for authorization
-gem 'pundit', '2.2.0'
+gem 'pundit', '2.5.2'
 
 # For time-based validations
-gem 'validates_timeliness', '7.0.0.beta1'
+gem 'validates_timeliness', '7.1.0'
 
 # For pagination
 gem 'kaminari', '1.2.2'
 
 # For JSON view templates
-gem 'jbuilder', '2.11.5'
+gem 'jbuilder', '2.14.1'
 
 # Send slack messages
 gem 'slack-ruby-client'
 
 # Write XLSX files
-gem 'write_xlsx', '~> 1.13'
+gem 'write_xlsx', '1.13.0'
 
 # group by date elements
-gem 'groupdate', '6.2.0'
+gem 'groupdate', '6.7.0'
 
 # simple charting support
-gem 'chartkick', '5.0.1'
+gem 'chartkick', '5.2.1'
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", "~> 4.0"
