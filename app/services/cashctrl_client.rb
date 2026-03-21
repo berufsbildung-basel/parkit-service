@@ -110,7 +110,7 @@ class CashctrlClient
   end
 
   # Invoice methods
-  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {}, account_id: nil)
+  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {}, account_id: nil, description: nil)
     items_json = items.map do |item|
       if item[:type] == 'TEXT'
         { type: 'TEXT', name: item[:name] }
@@ -134,6 +134,7 @@ class CashctrlClient
       items: items_json.to_json
     }
     params[:accountId] = account_id if account_id
+    params[:description] = description if description
 
     # Add custom fields if provided
     if custom_fields.any?
