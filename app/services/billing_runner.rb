@@ -81,6 +81,8 @@ class BillingRunner
     # Only include non-cancelled items with valid artikel_nr
     billable_items = items.select { |i| i[:artikel_nr].present? }
 
+    invoice_description = billing_period_label(language).prepend('Parkgebühren ')
+
     cashctrl_invoice_id = @client.create_invoice(
       person_id: person_id,
       date: Date.today,
@@ -88,7 +90,8 @@ class BillingRunner
       items: billable_items.map do |i|
         { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
       end,
-      custom_fields: billing_period_custom_fields(language)
+      custom_fields: billing_period_custom_fields(language),
+      description: invoice_description
     )
 
     # Calculate total from reservations (CashCtrl has the prices)
@@ -158,13 +161,16 @@ class BillingRunner
       { artikel_nr: i[:artikel_nr], name: i[:description], unit_price: i[:unit_price], quantity: 1 }
     end
 
+    invoice_description = billing_period_label(language).prepend('Parkgebühren ')
+
     cashctrl_invoice_id = @client.create_invoice(
       person_id: person_id,
       date: Date.today,
       due_days: 30,
       items: cashctrl_items,
       custom_fields: billing_period_custom_fields(language),
-      account_id: cashctrl_account_id
+      account_id: cashctrl_account_id,
+      description: invoice_description
     )
 
     invoice = Invoice.create!(

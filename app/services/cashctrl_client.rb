@@ -70,7 +70,8 @@ class CashctrlClient
     result = post('/person/create.json', {
                     firstName: first_name,
                     lastName: last_name,
-                    addresses: [address_data].to_json
+                    addresses: [address_data].to_json,
+                    contacts: [{ address: email, type: 'EMAIL_WORK' }].to_json
                   })
     result['insertId']
   end
@@ -103,12 +104,13 @@ class CashctrlClient
            id: user.cashctrl_person_id,
            firstName: user.first_name,
            lastName: user.last_name,
-           addresses: [address_data].to_json
+           addresses: [address_data].to_json,
+           contacts: [{ address: user.email, type: 'EMAIL_WORK' }].to_json
          })
   end
 
   # Invoice methods
-  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {}, account_id: nil)
+  def create_invoice(person_id:, due_days:, date:, items:, custom_fields: {}, account_id: nil, description: nil)
     items_json = items.map do |item|
       if item[:type] == 'TEXT'
         { type: 'TEXT', name: item[:name] }
@@ -132,6 +134,7 @@ class CashctrlClient
       items: items_json.to_json
     }
     params[:accountId] = account_id if account_id
+    params[:description] = description if description
 
     # Add custom fields if provided
     if custom_fields.any?
