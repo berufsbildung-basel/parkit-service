@@ -70,7 +70,8 @@ class CashctrlClient
     result = post('/person/create.json', {
                     firstName: first_name,
                     lastName: last_name,
-                    addresses: [address_data].to_json
+                    addresses: [address_data].to_json,
+                    contacts: [{ address: email, type: 'EMAIL_WORK' }].to_json
                   })
     result['insertId']
   end
@@ -103,7 +104,8 @@ class CashctrlClient
            id: user.cashctrl_person_id,
            firstName: user.first_name,
            lastName: user.last_name,
-           addresses: [address_data].to_json
+           addresses: [address_data].to_json,
+           contacts: [{ address: user.email, type: 'EMAIL_WORK' }].to_json
          })
   end
 
