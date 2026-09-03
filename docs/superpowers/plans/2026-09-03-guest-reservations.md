@@ -1052,8 +1052,10 @@ git commit -m "feat: support creating GuestReservation via ReservationsControlle
 ### Task 8: `new_guest` action + route + guest-mode `new.html.erb`
 
 **Files:**
-- Modify: `config/routes.rb` (replace Task 7's placeholder), `app/controllers/reservations_controller.rb` (replace placeholder `new_guest`), `app/views/reservations/new.html.erb`
+- Modify: `app/controllers/reservations_controller.rb` (replace Task 7's placeholder `new_guest` action with the real one), `app/views/reservations/new.html.erb`
 - Modify: `spec/requests/reservations_html_spec.rb`
+
+Note: `config/routes.rb` already has the `get :new_guest` route from Task 7 - no routes.rb change in this task.
 
 **Interfaces:**
 - Consumes: `GuestReservation` (Task 3), `ReservationPolicy#new_guest?` (Task 6)
@@ -1292,7 +1294,7 @@ Expected: FAIL - `cancel_reservation_path` is undefined (no top-level cancel rou
 
 - [ ] **Step 3: Implement**
 
-In `config/routes.rb`, extend the block added in Task 8:
+In `config/routes.rb`, extend the block added in Task 7:
 
 ```ruby
   resources :reservations do
