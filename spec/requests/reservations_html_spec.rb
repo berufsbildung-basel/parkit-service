@@ -84,4 +84,29 @@ RSpec.describe 'ReservationsController (HTML)', type: :request do
       expect(SlackHelper).to have_received(:send_message).with(a_string_including(regular_user.full_name))
     end
   end
+
+  describe 'GET /reservations/new_guest' do
+    it 'is reachable by facilities' do
+      sign_in facilities_user
+      get new_guest_reservations_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Guest name')
+    end
+
+    it 'is reachable by admin' do
+      admin = User.create!(username: 'admin-user', email: 'admin@example.com', first_name: 'Admin',
+                            last_name: 'User', role: :admin)
+      sign_in admin
+      get new_guest_reservations_path
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'forbids a regular user' do
+      sign_in regular_user
+      get new_guest_reservations_path
+      expect(response).to redirect_to(root_path)
+    end
+  end
 end

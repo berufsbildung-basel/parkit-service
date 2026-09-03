@@ -67,7 +67,19 @@ class ReservationsController < AuthorizableController
   end
 
   def new_guest
-    head :not_implemented
+    @reservation = GuestReservation.new
+    authorize @reservation
+
+    all_spots = ParkingSpot.status_for_user_next_days(nil, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    @parking_spots = {}
+    all_spots.each do |week, days|
+      @parking_spots[week] = {}
+      days.each do |date, spots|
+        @parking_spots[week][date] = spots.select { |spot| spot.allowed_vehicle_type == 'car' }
+      end
+    end
+
+    render :new
   end
 
   def index
