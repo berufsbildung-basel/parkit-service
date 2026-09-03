@@ -5,7 +5,7 @@ class VehiclePolicy < ApplicationPolicy
   # Scoped collection access
   class Scope < Scope
     def resolve
-      if user.admin?
+      if user.can_manage_reservations?
         scope.all
       else
         scope.where(user_id: user.id)
@@ -14,7 +14,7 @@ class VehiclePolicy < ApplicationPolicy
   end
 
   def edit?
-    user.admin? or user.id == record.user_id
+    user.can_manage_reservations? or user.id == record.user_id
   end
 
   def update?
@@ -22,7 +22,7 @@ class VehiclePolicy < ApplicationPolicy
   end
 
   def destroy?
-    user.admin? or (user.id == record.user_id and record.reservations.empty?)
+    user.can_manage_reservations? or (user.id == record.user_id and record.reservations.empty?)
   end
 
   def new?

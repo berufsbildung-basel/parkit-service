@@ -90,7 +90,7 @@
     <% end %>
   </div>
 </section>
-<% if @user.prepaid? && @user.cashctrl_private_account_id.present? && current_user.admin? %>
+<% if @user.prepaid? && @user.cashctrl_private_account_id.present? && current_user.can_manage_reservations? %>
 <section class="spectrum-CSSComponent-description">
   <div class="spectrum-Body spectrum-Body--sizeM">
     <header class="spectrum-CSSComponent-sectionHeading" id="prepaid-account">

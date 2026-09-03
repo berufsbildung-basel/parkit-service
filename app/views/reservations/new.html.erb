@@ -63,7 +63,7 @@
       <div id="parking-spot-status" <%= @user ? "data-user=\"#{@user.id}\" data-vehicle=\"#{@vehicle.id}\"".html_safe : '' %>>
         <%
           today_class = ' today'
-          max_reservations_per_week = current_user.admin? ? 99 : ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
+          max_reservations_per_week = current_user.can_manage_reservations? ? 99 : ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
 
           @parking_spots.each do |week, days|
             num_existing_reservations = @user ? Reservation.active_within_business_week(days.first[0], @user).count : 0

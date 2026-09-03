@@ -46,7 +46,7 @@
           </li>
         </ul>
       </li>
-      <% if current_user.admin? %>
+      <% if current_user.can_manage_reservations? %>
         <li class="spectrum-SideNav-item">
           <a class="spectrum-SideNav-itemLink" href="#">
             <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
