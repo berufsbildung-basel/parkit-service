@@ -55,6 +55,38 @@ RSpec.describe InvoicePolicy, type: :model do
     end
   end
 
+  describe 'for a facilities user' do
+    let(:user) do
+      User.create!(
+        username: 'facilities-user',
+        email: 'facilities@example.com',
+        first_name: 'Facilities',
+        last_name: 'User',
+        role: :facilities
+      )
+    end
+
+    it 'permits index' do
+      expect(subject.index?).to be true
+    end
+
+    it 'permits show' do
+      expect(subject.show?).to be true
+    end
+
+    it 'permits send_email' do
+      expect(subject.send_email?).to be true
+    end
+
+    it 'permits download_pdf' do
+      expect(subject.download_pdf?).to be true
+    end
+
+    it 'permits refresh_status' do
+      expect(subject.refresh_status?).to be true
+    end
+  end
+
   describe 'for a regular user' do
     let(:user) do
       User.create!(
@@ -113,6 +145,23 @@ RSpec.describe InvoicePolicy, type: :model do
           first_name: 'Admin',
           last_name: 'User',
           role: :admin
+        )
+      end
+
+      it 'returns all invoices' do
+        scope = described_class::Scope.new(user, Invoice).resolve
+        expect(scope).to include(invoice1, invoice2)
+      end
+    end
+
+    describe 'for a facilities user' do
+      let(:user) do
+        User.create!(
+          username: 'facilities-user',
+          email: 'facilities@example.com',
+          first_name: 'Facilities',
+          last_name: 'User',
+          role: :facilities
         )
       end
 

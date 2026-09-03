@@ -3,32 +3,32 @@
 # Authorization policy for Invoice records
 class InvoicePolicy < ApplicationPolicy
   def index?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   def show?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   def send_email?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   def download_pdf?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   def refresh_status?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   def reset?
-    user&.admin?
+    user&.can_manage_reservations?
   end
 
   class Scope < ApplicationPolicy::Scope
     def resolve
-      if user&.admin?
+      if user&.can_manage_reservations?
         scope.all
       else
         scope.none
