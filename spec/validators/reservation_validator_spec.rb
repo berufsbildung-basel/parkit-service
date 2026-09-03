@@ -335,6 +335,38 @@ RSpec.describe ReservationValidator, type: :validator do
       expect(reservation.errors.first.full_message).to eql('User already has a reservation on that day')
     end
 
+    it 'rejects a guest reservation overlapping another guest on the same spot/time' do
+      GuestReservation.create!(parking_spot:, date: Date.today, guest_name: 'Guest One', guest_license_plate: 'G1')
+
+      reservation = GuestReservation.new(parking_spot:, date: Date.today,
+                                          guest_name: 'Guest Two', guest_license_plate: 'G2')
+
+      expect(reservation.valid?).to eql(false)
+      expect(reservation.errors.first.full_message)
+        .to eql('Reservation overlaps with existing reservation on that day and parking spot')
+    end
+
+    it 'rejects a registered member booking over an existing guest reservation on the same spot/time' do
+      GuestReservation.create!(parking_spot:, date: Date.today, guest_name: 'Guest One', guest_license_plate: 'G1')
+
+      reservation = Reservation.new(parking_spot:, vehicle: car1, user: user1, date: Date.today)
+
+      expect(reservation.valid?).to eql(false)
+      expect(reservation.errors.first.full_message)
+        .to eql('Reservation overlaps with existing reservation on that day and parking spot')
+    end
+
+    it 'rejects a guest reservation booked over an existing registered member reservation on the same spot/time' do
+      Reservation.create!(parking_spot:, vehicle: car1, user: user1, date: Date.today)
+
+      reservation = GuestReservation.new(parking_spot:, date: Date.today,
+                                          guest_name: 'Guest', guest_license_plate: 'G1')
+
+      expect(reservation.valid?).to eql(false)
+      expect(reservation.errors.first.full_message)
+        .to eql('Reservation overlaps with existing reservation on that day and parking spot')
+    end
+
     it 'rejects creating a reservation when the user exceeds the weekly maximum', skip: 'Weekly limit validation is disabled in ReservationValidator' do
       Reservation.create!({
                             parking_spot:,

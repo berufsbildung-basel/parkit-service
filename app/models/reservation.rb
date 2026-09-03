@@ -82,16 +82,16 @@ class Reservation < ApplicationRecord
   }
 
   scope :overlapping_on_date_and_parking_spot, lambda { |date, parking_spot, user, start_time, end_time|
-    active_on_date(date)
-      .includes(:vehicle)
-      .includes(:user)
-      .where(parking_spot:)
-      .where('reservations.user_id NOT IN (?)', user.id)
-      .where(
-        '? <= reservations.end_time AND ? >= reservations.start_time',
-        start_time,
-        end_time
-      )
+    scope = active_on_date(date)
+            .includes(:vehicle)
+            .includes(:user)
+            .where(parking_spot:)
+    scope = scope.where('reservations.user_id IS DISTINCT FROM ?', user.id) if user.present?
+    scope.where(
+      '? <= reservations.end_time AND ? >= reservations.start_time',
+      start_time,
+      end_time
+    )
   }
 
   scope :active_on_day_of_user, lambda { |date, user, reservation_id = nil|
