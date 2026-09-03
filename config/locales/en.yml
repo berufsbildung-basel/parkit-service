@@ -137,6 +137,7 @@ en:
               invalid_datetime: "is not a valid date/time"
             parking_spot:
               marked_unavailable: "has been marked unavailable"
+              guests_car_only: "is not available for guest reservations (car spots only)"
             start_time:
               invalid_date: "is not a valid date"
               invalid_datetime: "is not a valid date/time"
