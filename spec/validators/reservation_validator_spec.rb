@@ -298,6 +298,43 @@ RSpec.describe ReservationValidator, type: :validator do
         .to eql('Reservation overlaps with existing reservation on that day and parking spot')
     end
 
+    it 'does not require a registered user or vehicle for a guest reservation' do
+      reservation = GuestReservation.new(parking_spot:, date: Date.today,
+                                          guest_name: 'Guest', guest_license_plate: 'ZH 1234')
+
+      expect(reservation.valid?).to eql(true)
+    end
+
+    it 'still rejects a guest reservation on a parking spot marked unavailable' do
+      reservation = GuestReservation.new(parking_spot: unavailable_parking_spot, date: Date.today,
+                                          guest_name: 'Guest', guest_license_plate: 'ZH 1234')
+
+      expect(reservation.valid?).to eql(false)
+      expect(reservation.errors.first.full_message).to eql('Parking spot has been marked unavailable')
+    end
+
+    it 'allows facilities to create a second guest reservation on the same day (bypasses the per-day cap)' do
+      GuestReservation.create!(parking_spot:, date: Date.today, guest_name: 'Guest One', guest_license_plate: 'G1')
+      second_spot = ParkingSpot.create!(number: 20)
+
+      reservation = GuestReservation.new(parking_spot: second_spot, date: Date.today,
+                                          guest_name: 'Guest Two', guest_license_plate: 'G2')
+
+      expect(reservation.valid?).to eql(true)
+    end
+
+    it 'still caps a registered user at one reservation per day when a guest reservation exists the same day' do
+      Reservation.create!(parking_spot:, vehicle: car1, user: user1, date: Date.today)
+      second_spot = ParkingSpot.create!(number: 21)
+      GuestReservation.create!(parking_spot: second_spot, date: Date.today, guest_name: 'Guest', guest_license_plate: 'G1')
+
+      third_spot = ParkingSpot.create!(number: 22)
+      reservation = Reservation.new(parking_spot: third_spot, vehicle: car1, user: user1, date: Date.today)
+
+      expect(reservation.valid?).to eql(false)
+      expect(reservation.errors.first.full_message).to eql('User already has a reservation on that day')
+    end
+
     it 'rejects creating a reservation when the user exceeds the weekly maximum', skip: 'Weekly limit validation is disabled in ReservationValidator' do
       Reservation.create!({
                             parking_spot:,

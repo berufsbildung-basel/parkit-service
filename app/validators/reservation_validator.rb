@@ -18,12 +18,13 @@ class ReservationValidator < ActiveModel::Validator
 
   def perform_validation(reservation)
     reservation.present? &&
-      reservation.user.present? &&
-      reservation.vehicle.present? &&
+      (reservation.user.present? || !reservation.requires_registered_owner?) &&
+      (reservation.vehicle.present? || !reservation.requires_registered_owner?) &&
       reservation.parking_spot.present?
   end
 
   def validate_user_is_not_disabled(reservation)
+    return unless reservation.requires_registered_owner?
     return unless reservation.user.disabled?
 
     reservation.errors.add(:user, :marked_disabled)
@@ -36,6 +37,7 @@ class ReservationValidator < ActiveModel::Validator
   end
 
   def validate_user_does_not_exceed_reservations_per_day(reservation)
+    return unless reservation.requires_registered_owner?
     return unless reservation.date.present?
 
     return unless reservation.user.exceeds_reservations_per_day?(reservation.date, reservation.id)
@@ -54,6 +56,7 @@ class ReservationValidator < ActiveModel::Validator
 =end
 
   def validate_vehicle_belongs_to_user(reservation)
+    return unless reservation.requires_registered_owner?
     return unless reservation.vehicle.user.nil? || (reservation.vehicle.user.id != reservation.user.id)
 
     reservation.errors.add(:vehicle, :does_not_belong_to_reservation_user)
