@@ -20,10 +20,10 @@ class ReservationsController < AuthorizableController
 
     params[:reservations].each do |reservation|
       @reservation = if reservation[:reservation][:guest_name].present?
-                        GuestReservation.new(guest_reservation_params(reservation))
-                      else
-                        Reservation.new(reservation_params(reservation))
-                      end
+                       GuestReservation.new(guest_reservation_params(reservation))
+                     else
+                       Reservation.new(reservation_params(reservation))
+                     end
       @reservation.current_user = current_user
       @reservation.created_by = current_user if @reservation.user_id != current_user.id
       authorize @reservation
@@ -140,10 +140,10 @@ class ReservationsController < AuthorizableController
 
   def cancel
     @reservation = if params[:user_id].present?
-                      User.find(params[:user_id]).reservations.find(params[:reservation_id])
-                    else
-                      Reservation.find(params[:id])
-                    end
+                     User.find(params[:user_id]).reservations.find(params[:reservation_id])
+                   else
+                     Reservation.find(params[:id])
+                   end
     authorize @reservation
 
     unless @reservation.can_be_cancelled?(current_user)
@@ -274,10 +274,15 @@ class ReservationsController < AuthorizableController
     end
   end
 
-  def slack_message_for_reservation(r)
-    vehicle_text = r.vehicle ? "<#{vehicle_url(r.vehicle.id)}|#{r.vehicle.license_plate_number}>" : r.guest_license_plate
-    owner_text = r.user ? "<#{user_url(r.user.id)}|#{r.user.full_name}>" : "guest: #{r.owner_name}"
-    "\n - #{r.date}, #{r.slot_name} on spot <#{parking_spot_url(r.parking_spot.id)}|#{r.parking_spot.number}> with vehicle #{vehicle_text} for #{owner_text}"
+  def slack_message_for_reservation(reservation)
+    vehicle = reservation.vehicle
+    link = vehicle && "#{vehicle_url(vehicle.id)}|#{vehicle.license_plate_number}"
+    vehicle_text = link ? "<#{link}>" : reservation.guest_license_plate
+    user = reservation.user
+    owner_text = user ? "<#{user_url(user.id)}|#{user.full_name}>" : "guest: #{reservation.owner_name}"
+    spot = reservation.parking_spot
+    "\n - #{reservation.date}, #{reservation.slot_name} on spot <#{parking_spot_url(spot.id)}|#{spot.number}> " \
+      "with vehicle #{vehicle_text} for #{owner_text}"
   end
 
   def guest_reservation_params(params)
