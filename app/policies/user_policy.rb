@@ -5,7 +5,7 @@ class UserPolicy < ApplicationPolicy
   # Scoped collection access
   class Scope < Scope
     def resolve
-      if user.admin?
+      if user.can_manage_reservations?
         scope.all
       else
         scope.none
@@ -13,6 +13,7 @@ class UserPolicy < ApplicationPolicy
     end
   end
 
+  # Editing/creating users (role, disabled, billing type) stays admin-only.
   def edit?
     user.admin? or user.id == record.id
   end
@@ -26,11 +27,11 @@ class UserPolicy < ApplicationPolicy
   end
 
   def show?
-    edit?
+    user.can_manage_reservations? or user.id == record.id
   end
 
   def create_topup_invoice?
-    user.admin?
+    user.can_manage_reservations?
   end
 
   def welcome?

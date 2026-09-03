@@ -5,7 +5,7 @@ class ParkingSpotPolicy < ApplicationPolicy
   # Scoped collection access
   class Scope < Scope
     def resolve
-      if user.admin?
+      if user.can_manage_reservations?
         scope.all
       else
         scope.none
@@ -14,7 +14,7 @@ class ParkingSpotPolicy < ApplicationPolicy
   end
 
   def edit?
-    user.admin?
+    user.can_manage_reservations?
   end
 
   def update?

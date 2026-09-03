@@ -2,13 +2,13 @@
 
 module Admin
   class BaseController < ApplicationController
-    before_action :require_admin!
+    before_action :require_management_access!
     before_action :check_cashctrl_status
 
     private
 
-    def require_admin!
-      return if current_user&.admin?
+    def require_management_access!
+      return if current_user&.can_manage_reservations?
 
       flash[:alert] = 'You are not authorized to access this page.'
       redirect_to root_path
