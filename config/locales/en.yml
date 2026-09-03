@@ -122,6 +122,9 @@ en:
     role_invalid:
       code: 40110
       title: "Invalid role"
+    authentication_required:
+      code: 40111
+      title: "Authentication required"
   activerecord:
     errors:
       models:
