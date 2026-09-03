@@ -1086,7 +1086,8 @@ Add to `spec/requests/reservations_html_spec.rb`:
 
     it 'forbids a regular user' do
       sign_in regular_user
-      expect { get new_guest_reservations_path }.to raise_error(Pundit::NotAuthorizedError)
+      get new_guest_reservations_path
+      expect(response).to redirect_to(root_path)
     end
   end
 ```
@@ -1269,7 +1270,8 @@ Add to `spec/requests/reservations_html_spec.rb`:
 
     it 'forbids a regular user' do
       sign_in regular_user
-      expect { put cancel_reservation_path(guest_reservation.id) }.to raise_error(Pundit::NotAuthorizedError)
+      put cancel_reservation_path(guest_reservation.id)
+      expect(response).to redirect_to(root_path)
     end
   end
 
