@@ -139,8 +139,11 @@ class ReservationsController < AuthorizableController
   end
 
   def cancel
-    @user = User.find(params[:user_id])
-    @reservation = @user.reservations.find(params[:reservation_id])
+    @reservation = if params[:user_id].present?
+                      User.find(params[:user_id]).reservations.find(params[:reservation_id])
+                    else
+                      Reservation.find(params[:id])
+                    end
     authorize @reservation
 
     unless @reservation.can_be_cancelled?(current_user)
@@ -162,8 +165,8 @@ class ReservationsController < AuthorizableController
         format.html { redirect_to dashboard_path }
       end
 
-      message = ":trash-can: <#{user_url(current_user.id)}|#{current_user.full_name}> cancelled reservation:
-        \n - #{@reservation.date}, #{@reservation.slot_name} on spot <#{parking_spot_url(@reservation.parking_spot.id)}|#{@reservation.parking_spot.number}> with vehicle <#{vehicle_url(@reservation.vehicle.id)}|#{@reservation.vehicle.license_plate_number}> for <#{user_url(@reservation.user.id)}|#{@reservation.user.full_name}>"
+      message = ":trash-can: <#{user_url(current_user.id)}|#{current_user.full_name}> cancelled reservation:"
+      message += slack_message_for_reservation(@reservation)
       SlackHelper.send_message(message)
     else
       respond_to do |format|

@@ -41,6 +41,9 @@ Rails.application.routes.draw do
     collection do
       get :new_guest
     end
+    member do
+      put :cancel
+    end
   end
   resources :vehicles
 

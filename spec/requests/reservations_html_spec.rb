@@ -109,4 +109,39 @@ RSpec.describe 'ReservationsController (HTML)', type: :request do
       expect(response).to redirect_to(root_path)
     end
   end
+
+  describe 'PUT /reservations/:id/cancel' do
+    let!(:guest_reservation) do
+      GuestReservation.create!(parking_spot:, date: Date.today, guest_name: 'Guest', guest_license_plate: 'G1')
+    end
+
+    it 'cancels a guest reservation when called by facilities' do
+      sign_in facilities_user
+      put cancel_reservation_path(guest_reservation.id)
+
+      expect(guest_reservation.reload.cancelled?).to eql(true)
+      expect(SlackHelper).to have_received(:send_message).with(a_string_including('guest: Guest'))
+    end
+
+    it 'forbids a regular user' do
+      sign_in regular_user
+      put cancel_reservation_path(guest_reservation.id)
+      expect(response).to redirect_to(root_path)
+    end
+  end
+
+  describe 'PUT /users/:user_id/reservations/:reservation_id/cancel (regression)' do
+    let!(:member_reservation) do
+      # Future date: can_be_cancelled? denies same-day cancellation to non-privileged users once
+      # start_time (beginning of day) has passed, which is always true by the time this test runs.
+      Reservation.create!(parking_spot:, vehicle:, user: regular_user, date: Date.tomorrow)
+    end
+
+    it 'still cancels a registered user\'s own reservation via the nested route' do
+      sign_in regular_user
+      put user_reservation_cancel_path(regular_user.id, member_reservation.id)
+
+      expect(member_reservation.reload.cancelled?).to eql(true)
+    end
+  end
 end
