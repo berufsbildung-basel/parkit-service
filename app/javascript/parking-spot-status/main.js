@@ -258,17 +258,25 @@ const submitForm = (event) => {
 
   const form = document.getElementById('reservation-form');
   const status = document.getElementById("parking-spot-status");
+  const userId = status.getAttribute('data-user');
+  const vehicleId = status.getAttribute('data-vehicle');
+  const guestNameField = document.getElementById('guest_name');
+  const guestLicensePlateField = document.getElementById('guest_license_plate');
 
   Object.keys(reservations).forEach((date) => {
     const reservation = reservations[date];
     const half_day = reservation.slot === SLOT_NAME_MORNING || reservation.slot === SLOT_NAME_AFTERNOON;
     const am = reservation.slot === SLOT_NAME_MORNING;
-    const userId = status.getAttribute('data-user');
-    const vehicleId = status.getAttribute('data-vehicle');
 
-    form.appendChild(createHiddenInput('user_id', userId));
+    if (userId) {
+      form.appendChild(createHiddenInput('user_id', userId));
+      form.appendChild(createHiddenInput('vehicle_id', vehicleId));
+    } else {
+      form.appendChild(createHiddenInput('guest_name', guestNameField.value));
+      form.appendChild(createHiddenInput('guest_license_plate', guestLicensePlateField.value));
+    }
+
     form.appendChild(createHiddenInput('parking_spot_id', reservation.parkingSpotId));
-    form.appendChild(createHiddenInput('vehicle_id', vehicleId));
     form.appendChild(createHiddenInput('date', date));
     form.appendChild(createHiddenInput('half_day', half_day));
     form.appendChild(createHiddenInput('am', am));
