@@ -25,7 +25,13 @@
   <% reservations.each do |reservation| %>
     <tr class="spectrum-Table-row">
       <% if show_user %>
-        <td class="spectrum-Table-cell"><%= link_to reservation.user.full_name, user_path(reservation.user.id) %></td>
+        <td class="spectrum-Table-cell">
+          <% if reservation.user %>
+            <%= link_to reservation.owner_name, user_path(reservation.user.id) %>
+          <% else %>
+            <%= reservation.owner_name %>
+          <% end %>
+        </td>
       <% end %>
       <td class="spectrum-Table-cell"><%= reservation.date %></td>
       <td class="spectrum-Table-cell">
@@ -36,7 +42,11 @@
         <%= link_to reservation.parking_spot.number, parking_spot_path(reservation.parking_spot.id) %>
       </td>
       <td class="spectrum-Table-cell">
-        <%= link_to reservation.vehicle.license_plate_number, vehicle_path(reservation.vehicle.id) %>
+        <% if reservation.vehicle %>
+          <%= link_to reservation.vehicle.license_plate_number, vehicle_path(reservation.vehicle.id) %>
+        <% else %>
+          <%= reservation.guest_license_plate %>
+        <% end %>
       </td>
       <% if show_price %>
         <td class="spectrum-Table-cell"><%= reservation.price %></td>
@@ -48,7 +58,7 @@
                  reservation_can_be_cancelled = reservation.can_be_cancelled?(current_user)
             %>
               <%= button_to 'Cancel',
-                            user_reservation_cancel_path(reservation.user.id, reservation.id),
+                            cancel_reservation_path(reservation.id),
                             disabled: !reservation_can_be_cancelled,
                             title: !reservation_can_be_cancelled ? 'You can only cancel reservations that have not started' : 'Cancels this reservation',
                             method: :put,

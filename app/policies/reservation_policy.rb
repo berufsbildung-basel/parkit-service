@@ -5,7 +5,7 @@ class ReservationPolicy < ApplicationPolicy
   # Scoped collection access
   class Scope < Scope
     def resolve
-      if user.admin?
+      if user.can_manage_reservations?
         scope.all
       else
         scope.where(user_id: user.id)
@@ -14,7 +14,7 @@ class ReservationPolicy < ApplicationPolicy
   end
 
   def edit?
-    user.admin? or user.id == record.user_id
+    user.can_manage_reservations? || user.id == record.user_id
   end
 
   def update?
@@ -35,6 +35,10 @@ class ReservationPolicy < ApplicationPolicy
 
   def new?
     edit?
+  end
+
+  def new_guest?
+    user.can_manage_reservations?
   end
 
   def show?

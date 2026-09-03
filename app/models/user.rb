@@ -11,7 +11,7 @@ class User < ApplicationRecord
   has_many :invoices, dependent: :destroy
   has_many :executed_billing_periods, class_name: 'BillingPeriod', foreign_key: :executed_by_id, dependent: :nullify
 
-  enum role: %i[user led_matrix admin]
+  enum role: %i[user led_matrix admin facilities]
   enum billing_type: { standard: 0, prepaid: 1, exempt: 2 }
 
   scope :billable, -> { where(billing_type: %i[standard prepaid]) }
@@ -38,6 +38,10 @@ class User < ApplicationRecord
 
   def set_default_role
     self.role ||= :user
+  end
+
+  def can_manage_reservations?
+    admin? || facilities?
   end
 
   def exceeds_reservations_per_day?(date, reservation_id = nil)

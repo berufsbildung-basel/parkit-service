@@ -3,8 +3,11 @@
 # The reservation represents a blocking of a parking spot on a specific time with a vehicle
 class Reservation < ApplicationRecord
   belongs_to :parking_spot
-  belongs_to :vehicle
-  belongs_to :user
+  belongs_to :vehicle, optional: true
+  belongs_to :user, optional: true
+  belongs_to :created_by, class_name: 'User', optional: true
+
+  validates :vehicle, :user, presence: { message: :required }, if: :requires_registered_owner?
 
   before_validation :set_start_time, :set_end_time
   before_validation :set_price, on: :create
@@ -27,7 +30,15 @@ class Reservation < ApplicationRecord
   attr_accessor :current_user
 
   def can_be_cancelled?(current_user)
-    current_user.admin? || start_time > Time.now
+    current_user.can_manage_reservations? || start_time > Time.now
+  end
+
+  def requires_registered_owner?
+    true
+  end
+
+  def owner_name
+    user&.full_name
   end
 
   def slot_name
@@ -71,16 +82,16 @@ class Reservation < ApplicationRecord
   }
 
   scope :overlapping_on_date_and_parking_spot, lambda { |date, parking_spot, user, start_time, end_time|
-    active_on_date(date)
-      .includes(:vehicle)
-      .includes(:user)
-      .where(parking_spot:)
-      .where('reservations.user_id NOT IN (?)', user.id)
-      .where(
-        '? <= reservations.end_time AND ? >= reservations.start_time',
-        start_time,
-        end_time
-      )
+    scope = active_on_date(date)
+            .includes(:vehicle)
+            .includes(:user)
+            .where(parking_spot:)
+    scope = scope.where('reservations.user_id IS DISTINCT FROM ?', user.id) if user.present?
+    scope.where(
+      '? <= reservations.end_time AND ? >= reservations.start_time',
+      start_time,
+      end_time
+    )
   }
 
   scope :active_on_day_of_user, lambda { |date, user, reservation_id = nil|

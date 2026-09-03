@@ -122,6 +122,9 @@ en:
     role_invalid:
       code: 40110
       title: "Invalid role"
+    authentication_required:
+      code: 40111
+      title: "Authentication required"
   activerecord:
     errors:
       models:
@@ -137,6 +140,7 @@ en:
               invalid_datetime: "is not a valid date/time"
             parking_spot:
               marked_unavailable: "has been marked unavailable"
+              guests_car_only: "is not available for guest reservations (car spots only)"
             start_time:
               invalid_date: "is not a valid date"
               invalid_datetime: "is not a valid date/time"

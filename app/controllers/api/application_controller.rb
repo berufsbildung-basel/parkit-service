@@ -6,6 +6,8 @@ module Api
 
     include Pundit::Authorization
 
+    before_action :require_authentication, except: %i[today check_availability]
+
     after_action :verify_authorized, except: :index
     after_action :verify_policy_scoped, only: :index
 
@@ -15,6 +17,18 @@ module Api
       policy_name = exception.policy.class.to_s.underscore
       flash[:danger] = t "#{policy_name}.#{exception.query}", scope: 'pundit', default: :default
       redirect_to(request.referer || root_path)
+    end
+
+    private
+
+    # Policies call methods like `user.admin?` unconditionally; without this
+    # check an unauthenticated request crashes with a 500 (NoMethodError on
+    # nil) instead of a clean 401.
+    def require_authentication
+      return if current_user
+
+      skip_authorization
+      render_json_error :unauthorized, :authentication_required
     end
   end
 end

@@ -5,18 +5,29 @@
   <div class="spectrum-Body spectrum-Body--sizeM">
     <div class="spectrum-CSSExample-example">
       <div class="spectrum-ButtonGroup">
-        <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--accent">
-          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
-            <use xlink:href="#spectrum-icon-18-User"/>
-          </svg>
-          <div class="spectrum-Badge-label"><%= @user.full_name %></div>
-        </div>
-        <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
-          <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
-            <use xlink:href="#spectrum-icon-18-Car"/>
-          </svg>
-          <div class="spectrum-Badge-label"><%= @vehicle.full_title %></div>
-        </div>
+        <% if @user %>
+          <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--accent">
+            <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-icon-18-User"/>
+            </svg>
+            <div class="spectrum-Badge-label"><%= @user.full_name %></div>
+          </div>
+          <div class="spectrum-Badge spectrum-Badge--sizeXL spectrum-Badge--positive">
+            <svg class="spectrum-Icon spectrum-Icon--sizeXL spectrum-Badge-icon spectrum-Badge-icon" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-icon-18-Car"/>
+            </svg>
+            <div class="spectrum-Badge-label"><%= @vehicle.full_title %></div>
+          </div>
+        <% else %>
+          <div class="spectrum-Field">
+            <label class="spectrum-FieldLabel" for="guest_name">Guest name</label>
+            <input type="text" id="guest_name" name="guest_name" class="spectrum-Textfield-input" required>
+          </div>
+          <div class="spectrum-Field">
+            <label class="spectrum-FieldLabel" for="guest_license_plate">License plate</label>
+            <input type="text" id="guest_license_plate" name="guest_license_plate" class="spectrum-Textfield-input" required>
+          </div>
+        <% end %>
       </div>
       <p>
         <strong>AM:</strong> Morning Slot (00:00-11:59),<br>
@@ -49,13 +60,13 @@
         </button>
       </div>
       </p>
-      <div id="parking-spot-status" data-user="<%= @user.id %>" data-vehicle="<%= @vehicle.id %>">
+      <div id="parking-spot-status" <%= @user ? "data-user=\"#{@user.id}\" data-vehicle=\"#{@vehicle.id}\"".html_safe : '' %>>
         <%
           today_class = ' today'
           max_reservations_per_week = current_user.admin? ? 99 : ParkitService::RESERVATION_MAX_RESERVATIONS_PER_WEEK
 
           @parking_spots.each do |week, days|
-            num_existing_reservations = Reservation.active_within_business_week(days.first[0], @user).count
+            num_existing_reservations = @user ? Reservation.active_within_business_week(days.first[0], @user).count : 0
         %>
           <div class="week"
                data-weeknumber="<%= week %>"
@@ -104,7 +115,7 @@
                         css_class += ' full-day'
                       end
 
-                      if reservations.where(user_id: @user.id).count > 0
+                      if @user && reservations.where(user_id: @user.id).count > 0
                         css_class += ' self'
                       end
                   %>
@@ -130,7 +141,7 @@
           </section>
         </div>
       </div>
-      <%= form_tag user_vehicle_reservations_path, method: :post, id: 'reservation-form' do |f| %>
+      <%= form_tag(@user ? user_vehicle_reservations_path(@user.id, @vehicle.id) : reservations_path, method: :post, id: 'reservation-form') do |f| %>
         <button
           id="submit-reservations"
           class="spectrum-Button spectrum-Button--fill spectrum-Button--accent spectrum-Button--sizeL">

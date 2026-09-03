@@ -37,7 +37,14 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :reservations
+  resources :reservations do
+    collection do
+      get :new_guest
+    end
+    member do
+      put :cancel
+    end
+  end
   resources :vehicles
 
   # Admin routes for billing management

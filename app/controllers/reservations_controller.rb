@@ -9,7 +9,7 @@ class ReservationsController < AuthorizableController
       respond_to do |format|
         flash[:danger] =
           'Could not reserve. You did not select a parking spot.'
-        format.html { redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id]) }
+        format.html { redirect_to new_reservation_redirect_path }
       end
       return
     end
@@ -19,22 +19,27 @@ class ReservationsController < AuthorizableController
     response_sent = false
 
     params[:reservations].each do |reservation|
-      @reservation = Reservation.new(reservation_params(reservation))
+      @reservation = if reservation[:reservation][:guest_name].present?
+                       GuestReservation.new(guest_reservation_params(reservation))
+                     else
+                       Reservation.new(reservation_params(reservation))
+                     end
       @reservation.current_user = current_user
+      @reservation.created_by = current_user if @reservation.user_id != current_user.id
       authorize @reservation
 
       parking_spot = ParkingSpot.find_by(id: @reservation.parking_spot_id)
 
       if parking_spot.nil?
         flash[:danger] = 'The selected parking spot does not exist anymore.'
-        redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id])
+        redirect_to new_reservation_redirect_path
         response_sent = true
         break
       end
 
       if parking_spot.archived?
         flash[:danger] = 'The selected parking spot is no longer available for reservation.'
-        redirect_to new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id])
+        redirect_to new_reservation_redirect_path
         response_sent = true
         break
       end
@@ -57,10 +62,24 @@ class ReservationsController < AuthorizableController
     end
 
     message = ":car: <#{user_url(current_user.id)}|#{current_user.full_name}> created the following reservations:"
-    reservations.each do |r|
-      message += "\n - #{r.date}, #{r.slot_name} on spot <#{parking_spot_url(r.parking_spot.id)}|#{r.parking_spot.number}> with vehicle <#{vehicle_url(r.vehicle.id)}|#{r.vehicle.license_plate_number}> for <#{user_url(r.user.id)}|#{r.user.full_name}>"
-    end
+    reservations.each { |r| message += slack_message_for_reservation(r) }
     SlackHelper.send_message(message)
+  end
+
+  def new_guest
+    @reservation = GuestReservation.new
+    authorize @reservation
+
+    all_spots = ParkingSpot.status_for_user_next_days(nil, ParkitService::RESERVATION_MAX_WEEKS_INTO_THE_FUTURE * 7)
+    @parking_spots = {}
+    all_spots.each do |week, days|
+      @parking_spots[week] = {}
+      days.each do |date, spots|
+        @parking_spots[week][date] = spots.select { |spot| spot.allowed_vehicle_type == 'car' }
+      end
+    end
+
+    render :new
   end
 
   def index
@@ -120,8 +139,11 @@ class ReservationsController < AuthorizableController
   end
 
   def cancel
-    @user = User.find(params[:user_id])
-    @reservation = @user.reservations.find(params[:reservation_id])
+    @reservation = if params[:user_id].present?
+                     User.find(params[:user_id]).reservations.find(params[:reservation_id])
+                   else
+                     Reservation.find(params[:id])
+                   end
     authorize @reservation
 
     unless @reservation.can_be_cancelled?(current_user)
@@ -143,8 +165,8 @@ class ReservationsController < AuthorizableController
         format.html { redirect_to dashboard_path }
       end
 
-      message = ":trash-can: <#{user_url(current_user.id)}|#{current_user.full_name}> cancelled reservation:
-        \n - #{@reservation.date}, #{@reservation.slot_name} on spot <#{parking_spot_url(@reservation.parking_spot.id)}|#{@reservation.parking_spot.number}> with vehicle <#{vehicle_url(@reservation.vehicle.id)}|#{@reservation.vehicle.license_plate_number}> for <#{user_url(@reservation.user.id)}|#{@reservation.user.full_name}>"
+      message = ":trash-can: <#{user_url(current_user.id)}|#{current_user.full_name}> cancelled reservation:"
+      message += slack_message_for_reservation(@reservation)
       SlackHelper.send_message(message)
     else
       respond_to do |format|
@@ -241,6 +263,36 @@ class ReservationsController < AuthorizableController
       :user_id,
       :parking_spot_id,
       :vehicle_id
+    )
+  end
+
+  def new_reservation_redirect_path
+    if params[:user_id].present?
+      new_user_vehicle_reservation_path(params[:user_id], params[:vehicle_id])
+    else
+      new_guest_reservations_path
+    end
+  end
+
+  def slack_message_for_reservation(reservation)
+    vehicle = reservation.vehicle
+    link = vehicle && "#{vehicle_url(vehicle.id)}|#{vehicle.license_plate_number}"
+    vehicle_text = link ? "<#{link}>" : reservation.guest_license_plate
+    user = reservation.user
+    owner_text = user ? "<#{user_url(user.id)}|#{user.full_name}>" : "guest: #{reservation.owner_name}"
+    spot = reservation.parking_spot
+    "\n - #{reservation.date}, #{reservation.slot_name} on spot <#{parking_spot_url(spot.id)}|#{spot.number}> " \
+      "with vehicle #{vehicle_text} for #{owner_text}"
+  end
+
+  def guest_reservation_params(params)
+    params.require(:reservation).permit(
+      :date,
+      :am,
+      :half_day,
+      :parking_spot_id,
+      :guest_name,
+      :guest_license_plate
     )
   end
 end

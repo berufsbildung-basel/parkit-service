@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_03_15_200816) do
+ActiveRecord::Schema[7.2].define(version: 2026_09_03_075839) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pgcrypto"
@@ -78,8 +78,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_200816) do
 
   create_table "reservations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "parking_spot_id", null: false
-    t.uuid "vehicle_id", null: false
-    t.uuid "user_id", null: false
+    t.uuid "vehicle_id"
+    t.uuid "user_id"
     t.boolean "cancelled", default: false, null: false
     t.date "date", null: false
     t.datetime "start_time", null: false
@@ -91,7 +91,13 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_200816) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.float "price"
+    t.string "type"
+    t.string "guest_name"
+    t.string "guest_license_plate"
+    t.uuid "created_by_id"
+    t.index ["created_by_id"], name: "index_reservations_on_created_by_id"
     t.index ["parking_spot_id"], name: "index_reservations_on_parking_spot_id"
+    t.index ["type"], name: "index_reservations_on_type"
     t.index ["user_id"], name: "index_reservations_on_user_id"
     t.index ["vehicle_id"], name: "index_reservations_on_vehicle_id"
   end
@@ -152,6 +158,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_03_15_200816) do
   add_foreign_key "invoices", "users"
   add_foreign_key "reservations", "parking_spots"
   add_foreign_key "reservations", "users"
+  add_foreign_key "reservations", "users", column: "created_by_id"
   add_foreign_key "reservations", "vehicles"
   add_foreign_key "vehicles", "users"
 end
