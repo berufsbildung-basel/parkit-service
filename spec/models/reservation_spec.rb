@@ -231,5 +231,23 @@ RSpec.describe Reservation, type: :model do
       expect(reservation_full.price).to eq(ParkitService::RESERVATION_PRICE_MOTORCYCLE_FULL_DAY)
       expect(reservation_half.price).to eq(ParkitService::RESERVATION_PRICE_MOTORCYCLE_HALF_DAY)
     end
+
+    it 'requires_registered_owner? is true for a base reservation' do
+      expect(Reservation.new.requires_registered_owner?).to eql(true)
+    end
+
+    it 'owner_name returns the user\'s full name for a base reservation' do
+      reservation = Reservation.new(user: user1)
+      expect(reservation.owner_name).to eql(user1.full_name)
+    end
+
+    it 'can_be_cancelled? allows facilities staff to cancel a started reservation' do
+      facilities_user = User.create!(username: Faker::Internet.username, email: Faker::Internet.email,
+                                      first_name: Faker::Name.first_name, last_name: Faker::Name.last_name,
+                                      role: :facilities)
+      reservation = Reservation.create!(parking_spot:, vehicle: car1, user: user1, date: Date.today)
+
+      expect(reservation.can_be_cancelled?(facilities_user)).to eql(true)
+    end
   end
 end
