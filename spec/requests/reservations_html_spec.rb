@@ -130,6 +130,22 @@ RSpec.describe 'ReservationsController (HTML)', type: :request do
     end
   end
 
+  describe 'GET /reservations (index renders guest rows)' do
+    let!(:guest_reservation) do
+      GuestReservation.create!(parking_spot:, date: Date.today, guest_name: 'Jane Guest', guest_license_plate: 'ZH 9999')
+    end
+
+    it 'renders the index without raising, showing the guest name and plate' do
+      sign_in facilities_user
+
+      get reservations_path
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include('Jane Guest')
+      expect(response.body).to include('ZH 9999')
+    end
+  end
+
   describe 'PUT /users/:user_id/reservations/:reservation_id/cancel (regression)' do
     let!(:member_reservation) do
       # Future date: can_be_cancelled? denies same-day cancellation to non-privileged users once
