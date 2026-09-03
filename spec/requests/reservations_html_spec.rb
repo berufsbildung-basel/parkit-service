@@ -144,6 +144,20 @@ RSpec.describe 'ReservationsController (HTML)', type: :request do
       expect(response.body).to include('Jane Guest')
       expect(response.body).to include('ZH 9999')
     end
+
+    it 'renders the Status Today grid without raising, showing the guest name and plate' do
+      admin = User.create!(username: 'admin-user', email: 'admin@example.com', first_name: 'Admin',
+                            last_name: 'User', role: :admin)
+      sign_in admin
+
+      get reservations_path
+
+      expect(response).to have_http_status(:success)
+
+      status_today_section = Nokogiri::HTML::Document.parse(response.body).at_css('header#status-today').ancestors('section').first
+      expect(status_today_section.text).to include('Jane Guest')
+      expect(status_today_section.text).to include('ZH 9999')
+    end
   end
 
   describe 'PUT /users/:user_id/reservations/:reservation_id/cancel (regression)' do
