@@ -163,6 +163,10 @@ RSpec.describe Reservation, type: :model do
         created_at
         updated_at
         price
+        type
+        guest_name
+        guest_license_plate
+        created_by_id
       ]
 
       actual_attributes = reservation.attributes.map { |attribute| attribute[0] }
