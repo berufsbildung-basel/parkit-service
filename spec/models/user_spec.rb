@@ -94,6 +94,32 @@ RSpec.describe User, type: :model do
       expect(user.led_matrix?).to eql(false)
     end
 
+    it 'successfully assigns the facilities role' do
+      user = User.create!({
+                            username: Faker::Internet.username,
+                            email: Faker::Internet.email,
+                            first_name: Faker::Name.first_name,
+                            last_name: Faker::Name.last_name
+                          })
+
+      user.role = 'facilities'
+      expect(user.facilities?).to eql(true)
+      expect(user.admin?).to eql(false)
+    end
+
+    it 'reports can_manage_reservations? correctly per role' do
+      admin = User.create!(username: Faker::Internet.username, email: Faker::Internet.email,
+                            first_name: Faker::Name.first_name, last_name: Faker::Name.last_name, role: :admin)
+      facilities = User.create!(username: Faker::Internet.username, email: Faker::Internet.email,
+                                 first_name: Faker::Name.first_name, last_name: Faker::Name.last_name, role: :facilities)
+      regular = User.create!(username: Faker::Internet.username, email: Faker::Internet.email,
+                              first_name: Faker::Name.first_name, last_name: Faker::Name.last_name)
+
+      expect(admin.can_manage_reservations?).to eql(true)
+      expect(facilities.can_manage_reservations?).to eql(true)
+      expect(regular.can_manage_reservations?).to eql(false)
+    end
+
     it 'properly creates user with expected attributes' do
       expected_attributes = %w[
         id
