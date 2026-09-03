@@ -9,6 +9,16 @@
           Dashboard
         </a>
       </li>
+      <% if current_user.can_manage_reservations? %>
+        <li class="spectrum-SideNav-item">
+          <a class="spectrum-SideNav-itemLink js-fastLoad" href="<%= new_guest_reservations_path %>">
+            <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">
+              <use xlink:href="#spectrum-icon-18-Calendar"/>
+            </svg>
+            New guest reservation
+          </a>
+        </li>
+      <% end %>
       <li class="spectrum-SideNav-item">
         <a class="spectrum-SideNav-itemLink js-fastLoad" href="<%= profile_path %>">
           <svg class="spectrum-Icon spectrum-Icon--sizeM spectrum-SideNav-itemIcon" focusable="false" aria-hidden="true">

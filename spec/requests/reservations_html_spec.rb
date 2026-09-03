@@ -174,4 +174,29 @@ RSpec.describe 'ReservationsController (HTML)', type: :request do
       expect(member_reservation.reload.cancelled?).to eql(true)
     end
   end
+
+  describe 'navigation' do
+    it 'shows the New guest reservation link to facilities' do
+      sign_in facilities_user
+      get dashboard_path
+
+      expect(response.body).to include('New guest reservation')
+    end
+
+    it 'shows the New guest reservation link to admin' do
+      admin = User.create!(username: 'admin-user', email: 'admin@example.com', first_name: 'Admin',
+                            last_name: 'User', role: :admin)
+      sign_in admin
+      get dashboard_path
+
+      expect(response.body).to include('New guest reservation')
+    end
+
+    it 'hides the New guest reservation link from a regular user' do
+      sign_in regular_user
+      get dashboard_path
+
+      expect(response.body).not_to include('New guest reservation')
+    end
+  end
 end
