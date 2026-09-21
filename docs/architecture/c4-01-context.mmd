@@ -1,0 +1,37 @@
+---
+config:
+  layout: elk
+  theme: base
+  themeVariables:
+    fontSize: 15px
+    lineColor: '#4b5563'
+    primaryTextColor: '#111111'
+    clusterBkg: '#f1f5f9'
+    clusterBorder: '#94a3b8'
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: NETWORK_SIMPLEX
+---
+graph TB
+  classDef person fill:#0b3d61,stroke:#062033,color:#ffffff,stroke-width:2px
+  classDef system fill:#1168bd,stroke:#0b3d61,color:#ffffff,stroke-width:3px
+  classDef ext fill:#5c6670,stroke:#2b3036,color:#ffffff,stroke-width:2px
+
+  emp["Employee / Apprentice<br/><i>[Person]</i><br/>Books &amp; cancels parking,<br/>views own billing"]:::person
+  adm["Facilities / Admin Staff<br/><i>[Person]</i><br/>Manages spots &amp; users,<br/>runs monthly billing"]:::person
+  led["LED Matrix Display<br/><i>[Software System]</i><br/>Live availability board"]:::ext
+
+  parkit["<b>Parkit</b><br/><i>[Software System]</i><br/>Parking reservation &amp; billing<br/>for the Adobe Basel apprentice site"]:::system
+
+  okta["Okta<br/><i>[External System]</i><br/>Identity provider - SSO"]:::ext
+  cashctrl["CashCtrl<br/><i>[External System]</i><br/>Accounting &amp; invoicing SaaS"]:::ext
+  slack["Slack<br/><i>[External System]</i><br/>Team notifications"]:::ext
+
+  emp -->|"books parking (HTTPS)"| parkit
+  adm -->|"administers &amp; bills (HTTPS)"| parkit
+  led -->|"polls availability (JSON/HTTPS)"| parkit
+
+  parkit -->|"authenticates users (OIDC)"| okta
+  parkit -->|"creates persons, invoices,<br/>PDFs (HTTPS REST)"| cashctrl
+  parkit -->|"posts notifications (HTTPS)"| slack
+  cashctrl -.->|"emails invoices"| emp

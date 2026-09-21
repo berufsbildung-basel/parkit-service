@@ -1,0 +1,78 @@
+---
+config:
+  layout: elk
+  theme: base
+  themeVariables:
+    fontSize: 14px
+    lineColor: '#4b5563'
+    primaryTextColor: '#111111'
+    clusterBkg: '#eef2f7'
+    clusterBorder: '#64748b'
+  elk:
+    mergeEdges: true
+    nodePlacementStrategy: NETWORK_SIMPLEX
+---
+graph TB
+  classDef person fill:#0b3d61,stroke:#062033,color:#ffffff,stroke-width:2px
+  classDef ctl fill:#2a6fb0,stroke:#0b3d61,color:#ffffff,stroke-width:2px
+  classDef authz fill:#7c3aed,stroke:#3b0764,color:#ffffff,stroke-width:2px
+  classDef svc fill:#0d9488,stroke:#053b35,color:#ffffff,stroke-width:2px
+  classDef model fill:#b45309,stroke:#451a03,color:#ffffff,stroke-width:2px
+  classDef store fill:#d97706,stroke:#451a03,color:#ffffff,stroke-width:2px
+  classDef ext fill:#5c6670,stroke:#2b3036,color:#ffffff,stroke-width:2px
+
+  browser["Web Browser<br/><i>[Client]</i><br/>ERB + Hotwire + Spectrum CSS"]:::person
+  led["LED Matrix Display<br/><i>[Software System]</i>"]:::ext
+  sched["Scheduled Tasks<br/><i>[Rake - one-off dyno]</i>"]:::ext
+
+  subgraph boundary["Web Application - Rails 7.2 / Puma"]
+    subgraph sgCtl["Presentation - Controllers"]
+      direction LR
+      auth["Auth<br/>Devise Sessions +<br/>Okta OmniAuth callback"]:::ctl
+      webctl["Web Controllers<br/>Dashboard, Reservations<br/>(booking + stats), ParkingSpots,<br/>Users, Profile, Vehicles, Billing"]:::ctl
+      admctl["Admin Controllers<br/>Billing, Invoices,<br/>BillingPeriods"]:::ctl
+      apictl["API v1 Controllers<br/>parking_spots, reservations,<br/>users, vehicles (JSON)"]:::ctl
+    end
+    pundit["Pundit Policies<br/><i>[Authorization]</i><br/>per-resource access control"]:::authz
+    subgraph sgSvc["Service Layer"]
+      direction LR
+      billrun["BillingRunner<br/>orchestrates monthly billing"]:::svc
+      builder["InvoiceLineItemBuilder<br/>pricing - 8 CashCtrl Artikel"]:::svc
+      ccclient["CashctrlClient<br/>Net::HTTP REST client"]:::svc
+      slackh["SlackHelper<br/>chat_postMessage"]:::svc
+      syncjob["InvoiceStatusSyncJob<br/>polls invoice status"]:::svc
+    end
+    models["Domain Models - ActiveRecord<br/>User, Reservation / GuestReservation (STI),<br/>ParkingSpot, Vehicle, Invoice,<br/>InvoiceLineItem, BillingPeriod"]:::model
+  end
+
+  db[("PostgreSQL<br/><i>[Heroku Postgres]</i>")]:::store
+  okta["Okta<br/><i>[External]</i>"]:::ext
+  cashctrl["CashCtrl<br/><i>[External]</i>"]:::ext
+  slack["Slack<br/><i>[External]</i>"]:::ext
+
+  browser -->|"login"| auth
+  browser -->|"HTML requests"| webctl
+  browser -->|"admin / billing"| admctl
+  led -->|"JSON"| apictl
+  sched -->|"perform_now"| billrun
+  sched -->|"perform_now"| syncjob
+
+  auth -->|"OIDC"| okta
+  webctl -->|"authorize"| pundit
+  admctl -->|"authorize"| pundit
+  apictl -->|"authorize"| pundit
+
+  webctl -->|"CRUD"| models
+  admctl -->|"CRUD"| models
+  apictl -->|"CRUD"| models
+  webctl -.->|"notify"| slackh
+  admctl -->|"run billing"| billrun
+
+  billrun -->|"prices"| builder
+  billrun -->|"invoices"| ccclient
+  billrun -->|"persists"| models
+  syncjob -->|"reads status"| ccclient
+
+  ccclient -->|"HTTPS REST"| cashctrl
+  slackh -->|"HTTPS"| slack
+  models -->|"SQL"| db
