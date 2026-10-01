@@ -1,9 +1,10 @@
-**P.A.R.K.I.T General**
+## P.A.R.K.I.T overview
 
 The app is designed for reserving parking spaces in office parking lots. It's designed for company employees and guests.
 
-**Parking space**
-**8** parking spaces in total(42, 45-51)
+**Parking spaces**
+
+There are **8** parking spaces in total (42 and 45-51).
 
 --- 
 
@@ -19,7 +20,6 @@ The project documentation is currently spread across several repositories and re
 
 **Repositories**
 - [parkit-spec repo](https://github.com/berufsbildung-basel/parkit-spec) Project P.A.R.K.I.T Specification & API 
-- [parkit-frontend-boilerplate](https://github.com/berufsbildung-basel/parkit-frontend-boilerplate) Frontend  
 - [parkit-service](https://github.com/berufsbildung-basel/parkit-service) Main project repository containing the core business logic, implementation, and technical documentation. 
   
 **Wiki Page** -  **Infrastructure Technology**
@@ -30,10 +30,3 @@ The project documentation is currently spread across several repositories and re
 
 **Research & Working Notes**
 - [Management Repository](https://github.com/berufsbildung-basel/parkit-management) — contains ongoing research, ideas, risks, open questions, and intermediate decisions related to the project.
-
----
-
-## Contacts / Slack channels
-- [Development Team](https://adobe.enterprise.slack.com/archives/C0BC97M6K51)
-- [Support channel](https://adobe.enterprise.slack.com/archives/C04RF8TK1AT)
-
