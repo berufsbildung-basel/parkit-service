@@ -150,6 +150,12 @@ class CashctrlClient
     get('/order/read.json', { id: invoice_id.to_s })
   end
 
+  # Entries are GENERATED (booked from the items) or MANUAL (payments, fees).
+  def list_invoice_book_entries(invoice_id)
+    result = get('/order/bookentry/list.json', { id: invoice_id.to_s })
+    result['data'] || []
+  end
+
   def delete_invoices(invoice_ids)
     return if invoice_ids.empty?
 

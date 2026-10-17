@@ -134,13 +134,46 @@ RSpec.describe CashctrlClient do
                                                                        })
     end
 
-    it 'fetches invoice details' do
+    it 'returns the response envelope with the order under data' do
       stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/read.json')
-        .with(query: { id: '789' })
-        .to_return(status: 200, body: '{"id": 789, "statusId": 16}')
+        .with(query: { id: '1001' })
+        .to_return(status: 200, body: file_fixture('cashctrl/order_read.json').read)
 
-      result = client.get_invoice(789)
-      expect(result['statusId']).to eq(16)
+      result = client.get_invoice(1001)
+      expect(result['success']).to be(true)
+      expect(result['data']).to include('id' => 1001, 'statusId' => 3, 'dateLastBooked' => '2025-02-14 00:00:00.0')
+    end
+  end
+
+  describe '#list_invoice_book_entries' do
+    before do
+      allow(Rails.application.config).to receive(:cashctrl).and_return({
+                                                                         org: 'test-org',
+                                                                         api_key: 'test-key'
+                                                                       })
+    end
+
+    it 'returns the book entries of the order' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/bookentry/list.json')
+        .with(basic_auth: ['test-key', ''], query: { id: '1001' })
+        .to_return(status: 200, body: file_fixture('cashctrl/order_bookentry_list.json').read)
+
+      entries = client.list_invoice_book_entries(1001)
+      expected = [
+        [9001, 'GENERATED', '2025-02-01 00:00:00.0'],
+        [9002, 'MANUAL', '2025-02-10 00:00:00.0'],
+        [9004, 'MANUAL', '2025-02-14 00:00:00.0'],
+        [9003, 'MANUAL', '2025-02-12 00:00:00.0']
+      ]
+      expect(entries.map { |e| [e['id'], e['type'], e['date']] }).to eq(expected)
+    end
+
+    it 'returns an empty list when the order has no book entries' do
+      stub_request(:get, 'https://test-org.cashctrl.com/api/v1/order/bookentry/list.json')
+        .with(query: { id: '1001' })
+        .to_return(status: 200, body: '{"total": 0, "data": []}')
+
+      expect(client.list_invoice_book_entries(1001)).to eq([])
     end
   end
 
