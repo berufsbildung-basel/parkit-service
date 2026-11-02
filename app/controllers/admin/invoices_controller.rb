@@ -45,13 +45,22 @@ module Admin
     end
 
     def refresh_status
-      sync_invoice_status(@invoice)
+      InvoiceStatusSync.new.call(@invoice)
       redirect_to admin_invoices_path, notice: 'Status refreshed'
+    rescue StandardError => e
+      Rails.logger.error("Failed to sync invoice #{@invoice.id}: #{e.message}")
+      redirect_to admin_invoices_path, alert: "Status refresh failed for invoice ##{@invoice.id}: #{e.message}"
     end
 
     def refresh_all
-      Invoice.open.find_each { |invoice| sync_invoice_status(invoice) }
-      redirect_to admin_invoices_path, notice: 'All statuses refreshed'
+      failed = sync_open_invoices
+
+      if failed.empty?
+        redirect_to admin_invoices_path, notice: 'All statuses refreshed'
+      else
+        ids = failed.map { |invoice| "##{invoice.id}" }.join(', ')
+        redirect_to admin_invoices_path, alert: "Status refresh failed for invoices #{ids} (see logs)"
+      end
     end
 
     def reset
@@ -79,20 +88,17 @@ module Admin
       @invoice = Invoice.find(params[:id])
     end
 
-    def sync_invoice_status(invoice)
-      return unless invoice.cashctrl_invoice_id
-
-      client = CashctrlClient.new
-      data = client.get_invoice(invoice.cashctrl_invoice_id)
-
-      status_map = CashctrlClient.status_ids.invert
-      new_status = status_map.fetch(data['statusId'], invoice.status)
-
-      invoice.update!(
-        status: new_status,
-        cashctrl_status: data['statusId'].to_s,
-        paid_at: new_status == :paid ? Time.current : invoice.paid_at
-      )
+    # Returns the invoices that failed to sync; one failure must not stop the rest.
+    def sync_open_invoices
+      sync = InvoiceStatusSync.new
+      failed = []
+      Invoice.open.find_each do |invoice|
+        sync.call(invoice)
+      rescue StandardError => e
+        Rails.logger.error("Failed to sync invoice #{invoice.id}: #{e.message}")
+        failed << invoice
+      end
+      failed
     end
   end
 end
