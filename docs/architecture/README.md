@@ -47,7 +47,7 @@ Inside the web app: a controller tier (HTML web controllers, admin billing back-
 | Aspect | Value |
 |--------|-------|
 | Platform | Heroku, app `parkit-bsl`, single `web` dyno |
-| Runtime | Ruby 3.4.8, Rails 7.2.3, Puma (`WEB_CONCURRENCY` x `RAILS_MAX_THREADS`), `preload_app!` |
+| Runtime | Ruby 3.4.13, Rails 7.2.3, Puma (`WEB_CONCURRENCY` x `RAILS_MAX_THREADS`), `preload_app!` |
 | Process model | `web` only (`Procfile`); no `worker`, no `release` phase |
 | Background jobs | Active Job `:async` (in-process); only `InvoiceStatusSyncJob`, invoked via `perform_now` |
 | CI/CD | GitHub Actions: rspec on PR/push; on `main`, git-push to Heroku + Platform API `db:migrate` + restart |
